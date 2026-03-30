@@ -7,6 +7,30 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <DockPanel LastChildFill="True">
+            <Border Background="#EEE" DockPanel.Dock="Top" Height="50">
+                <Grid>
+                    <StackPanel x:Name="LoginPanel" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0">
+                        <TextBox x:Name="UsernameBox" Width="120" Margin="0,0,5,0" VerticalAlignment="Center" />
+                        <PasswordBox x:Name="PasswordBox" Width="120" Margin="0,0,5,0" VerticalAlignment="Center" />
+                        <Button Content="Login" Click="Login_Click" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <StackPanel x:Name="TaskPanel" Margin="20" Orientation="Vertical" HorizontalAlignment="Left" Width="300" >
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <Label Content="Title:" VerticalAlignment="Center" Width="80"/>
+                    <TextBox x:Name="TaskTitleBox" Width="200" Margin="0,0,0,0" VerticalAlignment="Center" MaxLength="100" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Content="Description:" VerticalAlignment="Center" Width="80"/>
+                    <TextBox x:Name="TaskDescBox" Width="200" Height="60" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxLength="500" />
+                </StackPanel>
+                
+                <Button Content="Create Task" Click="CreateTask_Click" Width="100" Height="30" Margin="0,0,0,10" HorizontalAlignment="Left"/>
+                <ListBox x:Name="TaskList" Height="200" Width="280" />
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

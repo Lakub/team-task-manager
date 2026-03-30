@@ -1,40 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using TeamTaskManager.Models.Enums;
 
-namespace TeamTaskManager.Models
+namespace TeamTaskManager.Models.Entities
 {
-    class Task
+    public class Task
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public TaskType Type { get; set; } = TaskType.Feature;
-        public TaskStatus Status { get; set; } = TaskStatus.Open;
+        public Enums.TaskStatus Status { get; set; } = Enums.TaskStatus.Open;
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // zgloszone przez
         public int ReporterId { get; set; }
-        public User Reporter { get; set; }
+        public virtual required User Reporter { get; set; }
 
         // zlecony do
         public int? AssigneeId { get; set; }
-        public User Assignee { get; set; }
+        public virtual User? Assignee { get; set; }
 
         // hierarchia taskow
-        public Task? ParentTask { get; set; }
+        public int? ParentTaskId { get; set; }
+        public virtual Task? ParentTask { get; set; }
         public virtual ICollection<Task> SubTasks { get; set; } = new List<Task>();
 
         // sprint
         public int? SprintId { get; set; }
-        public virtual Sprint Sprint { get; set; }
+        public virtual Sprint? Sprint { get; set; }
 
         // projekt
         public int ProjectId { get; set; }
-        public virtual Project Project { get; set; }
+        public virtual required Project Project { get; set; }
+
+        // worklogi
+        public virtual ICollection<Worklog> Worklogs { get; set; } = new List<Worklog>();
 
         // komentarze
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
@@ -44,27 +45,8 @@ namespace TeamTaskManager.Models
 
         public override string ToString()
         {
-            return $"{Title}, {Description}, {Reporter.FullName}, {Type}, {Status}, {Priority}";
+            return $"{Title}, {Description}, {Reporter?.FullName}, {Type}, {Status}, {Priority}";
         }
     }
 }
 
-enum TaskType
-{
-    Bug,
-    Feature
-}
-
-enum TaskStatus
-{
-    Open,
-    InProgress,
-    Closed
-}
-
-enum TaskPriority
-{
-    Low,
-    Medium,
-    High
-}

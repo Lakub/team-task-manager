@@ -1,3 +1,5 @@
 bin/
 obj/
 .vs/
+/TeamTaskManager/app.db
+/UML/.$uml.drawio.bkp

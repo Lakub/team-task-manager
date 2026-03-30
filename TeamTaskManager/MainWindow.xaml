@@ -4,8 +4,31 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TeamTaskManager"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:models="clr-namespace:TeamTaskManager.Models.Enums"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+
+    <Window.Resources>
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskStatusValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:TaskStatus"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskPriorityValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:TaskPriority"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskTypeValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:TaskType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    
     <Grid>
         <DockPanel LastChildFill="True">
             <Border Background="#EEE" DockPanel.Dock="Top" Height="50">
@@ -29,7 +52,27 @@
                 </StackPanel>
                 
                 <Button Content="Create Task" Click="CreateTask_Click" Width="100" Height="30" Margin="0,0,0,10" HorizontalAlignment="Left"/>
-                <ListBox x:Name="TaskList" Height="200" Width="280" />
+                <DataGrid x:Name="TaskList" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
+                        <DataGridTextColumn Header="Description" Binding="{Binding Description}" />
+                        <DataGridTextColumn Header="Reporter" Binding="{Binding Reporter.FullName}" />
+                        <DataGridTextColumn Header="Assignee" Binding="{Binding Assignee.FullName}" />
+                        <DataGridTextColumn Header="Parent Task" Binding="{Binding ParentTask.Title}" />
+                        <DataGridComboBoxColumn Header="Status"
+                                        SelectedItemBinding="{Binding Status, Mode=TwoWay}"
+                                        ItemsSource="{Binding Source={StaticResource TaskStatusValues}}"/>
+                        <DataGridComboBoxColumn Header="Priority"
+                                        SelectedItemBinding="{Binding Priority, Mode=TwoWay}"
+                                        ItemsSource="{Binding Source={StaticResource TaskPriorityValues}}"/>
+                        <DataGridComboBoxColumn Header="Type"
+                                        SelectedItemBinding="{Binding Type, Mode=TwoWay}"
+                                        ItemsSource="{Binding Source={StaticResource TaskTypeValues}}"/>
+                        <DataGridTextColumn Header="Project" Binding="{Binding Project.Name}" />
+                        <DataGridTextColumn Header="Sprint" Binding="{Binding Sprint.Name}" />
+                        <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt}" />
+                    </DataGrid.Columns>
+                </DataGrid>
             </StackPanel>
         </DockPanel>
     </Grid>

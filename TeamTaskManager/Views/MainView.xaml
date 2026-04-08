@@ -52,7 +52,7 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
                 <TextBlock Text="Użytkownik" Foreground="#1F2937"
-                        FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
+                            FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
 
@@ -63,7 +63,18 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Margin="0 0 0 8">
-                <Button Content="Aktualny Sprint" Style="{StaticResource NavButton}" Margin="0 0 0 6"/>
+                <Border Background="White" CornerRadius="8" Padding="10 8" Margin="0 0 0 6">
+                    <StackPanel>
+                        <TextBlock Text="Projekt" Foreground="#9CA3AF" FontSize="10" FontFamily="Segoe UI" Margin="0 0 0 4"/>
+                        <ComboBox Background="White" Foreground="#1F2937"
+                                BorderBrush="#D1D5DB" BorderThickness="1"
+                                FontFamily="Segoe UI" FontSize="13" Height="30">
+                            <ComboBoxItem Content="TeamTaskManager" IsSelected="True"/>
+                            <ComboBoxItem Content="Projekt B"/>
+                            <ComboBoxItem Content="Projekt C"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
                 <Button Content="Archiwalne Sprinty" Style="{StaticResource NavButton}" Margin="0 0 0 6"/>
                 <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}" Margin="0 0 0 6"/>
                 <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}" Margin="0 0 0 6"/>
@@ -90,6 +101,8 @@
 
             <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="10" Margin="0 0 8 0">
                 <StackPanel>
+                    <TextBlock Text="To Do" Foreground="#4B5563" FontFamily="Segoe UI"
+                            FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
                     <Border Background="#F3F4F6" CornerRadius="8" Padding="10 8" Margin="0 0 0 6">
                         <StackPanel Orientation="Horizontal">
                             <Ellipse Width="22" Height="22" Fill="#D1D5DB" Margin="0 0 8 0"/>
@@ -119,6 +132,8 @@
 
             <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="10" Margin="0 0 8 0">
                 <StackPanel>
+                    <TextBlock Text="W trakcie" Foreground="#4B5563" FontFamily="Segoe UI"
+                            FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
                     <Border Background="#F3F4F6" CornerRadius="8" Padding="10 8" Margin="0 0 0 6">
                         <StackPanel Orientation="Horizontal">
                             <Ellipse Width="22" Height="22" Fill="#D1D5DB" Margin="0 0 8 0"/>
@@ -142,6 +157,8 @@
 
             <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="10">
                 <StackPanel>
+                    <TextBlock Text="Zrobione" Foreground="#4B5563" FontFamily="Segoe UI"
+                            FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
                     <Border Background="#F3F4F6" CornerRadius="8" Padding="10 8" Margin="0 0 0 6">
                         <StackPanel Orientation="Horizontal">
                             <Ellipse Width="22" Height="22" Fill="#D1D5DB" Margin="0 0 8 0"/>

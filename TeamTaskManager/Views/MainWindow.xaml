@@ -30,6 +30,10 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="TempNavButton" TargetType="Button" BasedOn="{StaticResource NavButton}">
+            <Setter Property="Background" Value="#ffcccc"/>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="12">
@@ -54,13 +58,25 @@
             </Border>
 
             <StackPanel Grid.Row="1">
+                <Border Background="White" CornerRadius="8" Padding="10 8" Margin="0 0 0 6">
+                    <StackPanel>
+                        <TextBlock Text="Projekt" Foreground="#9CA3AF" FontSize="10" FontFamily="Segoe UI" Margin="0 0 0 4"/>
+                        <ComboBox Background="White" Foreground="#1F2937"
+                                BorderBrush="#D1D5DB" BorderThickness="1"
+                                FontFamily="Segoe UI" FontSize="13" Height="30">
+                            <ComboBoxItem Content="TeamTaskManager" IsSelected="True"/>
+                            <ComboBoxItem Content="Projekt B"/>
+                            <ComboBoxItem Content="Projekt C"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
                 <Button Content="Aktualny Sprint" Style="{StaticResource NavButton}"/>
                 <Button Content="Archiwalne Sprinty" Style="{StaticResource NavButton}"/>
                 <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}"/>
                 <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}"/>
                 <Button Content="sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintRaportCommand}"/>
-                <Button Content="seeduj db" Style="{StaticResource NavButton}" Command="{Binding SeedDbCommand}"/>
-                <Button Content="reset db" Style="{StaticResource NavButton}" Command="{Binding ClearDbCommand}"/>
+                <Button Content="TEMP seeduj db" Style="{StaticResource TempNavButton}" Command="{Binding SeedDbCommand}"/>
+                <Button Content="TEMP reset db" Style="{StaticResource TempNavButton}" Command="{Binding ClearDbCommand}"/>
             </StackPanel>
         </Grid>
 

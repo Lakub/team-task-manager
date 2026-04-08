@@ -1,4 +1,5 @@
 ﻿using TeamTaskManager.Models.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TeamTaskManager.Models.Entities
 {
@@ -13,6 +14,12 @@ namespace TeamTaskManager.Models.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public bool IsDeleted { get; set; } = false;
+
+        [NotMapped]
+        public string LastCommentText { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string TotalTimeText { get; set; } = "0m";
 
         // zgloszone przez
         public int ReporterId { get; set; }
@@ -55,4 +62,3 @@ namespace TeamTaskManager.Models.Entities
         }
     }
 }
-

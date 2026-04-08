@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:TeamTaskManager"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
-         
+        <SolidColorBrush x:Key="DefaultButtonBackground" Color="#4B5563"/>
     </Application.Resources>
 </Application>

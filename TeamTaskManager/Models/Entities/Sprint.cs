@@ -10,6 +10,7 @@ namespace TeamTaskManager.Models.Entities
         public DateTime EndDate { get; set; } = DateTime.UtcNow.AddDays(14);
         public SprintStatus Status { get; set; } = SprintStatus.Planned;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsDeleted { get; set; } = false;
 
         // utworzony przez
         public int CreatorId { get; set; }
@@ -21,5 +22,8 @@ namespace TeamTaskManager.Models.Entities
 
         // taski
         public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
+
+        // sprint taski
+        public virtual ICollection<SprintTask> SprintTasks { get; set; } = new List<SprintTask>();
     }
 }

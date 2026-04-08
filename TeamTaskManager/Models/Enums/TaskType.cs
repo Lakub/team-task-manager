@@ -3,6 +3,7 @@
     public enum TaskType
     {
         Bug,
-        Feature
+        Feature,
+        Task
     }
 }

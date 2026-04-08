@@ -1,79 +1,90 @@
-﻿<Window x:Class="TeamTaskManager.MainWindow"
+﻿<Window x:Class="TeamTaskManager.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TeamTaskManager"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        xmlns:models="clr-namespace:TeamTaskManager.Models.Enums"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Okno główne" Height="600" Width="960"
+        WindowStartupLocation="CenterScreen"
+        Background="#F3F4F6">
 
     <Window.Resources>
-        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskStatusValues">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="models:TaskStatus"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-
-        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskPriorityValues">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="models:TaskPriority"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-
-        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskTypeValues">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="models:TaskType"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0 0 0 6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#E5E7EB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
-    
-    <Grid>
-        <DockPanel LastChildFill="True">
-            <Border Background="#EEE" DockPanel.Dock="Top" Height="50">
-                <Grid>
-                    <StackPanel x:Name="LoginPanel" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0">
-                        <TextBox x:Name="UsernameBox" Width="120" Margin="0,0,5,0" VerticalAlignment="Center" />
-                        <PasswordBox x:Name="PasswordBox" Width="120" Margin="0,0,5,0" VerticalAlignment="Center" />
-                        <Button Content="Login" Click="Login_Click" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
+
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="White" CornerRadius="8"
+                    Padding="12 0" Margin="0 0 8 8">
+                <TextBlock Text="Sprint X, od: do"
+                           Foreground="#6B7280"
+                           FontFamily="Segoe UI"
+                           FontSize="13"
+                           VerticalAlignment="Center"/>
             </Border>
-            
-            <StackPanel x:Name="TaskPanel" Margin="20" Orientation="Vertical" HorizontalAlignment="Left" Width="300" >
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                    <Label Content="Title:" VerticalAlignment="Center" Width="80"/>
-                    <TextBox x:Name="TaskTitleBox" Width="200" Margin="0,0,0,0" VerticalAlignment="Center" MaxLength="100" />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Content="Description:" VerticalAlignment="Center" Width="80"/>
-                    <TextBox x:Name="TaskDescBox" Width="200" Height="60" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxLength="500" />
-                </StackPanel>
-                
-                <Button Content="Create Task" Click="CreateTask_Click" Width="100" Height="30" Margin="0,0,0,10" HorizontalAlignment="Left"/>
-                <DataGrid x:Name="TaskList" AutoGenerateColumns="False">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
-                        <DataGridTextColumn Header="Description" Binding="{Binding Description}" />
-                        <DataGridTextColumn Header="Reporter" Binding="{Binding Reporter.FullName}" />
-                        <DataGridTextColumn Header="Assignee" Binding="{Binding Assignee.FullName}" />
-                        <DataGridTextColumn Header="Parent Task" Binding="{Binding ParentTask.Title}" />
-                        <DataGridComboBoxColumn Header="Status"
-                                        SelectedItemBinding="{Binding Status, Mode=TwoWay}"
-                                        ItemsSource="{Binding Source={StaticResource TaskStatusValues}}"/>
-                        <DataGridComboBoxColumn Header="Priority"
-                                        SelectedItemBinding="{Binding Priority, Mode=TwoWay}"
-                                        ItemsSource="{Binding Source={StaticResource TaskPriorityValues}}"/>
-                        <DataGridComboBoxColumn Header="Type"
-                                        SelectedItemBinding="{Binding Type, Mode=TwoWay}"
-                                        ItemsSource="{Binding Source={StaticResource TaskTypeValues}}"/>
-                        <DataGridTextColumn Header="Project" Binding="{Binding Project.Name}" />
-                        <DataGridTextColumn Header="Sprint" Binding="{Binding Sprint.Name}" />
-                        <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt}" />
-                    </DataGrid.Columns>
-                </DataGrid>
+
+            <StackPanel Grid.Row="1">
+                <Button Content="Aktualny Sprint" Style="{StaticResource NavButton}"/>
+                <Button Content="Archiwalne Sprinty" Style="{StaticResource NavButton}"/>
+                <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}"/>
+                <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}"/>
+                <Button Content="sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintRaportCommand}"/>
+                <Button Content="seeduj db" Style="{StaticResource NavButton}" Command="{Binding SeedDbCommand}"/>
+                <Button Content="reset db" Style="{StaticResource NavButton}" Command="{Binding ClearDbCommand}"/>
             </StackPanel>
-        </DockPanel>
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="#D1D5DB" CornerRadius="8"
+                    Padding="12 0" HorizontalAlignment="Right" Width="160" Margin="0 0 0 8">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
+                    <TextBlock Text="Użytkownik"
+                               Foreground="#1F2937"
+                               FontFamily="Segoe UI"
+                               FontSize="13"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <ContentControl x:Name="MainContent"
+                            Grid.Row="1"
+                            Content="{Binding CurrentView}"/>
+        </Grid>
     </Grid>
 </Window>

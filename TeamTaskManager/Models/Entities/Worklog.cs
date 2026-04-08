@@ -9,6 +9,7 @@ namespace TeamTaskManager.Models.Entities
         public DateTime StartTime { get; set; } = DateTime.UtcNow;
         public TimeSpan TimeSpent { get; set; } = TimeSpan.Zero;
         public DateTime LoggedAt { get; set; } = DateTime.UtcNow;
+        public bool IsDeleted { get; set; } = false;
 
         // task
         public int TaskId { get; set; }

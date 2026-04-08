@@ -1,33 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using TeamTaskManager.Helpers;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
 
 namespace TeamTaskManager
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        private ObservableCollection<TeamTaskManager.Models.Entities.Task> tasks { get; } = new();
+        private User joe;
+        private Project proj1;
+
         public MainWindow()
         {
             InitializeComponent();
 
             using var context = new AppDbContext();
-            //SeedData.Clear(context);
             SeedData.Seed(context);
 
             var dbTasks = context.Tasks
@@ -36,10 +26,17 @@ namespace TeamTaskManager
                 .Include(t => t.Project)
                 .Include(t => t.Sprint)
                 .Include(t => t.ParentTask)
+                .Include(t => t.Comments)
+                .ThenInclude(c => c.Commenter)
                 .ToList();
 
             foreach (var t in dbTasks)
+            {
+                t.LastCommentText = t.Comments
+                    .OrderByDescending(c => c.CreatedAt)
+                    .FirstOrDefault()?.Text ?? string.Empty;
                 tasks.Add(t);
+            }
 
             TaskList.ItemsSource = tasks;
 
@@ -47,23 +44,17 @@ namespace TeamTaskManager
             proj1 = context.Projects.FirstOrDefault(p => p.Name == "Projekt 1")!;
         }
 
-        private Collection<Models.Entities.Task> tasks { get; } = new ObservableCollection<Models.Entities.Task>();
+        private TeamTaskManager.Models.Entities.Task? SelectedTask => TaskList.SelectedItem as TeamTaskManager.Models.Entities.Task;
 
-        private User joe;
-        private Project proj1; 
-
-        private void Login_Click(object sender, RoutedEventArgs e)
-        {
-        }
+        private void Login_Click(object sender, RoutedEventArgs e) { }
 
         private void CreateTask_Click(object sender, RoutedEventArgs e)
         {
             using var context = new AppDbContext();
-
             context.Users.Attach(joe);
             context.Projects.Attach(proj1);
 
-            var task = new Models.Entities.Task
+            var task = new TeamTaskManager.Models.Entities.Task
             {
                 Title = TaskTitleBox.Text,
                 Description = TaskDescBox.Text,
@@ -74,8 +65,92 @@ namespace TeamTaskManager
             context.Tasks.Add(task);
             context.SaveChanges();
 
+            context.Entry(task).Reference(t => t.Reporter).Load();
+            context.Entry(task).Reference(t => t.Assignee).Load();
+            context.Entry(task).Reference(t => t.Project).Load();
+            context.Entry(task).Reference(t => t.Sprint).Load();
+            context.Entry(task).Reference(t => t.ParentTask).Load();
+
+            task.LastCommentText = string.Empty;
             tasks.Add(task);
-            TaskList.SelectedIndex = tasks.Count - 1;
+            TaskList.SelectedItem = task;
+        }
+
+        private void AddComment_Click(object sender, RoutedEventArgs e)
+        {
+            var task = SelectedTask;
+            if (task == null)
+            {
+                MessageBox.Show("Select a task first.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(CommentBox.Text))
+            {
+                MessageBox.Show("Comment cannot be empty.");
+                return;
+            }
+
+            using var context = new AppDbContext();
+            var dbTask = context.Tasks.First(t => t.Id == task.Id);
+            var user = context.Users.First(u => u.Id == joe.Id);
+
+            var comment = new Comment
+            {
+                TaskId = dbTask.Id,
+                Task = dbTask,
+                CommenterId = user.Id,
+                Commenter = user,
+                Text = CommentBox.Text.Trim(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            context.Comments.Add(comment);
+            context.SaveChanges();
+
+            task.LastCommentText = comment.Text;
+            TaskList.Items.Refresh();
+            CommentBox.Clear();
+            MessageBox.Show("Comment saved.");
+        }
+
+        private void AddTime_Click(object sender, RoutedEventArgs e)
+        {
+            var task = SelectedTask;
+            if (task == null)
+            {
+                MessageBox.Show("Select a task first.");
+                return;
+            }
+
+            if (!int.TryParse(MinutesBox.Text, out int minutes) || minutes <= 0)
+            {
+                MessageBox.Show("Enter a valid number of minutes.");
+                return;
+            }
+
+            using var context = new AppDbContext();
+            var dbTask = context.Tasks.First(t => t.Id == task.Id);
+            var user = context.Users.First(u => u.Id == joe.Id);
+
+            var worklog = new Worklog
+            {
+                TaskId = dbTask.Id,
+                Task = dbTask,
+                UserId = user.Id,
+                User = user,
+                Description = WorkDescriptionBox.Text?.Trim() ?? string.Empty,
+                StartTime = DateTime.UtcNow,
+                TimeSpent = TimeSpan.FromMinutes(minutes),
+                LoggedAt = DateTime.UtcNow
+            };
+
+            context.Worklogs.Add(worklog);
+            context.SaveChanges();
+
+            WorkDescriptionBox.Clear();
+            MinutesBox.Clear();
+            MessageBox.Show("Time saved.");
         }
     }
 }

@@ -8,6 +8,7 @@ namespace TeamTaskManager.Models.Entities
         public string Text { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsPinned { get; set; } = false;
+        public bool IsDeleted { get; set; } = false;
 
         // task
         public int TaskId { get; set; }

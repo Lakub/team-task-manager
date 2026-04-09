@@ -15,6 +15,7 @@ namespace TeamTaskManager.Models
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Worklog> Worklogs { get; set; }
+        public DbSet<SprintTask> SprintTasks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite("Data Source=app.db");
@@ -22,6 +23,19 @@ namespace TeamTaskManager.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<SprintTask>()
+                .HasKey(st => new { st.SprintId, st.TaskId });
+
+            modelBuilder.Entity<SprintTask>()
+                .HasOne(st => st.Sprint)
+                .WithMany(s => s.SprintTasks)
+                .HasForeignKey(st => st.SprintId);
+
+            modelBuilder.Entity<SprintTask>()
+                .HasOne(st => st.Task)
+                .WithMany(t => t.SprintTasks)
+                .HasForeignKey(st => st.TaskId);
 
             modelBuilder.Entity<ProjectUser>()
                 .HasKey(pu => new { pu.ProjectId, pu.UserId });
@@ -46,6 +60,24 @@ namespace TeamTaskManager.Models
                 .HasOne(t => t.Assignee)
                 .WithMany(u => u.AssignedTasks)
                 .HasForeignKey(t => t.AssigneeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SprintTask>()
+                .HasOne(st => st.LastAssignee)
+                .WithMany(u => u.AssignedSprintTasks)
+                .HasForeignKey(st => st.LastAssigneeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SprintTask>()
+                .HasOne(st => st.AddedBy)
+                .WithMany(u => u.AddedSprintTasks)
+                .HasForeignKey(st => st.AddedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SprintTask>()
+                .HasOne(st => st.RemovedBy)
+                .WithMany(u => u.RemovedSprintTasks)
+                .HasForeignKey(st => st.RemovedById)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Entities.Task>()

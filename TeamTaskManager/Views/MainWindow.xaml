@@ -1,89 +1,106 @@
-﻿<Window x:Class="TeamTaskManager.MainWindow"
+﻿<Window x:Class="TeamTaskManager.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TeamTaskManager"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        xmlns:models="clr-namespace:TeamTaskManager.Models.Enums"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="1300"
-        WindowStartupLocation="CenterScreen">
+        Title="Okno główne" Height="600" Width="960"
+        WindowStartupLocation="CenterScreen"
+        Background="#F3F4F6">
 
     <Window.Resources>
-        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskStatusValues">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="models:TaskStatus"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskPriorityValues">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="models:TaskPriority"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskTypeValues">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="models:TaskType"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0 0 0 6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#E5E7EB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TempNavButton" TargetType="Button" BasedOn="{StaticResource NavButton}">
+            <Setter Property="Background" Value="#ffcccc"/>
+        </Style>
     </Window.Resources>
 
-    <Grid>
-        <DockPanel LastChildFill="True">
-            <Border Background="#EEE" DockPanel.Dock="Top" Height="50">
-                <StackPanel x:Name="LoginPanel" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0">
-                    <TextBox x:Name="UsernameBox" Width="120" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                    <PasswordBox x:Name="PasswordBox" Width="120" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                    <Button Content="Login" Click="Login_Click" VerticalAlignment="Center"/>
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="White" CornerRadius="8"
+                    Padding="12 0" Margin="0 0 8 8">
+                <TextBlock Text="Sprint X, od: do"
+                           Foreground="#6B7280"
+                           FontFamily="Segoe UI"
+                           FontSize="13"
+                           VerticalAlignment="Center"/>
+            </Border>
+
+            <StackPanel Grid.Row="1">
+                <Border Background="White" CornerRadius="8" Padding="10 8" Margin="0 0 0 6">
+                    <StackPanel>
+                        <TextBlock Text="Projekt" Foreground="#9CA3AF" FontSize="10" FontFamily="Segoe UI" Margin="0 0 0 4"/>
+                        <ComboBox Background="White" Foreground="#1F2937"
+                                BorderBrush="#D1D5DB" BorderThickness="1"
+                                FontFamily="Segoe UI" FontSize="13" Height="30">
+                            <ComboBoxItem Content="TeamTaskManager" IsSelected="True"/>
+                            <ComboBoxItem Content="Projekt B"/>
+                            <ComboBoxItem Content="Projekt C"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+                <Button Content="Aktualny Sprint" Style="{StaticResource NavButton}"/>
+                <Button Content="Archiwalne Sprinty" Style="{StaticResource NavButton}"/>
+                <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}"/>
+                <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}"/>
+                <Button Content="sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintRaportCommand}"/>
+                <Button Content="TEMP seeduj db" Style="{StaticResource TempNavButton}" Command="{Binding SeedDbCommand}"/>
+                <Button Content="TEMP reset db" Style="{StaticResource TempNavButton}" Command="{Binding ClearDbCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="#D1D5DB" CornerRadius="8"
+                    Padding="12 0" HorizontalAlignment="Right" Width="160" Margin="0 0 0 8">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
+                    <TextBlock Text="Użytkownik"
+                               Foreground="#1F2937"
+                               FontFamily="Segoe UI"
+                               FontSize="13"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <StackPanel x:Name="TaskPanel" Margin="20" Orientation="Vertical" HorizontalAlignment="Left" Width="1230">
-
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                    <Label Content="Title:" VerticalAlignment="Center" Width="80"/>
-                    <TextBox x:Name="TaskTitleBox" Width="240" VerticalAlignment="Center" MaxLength="100"/>
-                </StackPanel>
-
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Content="Description:" VerticalAlignment="Center" Width="80"/>
-                    <TextBox x:Name="TaskDescBox" Width="240" Height="60" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxLength="500"/>
-                </StackPanel>
-
-                <Button Content="Create Task" Click="CreateTask_Click" Width="100" Height="30" Margin="0,0,0,10" HorizontalAlignment="Left"/>
-
-                <DataGrid x:Name="TaskList" AutoGenerateColumns="False" Height="260">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="140"/>
-                        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="240"/>
-                        <DataGridTextColumn Header="Reporter" Binding="{Binding Reporter.FullName}" Width="120"/>
-                        <DataGridTextColumn Header="Assignee" Binding="{Binding Assignee.FullName}" Width="120"/>
-                        <DataGridTextColumn Header="Parent Task" Binding="{Binding ParentTask.Title}" Width="120"/>
-                        <DataGridComboBoxColumn Header="Status" SelectedItemBinding="{Binding Status, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource TaskStatusValues}}" Width="110"/>
-                        <DataGridComboBoxColumn Header="Priority" SelectedItemBinding="{Binding Priority, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource TaskPriorityValues}}" Width="110"/>
-                        <DataGridComboBoxColumn Header="Type" SelectedItemBinding="{Binding Type, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource TaskTypeValues}}" Width="110"/>
-                        <DataGridTextColumn Header="Project" Binding="{Binding Project.Name}" Width="120"/>
-                        <DataGridTextColumn Header="Sprint" Binding="{Binding Sprint.Name}" Width="120"/>
-                        <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt}" Width="140"/>
-                        <DataGridTextColumn Header="Last Comment" Binding="{Binding LastCommentText}" Width="220"/>
-                        <DataGridTextColumn Header="Total Time" Binding="{Binding TotalTimeText}" Width="110"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-
-                <Separator Margin="0,15,0,15"/>
-
-                <TextBlock Text="Comment for selected task" FontWeight="Bold" Margin="0,0,0,6"/>
-                <TextBox x:Name="CommentBox" Height="80" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10"/>
-                <Button Content="Add Comment" Click="AddComment_Click" Width="120" Height="30" HorizontalAlignment="Left" Margin="0,0,0,14"/>
-
-                <TextBlock Text="Work description for selected task" FontWeight="Bold" Margin="0,0,0,6"/>
-                <TextBox x:Name="WorkDescriptionBox" Height="60" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10"/>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Content="Minutes:" Width="80"/>
-                    <TextBox x:Name="MinutesBox" Width="100"/>
-                </StackPanel>
-                <Button Content="Add Time" Click="AddTime_Click" Width="120" Height="30" HorizontalAlignment="Left"/>
-            </StackPanel>
-        </DockPanel>
+            <ContentControl x:Name="MainContent"
+                            Grid.Row="1"
+                            Content="{Binding CurrentView}"/>
+        </Grid>
     </Grid>
 </Window>

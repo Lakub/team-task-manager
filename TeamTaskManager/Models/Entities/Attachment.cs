@@ -9,6 +9,7 @@ namespace TeamTaskManager.Models.Entities
         public string FilePath { get; set; } = string.Empty;
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
         public bool IsPinned { get; set; } = false;
+        public bool IsDeleted { get; set; } = false;
 
         // komentarz
         public int? CommentId { get; set; }

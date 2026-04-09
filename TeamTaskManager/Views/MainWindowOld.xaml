@@ -1,0 +1,89 @@
+﻿<Window x:Class="TeamTaskManager.Views.MainWindowOld"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TeamTaskManager"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:models="clr-namespace:TeamTaskManager.Models.Enums"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="700" Width="1300"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskStatusValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:TaskStatus"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskPriorityValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:TaskPriority"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="TaskTypeValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:TaskType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+
+    <Grid>
+        <DockPanel LastChildFill="True">
+            <Border Background="#EEE" DockPanel.Dock="Top" Height="50">
+                <StackPanel x:Name="LoginPanel" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0">
+                    <TextBox x:Name="UsernameBox" Width="120" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <PasswordBox x:Name="PasswordBox" Width="120" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <Button Content="Login" Click="Login_Click" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <StackPanel x:Name="TaskPanel" Margin="20" Orientation="Vertical" HorizontalAlignment="Left" Width="1230">
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <Label Content="Title:" VerticalAlignment="Center" Width="80"/>
+                    <TextBox x:Name="TaskTitleBox" Width="240" VerticalAlignment="Center" MaxLength="100"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Content="Description:" VerticalAlignment="Center" Width="80"/>
+                    <TextBox x:Name="TaskDescBox" Width="240" Height="60" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxLength="500"/>
+                </StackPanel>
+
+                <Button Content="Create Task" Click="CreateTask_Click" Width="100" Height="30" Margin="0,0,0,10" HorizontalAlignment="Left"/>
+
+                <DataGrid x:Name="TaskList" AutoGenerateColumns="False" Height="260">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="140"/>
+                        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="240"/>
+                        <DataGridTextColumn Header="Reporter" Binding="{Binding Reporter.FullName}" Width="120"/>
+                        <DataGridTextColumn Header="Assignee" Binding="{Binding Assignee.FullName}" Width="120"/>
+                        <DataGridTextColumn Header="Parent Task" Binding="{Binding ParentTask.Title}" Width="120"/>
+                        <DataGridComboBoxColumn Header="Status" SelectedItemBinding="{Binding Status, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource TaskStatusValues}}" Width="110"/>
+                        <DataGridComboBoxColumn Header="Priority" SelectedItemBinding="{Binding Priority, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource TaskPriorityValues}}" Width="110"/>
+                        <DataGridComboBoxColumn Header="Type" SelectedItemBinding="{Binding Type, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource TaskTypeValues}}" Width="110"/>
+                        <DataGridTextColumn Header="Project" Binding="{Binding Project.Name}" Width="120"/>
+                        <DataGridTextColumn Header="Sprint" Binding="{Binding Sprint.Name}" Width="120"/>
+                        <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt}" Width="140"/>
+                        <DataGridTextColumn Header="Last Comment" Binding="{Binding LastCommentText}" Width="220"/>
+                        <DataGridTextColumn Header="Total Time" Binding="{Binding TotalTimeText}" Width="110"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Separator Margin="0,15,0,15"/>
+
+                <TextBlock Text="Comment for selected task" FontWeight="Bold" Margin="0,0,0,6"/>
+                <TextBox x:Name="CommentBox" Height="80" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10"/>
+                <Button Content="Add Comment" Click="AddComment_Click" Width="120" Height="30" HorizontalAlignment="Left" Margin="0,0,0,14"/>
+
+                <TextBlock Text="Work description for selected task" FontWeight="Bold" Margin="0,0,0,6"/>
+                <TextBox x:Name="WorkDescriptionBox" Height="60" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Content="Minutes:" Width="80"/>
+                    <TextBox x:Name="MinutesBox" Width="100"/>
+                </StackPanel>
+                <Button Content="Add Time" Click="AddTime_Click" Width="120" Height="30" HorizontalAlignment="Left"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

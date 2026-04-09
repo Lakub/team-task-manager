@@ -7,8 +7,8 @@
 
     <Window.Resources>
         <Style x:Key="NavButton" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="Background" Value="{StaticResource DefaultButtonBackground}"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -18,14 +18,9 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="8">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bg" Property="Background" Value="#E5E7EB"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -33,6 +28,7 @@
 
         <Style x:Key="TempNavButton" TargetType="Button" BasedOn="{StaticResource NavButton}">
             <Setter Property="Background" Value="#ffcccc"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
         </Style>
     </Window.Resources>
 
@@ -50,11 +46,8 @@
 
             <Border Grid.Row="0" Background="White" CornerRadius="8"
                     Padding="12 0" Margin="0 0 8 8">
-                <TextBlock Text="Sprint X, od: do"
-                           Foreground="#6B7280"
-                           FontFamily="Segoe UI"
-                           FontSize="13"
-                           VerticalAlignment="Center"/>
+                <TextBlock Text="Sprint X, od: do" Foreground="#6B7280"
+                        FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
             </Border>
 
             <StackPanel Grid.Row="1">
@@ -74,7 +67,7 @@
                 <Button Content="Archiwalne Sprinty" Style="{StaticResource NavButton}"/>
                 <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}"/>
                 <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}"/>
-                <Button Content="sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintRaportCommand}"/>
+                <Button Content="Sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintRaportCommand}"/>
                 <Button Content="TEMP seeduj db" Style="{StaticResource TempNavButton}" Command="{Binding SeedDbCommand}"/>
                 <Button Content="TEMP reset db" Style="{StaticResource TempNavButton}" Command="{Binding ClearDbCommand}"/>
             </StackPanel>
@@ -90,17 +83,39 @@
                     Padding="12 0" HorizontalAlignment="Right" Width="160" Margin="0 0 0 8">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
-                    <TextBlock Text="Użytkownik"
-                               Foreground="#1F2937"
-                               FontFamily="Segoe UI"
-                               FontSize="13"
-                               VerticalAlignment="Center"/>
+                    <TextBlock Text="Użytkownik" Foreground="#1F2937"
+                            FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <ContentControl x:Name="MainContent"
-                            Grid.Row="1"
-                            Content="{Binding CurrentView}"/>
+            <Grid Grid.Row="1" Margin="8 0 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="10" Margin="0 0 8 0">
+                    <StackPanel>
+                        <TextBlock Text="To Do" Foreground="{StaticResource DefaultButtonBackground}"
+                                FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="10" Margin="0 0 8 0">
+                    <StackPanel>
+                        <TextBlock Text="W trakcie" Foreground="{StaticResource DefaultButtonBackground}"
+                                FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="Zrobione" Foreground="{StaticResource DefaultButtonBackground}"
+                                FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

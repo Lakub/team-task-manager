@@ -63,9 +63,9 @@ namespace TeamTaskManager.Models
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<SprintTask>()
-                .HasOne(st => st.LastAssignee)
+                .HasOne(st => st.Assignee)
                 .WithMany(u => u.AssignedSprintTasks)
-                .HasForeignKey(st => st.LastAssigneeId)
+                .HasForeignKey(st => st.AssigneeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<SprintTask>()

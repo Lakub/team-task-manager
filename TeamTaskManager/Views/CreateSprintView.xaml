@@ -1,4 +1,4 @@
-<Window x:Class="TeamTaskManager.Views.NewSprintWindow"
+<Window x:Class="TeamTaskManager.Views.CreateSprintView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Nowy Sprint" Height="420" Width="400"

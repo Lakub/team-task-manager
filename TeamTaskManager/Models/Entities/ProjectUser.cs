@@ -13,5 +13,6 @@ namespace TeamTaskManager.Models.Entities
         public virtual required User User { get; set; }
 
         public UserRole Role { get; set; } = UserRole.Developer;
+        public bool IsDeleted { get; set; } = false;
     }
 }

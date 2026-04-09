@@ -12,13 +12,34 @@ namespace TeamTaskManager.ViewModels
         [ObservableProperty]
         public object currentView;
 
-        public ICommand ShowSprintRaportCommand { get; }
+        public ICommand ShowCurrentSprintCommand { get; }
+        public ICommand ShowPastSprintsCommand { get; }
+        public ICommand ShowTeamMembersCommand { get; }
+        public ICommand CreateNewSprintCommand { get; }
+        public ICommand ShowSprintReportCommand { get; }
         public ICommand SeedDbCommand { get; }
         public ICommand ClearDbCommand { get; }
 
         public MainWindowViewModel()
         {
-            ShowSprintRaportCommand = new RelayCommand(() =>
+            CurrentView = new CurrentSprintView();
+
+            ShowCurrentSprintCommand = new RelayCommand(() =>
+                CurrentView = new CurrentSprintView());
+
+            ShowPastSprintsCommand = new RelayCommand(() =>
+                System.Windows.MessageBox.Show("not implemented", "not implemented", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning));
+
+            ShowTeamMembersCommand = new RelayCommand(() =>
+                System.Windows.MessageBox.Show("not implemented", "not implemented", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning));
+
+            CreateNewSprintCommand = new RelayCommand(() =>
+            {
+                var createSprintWindow = new CreateSprintView();
+                createSprintWindow.ShowDialog();
+            });
+
+            ShowSprintReportCommand = new RelayCommand(() =>
                 CurrentView = new SprintReportView());
 
             SeedDbCommand = new RelayCommand(() =>

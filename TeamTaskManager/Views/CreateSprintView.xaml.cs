@@ -1,11 +1,12 @@
 using System.Windows.Controls;
+using System.Windows;
 
 namespace TeamTaskManager.Views;
 
-public partial class CreateSprintView : Page
+public partial class CreateSprintView : Window
 {
-    // public CreateSprintView()
-    // {
-    //     InitializeComponent();
-    // }
+    public CreateSprintView()
+    {
+        InitializeComponent();
+    }
 }

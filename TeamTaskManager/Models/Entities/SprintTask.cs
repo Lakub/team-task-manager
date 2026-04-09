@@ -20,15 +20,16 @@ namespace TeamTaskManager.Models.Entities
         // a potem dodany do sprintu 5 i tam skonczony,
         // to w raporcie sprintu 2 bedzie, ze byl nieskonczony,
         // pomimo ze sam task jest juz skonczony
-        public TaskStatus LastStatus { get; set; }
+        public TaskStatus Status { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
-        // ostatni assignee, adekwatnie do LastStatus
-        public int? LastAssigneeId { get; set; }
-        public virtual User? LastAssignee { get; set; }
+        // ostatni assignee, adekwatnie do Status
+        public int? AssigneeId { get; set; }
+        public virtual User? Assignee { get; set; }
 
         // kto dodal
-        public int? AddedById { get; set; }
-        public virtual User? AddedBy { get; set; }
+        public int AddedById { get; set; }
+        public required virtual User AddedBy { get; set; }
 
         // kto usunal
         public int? RemovedById { get; set; }

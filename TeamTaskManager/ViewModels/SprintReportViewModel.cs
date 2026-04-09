@@ -45,7 +45,7 @@ namespace TeamTaskManager.ViewModels
             }
         }
 
-        public TaskStatus Status => _model.LastStatus;
+        public TaskStatus Status => _model.Status;
 
         public ScopeChange Scope
         {
@@ -60,7 +60,7 @@ namespace TeamTaskManager.ViewModels
         // pomocnicze
         public string TypeDisplay => Type.ToString();
         public string PriorityDisplay => Priority.ToString();
-        public string TimeSpent => HoursSpent > 0 ? $"{HoursSpent:0.#}h" : "—";
+        public string TimeSpent => HoursSpent > 0 ? $"{HoursSpent:0.#}h" : "-";
 
         public Brush StatusColor => Status switch
         {
@@ -103,7 +103,7 @@ namespace TeamTaskManager.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
     }
 
-    public class SprintReportViewModel : INotifyPropertyChanged
+    public partial class SprintReportViewModel : INotifyPropertyChanged
     {
         private readonly ISprintService _sprintService;
         private readonly IUserService _userService;
@@ -120,6 +120,48 @@ namespace TeamTaskManager.ViewModels
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
 
+        private string _avgTaskTime = "-";
+        public string AvgTaskTime
+        {
+            get => _avgTaskTime;
+            set
+            {
+                if (_avgTaskTime != value)
+                {
+                    _avgTaskTime = value;
+                    OnPropertyChanged(nameof(AvgTaskTime));
+                }
+            }
+        }
+
+        private string _longestTaskTime = "-";
+        public string LongestTaskTime
+        {
+            get => _longestTaskTime;
+            set
+            {
+                if (_longestTaskTime != value)
+                {
+                    _longestTaskTime = value;
+                    OnPropertyChanged(nameof(LongestTaskTime));
+                }
+            }
+        }
+
+        private string _longestTaskName = "-";
+        public string LongestTaskName
+        {
+            get => _longestTaskName;
+            set
+            {
+                if (_longestTaskName != value)
+                {
+                    _longestTaskName = value;
+                    OnPropertyChanged(nameof(LongestTaskName));
+                }
+            }
+        }
+
         public string StatusText => IsActive ? "W toku" : "Zakończony";
         public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
         public string EndDateStr => EndDate.ToString("dd.MM.yyyy");
@@ -127,6 +169,7 @@ namespace TeamTaskManager.ViewModels
 
         public int TotalTasks => _allTaskItems.Count(t => t.Scope != ScopeChange.Descoped);
         public int DoneTasks => _allTaskItems.Count(t => t.Status == TaskStatus.Closed && t.Scope != ScopeChange.Descoped);
+        public int RemainingTasks => Math.Max(0, TotalTasks - DoneTasks);
         public int InProgressTasks => _allTaskItems.Count(t => t.Status == TaskStatus.InProgress && t.Scope != ScopeChange.Descoped);
         public int TodoTasks => _allTaskItems.Count(t => t.Status == TaskStatus.Open && t.Scope != ScopeChange.Descoped);
         public int DescoppedTasks => _allTaskItems.Count(t => t.Scope == ScopeChange.Descoped);
@@ -134,12 +177,22 @@ namespace TeamTaskManager.ViewModels
 
         public double ProgressPercent => TotalTasks == 0 ? 0 : (double)DoneTasks / TotalTasks * 100;
         public string ProgressText => $"{DoneTasks} / {TotalTasks} zadań ukończonych ({ProgressPercent:0}%)";
-        public double ProgressWidth => (ProgressPercent / 100.0) * 240.0;
 
-        private double GetWidth(int count, int total) => total == 0 ? 0 : ((double)count / total) * 160.0;
-        public double FeatureBarWidth => GetWidth(_allTaskItems.Count(i => i.Type == TaskType.Feature), _allTaskItems.Count);
-        public double BugBarWidth => GetWidth(_allTaskItems.Count(i => i.Type == TaskType.Bug), _allTaskItems.Count);
-        public double TaskBarWidth => GetWidth(_allTaskItems.Count(i => i.Type == TaskType.Task), _allTaskItems.Count);
+        public int FeatureCount => _allTaskItems.Count(i => i.Type == TaskType.Feature && i.Scope != ScopeChange.Descoped);
+        public int BugCount => _allTaskItems.Count(i => i.Type == TaskType.Bug && i.Scope != ScopeChange.Descoped);
+        public int TaskCount => _allTaskItems.Count(i => i.Type == TaskType.Task && i.Scope != ScopeChange.Descoped);
+
+        public int NonFeatureCount => Math.Max(0, TotalTasks - FeatureCount);
+        public int NonBugCount => Math.Max(0, TotalTasks - BugCount);
+        public int NonTaskCount => Math.Max(0, TotalTasks - NonFeatureCount);
+
+        public int HighPrioCount => _allTaskItems.Count(i => i.Priority == TaskPriority.High && i.Scope != ScopeChange.Descoped);
+        public int LowPrioCount => _allTaskItems.Count(i => i.Priority == TaskPriority.Low && i.Scope != ScopeChange.Descoped);
+        public int MediumPrioCount => _allTaskItems.Count(i => i.Priority == TaskPriority.Medium && i.Scope != ScopeChange.Descoped);
+
+        public int NonHighPrioCount => Math.Max(0, TotalTasks - HighPrioCount);
+        public int NonMediumPrioCount => Math.Max(0, TotalTasks - MediumPrioCount);
+        public int NonLowPrioCount => Math.Max(0, TotalTasks - LowPrioCount);
 
         private ObservableCollection<SprintTaskItem> _tasks = new();
         public ObservableCollection<SprintTaskItem> Tasks {
@@ -192,24 +245,35 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
             ApplyFilter(null);
 
-            await LoadTeamStats(sprintTasks);
+            await LoadTeamStatsAsync(sprintTasks);
         }
 
-        private async System.Threading.Tasks.Task LoadTeamStats(List<SprintTask> sprintTasks)
+        private async System.Threading.Tasks.Task LoadTeamStatsAsync(List<SprintTask> sprintTasks)
         {
             var worklogs = sprintTasks
                 .Where(st => st.Task.Worklogs != null)
-                .SelectMany(st => st.Task.Worklogs)
-                .Where(w =>
-                    w.StartTime >= StartDate    // praca zaczeta po starcie sprintu
-                    && w.LoggedAt <= EndDate    // praca zlogowana przed koncem sprintu
-                );
+                .SelectMany(st => st.Task.Worklogs);
 
-            var worklogsUserIds = worklogs.Select(w => w.UserId).Distinct();
+            // oddzielnie bo tutaj bardziej chcemy czas na taski, nie przecietny czas pracy w sprincie, bo to jest nizej w team statach
+            if (worklogs.Any())
+            {
+                var longest = worklogs.OrderByDescending(w => w.TimeSpent).First();
+                LongestTaskTime = $"{longest.TimeSpent.TotalHours:0.#}h";
+                LongestTaskName = longest.Task.Title;
+                var avgTime = worklogs.Average(w => w.TimeSpent.TotalHours);
+                AvgTaskTime = $"{avgTime:0.#}h";
+            }
+
+            var worklogsDuringSprint = worklogs.Where(w =>
+                w.StartTime >= StartDate    // praca zaczeta po starcie sprintu
+                && w.LoggedAt <= EndDate    // praca zlogowana przed koncem sprintu
+            );
+
+            var worklogsUserIds = worklogsDuringSprint.Select(w => w.UserId).Distinct();
 
             var assigneeIds = sprintTasks
-                .Where(st => st.LastAssigneeId.HasValue)
-                .Select(st => st.LastAssigneeId!.Value);
+                .Where(st => st.AssigneeId.HasValue)
+                .Select(st => st.AssigneeId!.Value);
 
             var userIds = worklogsUserIds.Union(assigneeIds).Distinct();
 
@@ -218,17 +282,17 @@ namespace TeamTaskManager.ViewModels
             {
                 var user = await _userService.GetByIdAsync(userId);
 
-                var hours = worklogs
+                var hours = worklogsDuringSprint
                     .Where(w => w.UserId == userId)
                     .Sum(w => w.TimeSpent.TotalHours);
 
-                var assignedToThisUser = sprintTasks.Where(st => st.LastAssigneeId == userId).ToList();
+                var assignedToThisUser = sprintTasks.Where(st => st.AssigneeId == userId).ToList();
                 int done = assignedToThisUser.Count(
-                    t => t.LastStatus == TaskStatus.Closed
+                    t => t.Status == TaskStatus.Closed
                     && !t.RemovedAt.HasValue
                 );
                 int inProgress = assignedToThisUser.Count(
-                    t => t.LastStatus == TaskStatus.InProgress
+                    t => t.Status == TaskStatus.InProgress
                     && !t.RemovedAt.HasValue
                 );
 

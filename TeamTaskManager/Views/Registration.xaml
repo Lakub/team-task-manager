@@ -38,7 +38,7 @@
                         BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
 
                 <Button Content="ZAREJESTRUJ SIĘ" Height="46" Margin="0 0 0 14"
-                        Background="#4B5563" Foreground="White"
+                        Background="{StaticResource DefaultButtonBackground}" Foreground="White"
                         FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

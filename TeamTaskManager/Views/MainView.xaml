@@ -75,10 +75,15 @@
                         </ComboBox>
                     </StackPanel>
                 </Border>
-                <Button Content="Archiwalne Sprinty" Style="{StaticResource NavButton}" Margin="0 0 0 6"/>
-                <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}" Margin="0 0 0 6"/>
-                <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}" Margin="0 0 0 6"/>
-                <Button Style="{StaticResource NavButton}" Margin="0 0 0 6"/>
+                <Button Content="Archiwalne Sprinty" Height="38" Margin="0 0 0 6"
+                        Background="{StaticResource DefaultButtonBackground}" Foreground="White"
+                        FontFamily="Segoe UI" FontSize="13" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="Członkowie zespołu" Height="38" Margin="0 0 0 6"
+                        Background="{StaticResource DefaultButtonBackground}" Foreground="White"
+                        FontFamily="Segoe UI" FontSize="13" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="Stwórz nowy Sprint" Height="38" Margin="0 0 0 6"
+                        Background="{StaticResource DefaultButtonBackground}" Foreground="White"
+                        FontFamily="Segoe UI" FontSize="13" BorderThickness="0" Cursor="Hand"/>
             </StackPanel>
 
             <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="12">

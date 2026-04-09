@@ -36,7 +36,7 @@
                     <TreeViewItem Header="Notatki ze spotkań"/>
                 </TreeView>
 
-                <Button Grid.Row="3" Content="+ Nowa strona" Height="40" Background="#0052CC" Foreground="White" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand" Margin="0,10,0,0" Click="NewArticleButton_Click">
+                <Button Grid.Row="3" Content="+ Nowa strona" Height="40" Background="{StaticResource DefaultButtonBackground}" Foreground="White" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand" Margin="0,10,0,0" Click="NewArticleButton_Click">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border Background="{TemplateBinding Background}" CornerRadius="8">

@@ -37,7 +37,7 @@
 
             <Button Grid.Column="1" Content="Anuluj" Width="100" Height="40" Margin="0,0,15,0" Background="Transparent" BorderThickness="0" Foreground="#6B7280" FontSize="14" FontWeight="Medium" Cursor="Hand" Click="CancelButton_Click"/>
 
-            <Button Grid.Column="2" Width="120" Height="40" BorderThickness="0" Cursor="Hand" Background="#0052CC" Foreground="White" Click="SaveButton_Click">
+            <Button Grid.Column="2" Width="120" Height="40" BorderThickness="0" Cursor="Hand" Background="{StaticResource DefaultButtonBackground}" Foreground="White" Click="SaveButton_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="8">

@@ -69,6 +69,7 @@
                 <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}" Command="{Binding CreateNewSprintCommand}"/>
                 <Button Content="Sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintReportCommand}"/>
                 <Button Content="TEMP seeduj db" Style="{StaticResource TempNavButton}" Command="{Binding SeedDbCommand}"/>
+                <Button Content="TEMP rand seed db" Style="{StaticResource TempNavButton}" Command="{Binding RandomSeedDbCommand}"/>
                 <Button Content="TEMP reset db" Style="{StaticResource TempNavButton}" Command="{Binding ClearDbCommand}"/>
             </StackPanel>
         </Grid>

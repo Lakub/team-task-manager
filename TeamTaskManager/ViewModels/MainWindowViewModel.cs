@@ -18,6 +18,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand CreateNewSprintCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
         public ICommand SeedDbCommand { get; }
+        public ICommand RandomSeedDbCommand { get; }
         public ICommand ClearDbCommand { get; }
 
         public MainWindowViewModel()
@@ -46,6 +47,13 @@ namespace TeamTaskManager.ViewModels
             {
                 using var context = new AppDbContext();
                 SeedData.Seed(context);
+                System.Windows.MessageBox.Show("Sukces", "Sukces", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            });
+
+            RandomSeedDbCommand = new RelayCommand(() =>
+            {
+                using var context = new AppDbContext();
+                SeedData.RandomSeed(context);
                 System.Windows.MessageBox.Show("Sukces", "Sukces", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             });
 

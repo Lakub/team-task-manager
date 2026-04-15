@@ -119,6 +119,7 @@ namespace TeamTaskManager.ViewModels
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
+        public bool IsPlanned { get; set; }
 
         private string _avgTaskTime = "-";
         public string AvgTaskTime
@@ -162,7 +163,7 @@ namespace TeamTaskManager.ViewModels
             }
         }
 
-        public string StatusText => IsActive ? "W toku" : "Zakończony";
+        public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
         public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
         public string EndDateStr => EndDate.ToString("dd.MM.yyyy");
         public int DaysRemaining => Math.Max(0, (EndDate - DateTime.Today).Days);

@@ -13,7 +13,7 @@ namespace TeamTaskManager.ViewModels
         public object currentView;
 
         public ICommand ShowCurrentSprintCommand { get; }
-        public ICommand ShowPastSprintsCommand { get; }
+        public ICommand ShowAllSprintsCommand { get; }
         public ICommand ShowTeamMembersCommand { get; }
         public ICommand CreateNewSprintCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
@@ -27,8 +27,8 @@ namespace TeamTaskManager.ViewModels
             ShowCurrentSprintCommand = new RelayCommand(() =>
                 CurrentView = new CurrentSprintView());
 
-            ShowPastSprintsCommand = new RelayCommand(() =>
-                System.Windows.MessageBox.Show("not implemented", "not implemented", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning));
+            ShowAllSprintsCommand = new RelayCommand(() =>
+                CurrentView = new SprintsOverviewView());
 
             ShowTeamMembersCommand = new RelayCommand(() =>
                 System.Windows.MessageBox.Show("not implemented", "not implemented", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning));

@@ -8,12 +8,19 @@
 
     <UserControl.Resources>
         <local:IntToStarGridLengthConverter x:Key="StarConverter" />
-        
+
         <Style x:Key="Card" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Padding" Value="16"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                    <Setter Property="Background" Value="#FFE5E7EB"/>
+                    <Setter Property="Opacity" Value="0.6"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
+
 
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI"/>
@@ -30,7 +37,12 @@
                 <ItemsControl ItemsSource="{Binding Sprints}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource Card}" Margin="0,0,0,8">
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,8" Cursor="Hand">
+                                <Border.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" 
+                                        Command="{Binding DataContext.OpenSprintRaportCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                        CommandParameter="{Binding}" />
+                                </Border.InputBindings>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -76,7 +88,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                        <Border Background="#FEF3C7" CornerRadius="8" Padding="14,8" Visibility="{Binding IsActive}">
+                                        <Border Background="#FEF3C7" CornerRadius="8" Padding="14,8" Visibility="{Binding DaysRemainingVisibility}">
                                             <StackPanel HorizontalAlignment="Center">
                                                 <TextBlock Text="{Binding DaysRemaining, FallbackValue='0'}" FontFamily="Segoe UI" FontSize="28" FontWeight="Medium"
                                                         Foreground="#92400E" HorizontalAlignment="Center"/>

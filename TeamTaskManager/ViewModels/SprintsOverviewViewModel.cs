@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,22 +10,27 @@ using System.Security.Policy;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using TeamTaskManager.Helpers;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
+using TeamTaskManager.Views;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
 
 namespace TeamTaskManager.ViewModels
 {
     public class SprintItem : INotifyPropertyChanged
     {
+        public int Id { get; set;  }
         public string SprintName { get; set; }
         public string CreatorName { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
+        public Visibility DaysRemainingVisibility => IsActive ? Visibility.Visible : Visibility.Collapsed;
         public bool IsPlanned { get; set; }
         public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
+        public Brush SprintCardColor => IsActive ? new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF)) : new SolidColorBrush(Color.FromRgb(0xDD, 0xDD, 0xDD));
         public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
         public string EndDateStr => EndDate.ToString("dd.MM.yyyy");
         public int DaysRemaining => Math.Max(0, (EndDate - DateTime.Today).Days);
@@ -36,13 +42,13 @@ namespace TeamTaskManager.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
-
     }
 
     public partial class SprintsOverviewViewModel : INotifyPropertyChanged
     {
         private readonly IProjectService _projectService;
         private readonly ISprintService _sprintService;
+        public ICommand OpenSprintRaportCommand { get; }
 
         private int _projectId;  // TYMCZASOWO USUNIETO READONLY
 
@@ -56,6 +62,7 @@ namespace TeamTaskManager.ViewModels
 
         public SprintsOverviewViewModel(IProjectService projectService, ISprintService sprintService, int projectId)
         {
+            OpenSprintRaportCommand = new RelayCommand<SprintItem>(OpenSprintRaport);
             _projectService = projectService;
             _sprintService = sprintService;
             _projectId = projectId;
@@ -81,6 +88,7 @@ namespace TeamTaskManager.ViewModels
             {
                 _sprints.Add(new SprintItem
                 {
+                    Id = s.Id,
                     SprintName = s.Name,
                     CreatorName = s.Creator.FullName,
                     StartDate = s.StartDate,
@@ -97,5 +105,14 @@ namespace TeamTaskManager.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
+
+        private void OpenSprintRaport(SprintItem sprintItem)
+        {
+            if (sprintItem == null) return;
+
+            var reportView = new SprintReportView(sprintItem.Id);
+
+            WeakReferenceMessenger.Default.Send(new NavigationMessage(reportView));
+        }
     }
 }

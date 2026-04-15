@@ -4,6 +4,7 @@ using System.Windows.Input;
 using TeamTaskManager.Helpers;
 using TeamTaskManager.Views;
 using TeamTaskManager.Models;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace TeamTaskManager.ViewModels
 {
@@ -62,6 +63,11 @@ namespace TeamTaskManager.ViewModels
                 using var context = new AppDbContext();
                 SeedData.Clear(context);
                 System.Windows.MessageBox.Show("Sukces", "Sukces", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            });
+
+            WeakReferenceMessenger.Default.Register<NavigationMessage>(this, (recipient, message) =>
+            {
+                CurrentView = message.TargetView;
             });
         }
     }

@@ -119,6 +119,7 @@ namespace TeamTaskManager.ViewModels
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
+        public Visibility DaysRemainingVisibility => IsActive ? Visibility.Visible : Visibility.Collapsed;
         public bool IsPlanned { get; set; }
 
         private string _avgTaskTime = "-";
@@ -185,7 +186,7 @@ namespace TeamTaskManager.ViewModels
 
         public int NonFeatureCount => Math.Max(0, TotalTasks - FeatureCount);
         public int NonBugCount => Math.Max(0, TotalTasks - BugCount);
-        public int NonTaskCount => Math.Max(0, TotalTasks - NonFeatureCount);
+        public int NonTaskCount => Math.Max(0, TotalTasks - TaskCount);
 
         public int HighPrioCount => _allTaskItems.Count(i => i.Priority == TaskPriority.High && i.Scope != ScopeChange.Descoped);
         public int LowPrioCount => _allTaskItems.Count(i => i.Priority == TaskPriority.Low && i.Scope != ScopeChange.Descoped);
@@ -219,11 +220,12 @@ namespace TeamTaskManager.ViewModels
 
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            // TYMCZASOWE LADOWANIE PIERWSZEFGO LESPSZEGO
+            // TYMCZASOWE LADOWANIE PIERWSZEFGO AKTYWNEGO LUB PIERWSZEGO LEPSZEGO JESLI NIE MA AKTYWNEGO
             if (_sprintId < 0)
             {
                 var sprints = await _sprintService.GetAllSprintsAsync();
-                _sprintId = sprints.FirstOrDefault()?.Id ?? 0;
+                var active = sprints.FirstOrDefault(s => s.Status == SprintStatus.Active);
+                _sprintId = active?.Id ?? sprints.FirstOrDefault()?.Id ?? 0;
             }
 
             var (sprint, sprintTasks) = await _sprintService.GetSprintReportDataAsync(_sprintId);

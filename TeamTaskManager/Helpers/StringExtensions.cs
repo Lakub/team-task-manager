@@ -19,7 +19,15 @@ namespace TeamTaskManager.Helpers
 
             foreach (char c in normalizedString)
             {
-                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                if (c == 'ł')
+                {
+                    stringBuilder.Append('l');
+                }
+                else if (c == 'Ł')
+                {
+                    stringBuilder.Append('L');
+                }
+                else if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
                 {
                     stringBuilder.Append(c);
                 }

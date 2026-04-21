@@ -16,6 +16,7 @@ namespace TeamTaskManager.Models
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Worklog> Worklogs { get; set; }
         public DbSet<SprintTask> SprintTasks { get; set; }
+        public DbSet<UserAuth> UserAuths { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite("Data Source=app.db");

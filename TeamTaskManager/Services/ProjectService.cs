@@ -13,6 +13,7 @@ namespace TeamTaskManager.Services
     {
         Task<(Project Project, List<Sprint> Sprints)> GetSprintsByProjectIdAsync(int projectId);
         Task<List<Project>> GetAllProjectsAsync();
+        Task<List<Project>> GetAllProjectsWithProjectUsersAsync();
     }
 
     public class ProjectService : IProjectService
@@ -42,6 +43,11 @@ namespace TeamTaskManager.Services
         public async Task<List<Project>> GetAllProjectsAsync()
         {
             return await _context.Projects.ToListAsync();
+        }
+
+        public async Task<List<Project>> GetAllProjectsWithProjectUsersAsync()
+        {
+            return await _context.Projects.Include(p => p.ProjectUsers).ToListAsync();
         }
     }
 }

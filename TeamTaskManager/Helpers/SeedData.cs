@@ -5,16 +5,26 @@ using TeamTaskManager.Models.Enums;
 using User = TeamTaskManager.Models.Entities.User;
 using Task = TeamTaskManager.Models.Entities.Task;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
+using TeamTaskManager.Services;
 
 namespace TeamTaskManager.Helpers
 {
     public static class SeedData
     {
+        public static bool IsSeeded(AppDbContext context)
+        {
+            return context.UserAuths.Any();
+        }
+
+        // DEPRECATED
         public static void Seed(AppDbContext context)
         {
             context.Database.EnsureCreated();
 
-            if (context.Users.Any()) return;
+            if (IsSeeded(context))
+            {
+                return;
+            }
 
             var user1 = new User { FullName = "Jan Kowalski", Email = "j.kowalski@email.com" };
             var user2 = new User { FullName = "Kamil Slimak", Email = "k.slimak@email.com" };
@@ -200,13 +210,17 @@ namespace TeamTaskManager.Helpers
             context.SaveChanges();
         }
 
-        public static void RandomSeed(AppDbContext context, int numUsers = 20, int numProjects = 3, int minNumUsersPerProject = 5, int maxNumUsersPerProject = 9, int minNumSprintsPerProject = 3, int maxNumSprintsPerProject = 7, int minNumTasksPerProject = 20, int maxNumTasksPerProject = 30, int numProjectOwners = 2, int minNumManagersPerProject = 1, int maxNumManagersPerProject = 2, int sprintLength = 14)
+        public static void RandomSeed(AppDbContext context, IAuthService authService, int numUsers = 20, int numProjects = 3, int minNumUsersPerProject = 5, int maxNumUsersPerProject = 9, int minNumSprintsPerProject = 3, int maxNumSprintsPerProject = 7, int minNumTasksPerProject = 20, int maxNumTasksPerProject = 30, int numProjectOwners = 2, int minNumManagersPerProject = 1, int maxNumManagersPerProject = 2, int sprintLength = 14)
         {
             context.Database.EnsureCreated();
 
-            if (context.Users.Any()) return;
+            if (IsSeeded(context))
+            {
+                return;
+            }
 
             // uzytkownicy
+
             var users = new List<User>();
 
             List<string> FirstNameOptions = new List<string>
@@ -256,6 +270,25 @@ namespace TeamTaskManager.Helpers
             }
             context.Users.AddRange(users);
             context.SaveChanges(); // aby Id bylo potem do filtrowania
+
+
+            // auth
+
+            var userAuths = new List<UserAuth>();
+
+            foreach (var user in context.Users)
+            {
+                var salt = Guid.NewGuid().ToString();
+                userAuths.Add(new UserAuth
+                {
+                    UserId = user.Id,
+                    PasswordSalt = salt,
+                    Password = authService.HashPassword("password", salt)
+                });
+            }
+
+            context.UserAuths.AddRange(userAuths);
+
 
             // projekty
 
@@ -498,8 +531,6 @@ namespace TeamTaskManager.Helpers
 
         private static string OdmienPrzymiotnik(this string adjective, string noun)
         {
-            // piracki | pszczoła
-
             var adjLast = adjective.Last();
             var nounLast = noun.Last();
 

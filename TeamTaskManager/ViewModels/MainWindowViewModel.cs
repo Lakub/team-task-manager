@@ -4,6 +4,7 @@ using System.Windows.Input;
 using TeamTaskManager.Helpers;
 using TeamTaskManager.Views;
 using TeamTaskManager.Models;
+using TeamTaskManager.Services;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace TeamTaskManager.ViewModels
@@ -12,6 +13,8 @@ namespace TeamTaskManager.ViewModels
     {
         [ObservableProperty]
         public object currentView;
+
+        public string CurrentUserName => App.CurrentUser?.FullName ?? "Uzytkownik";
 
         public ICommand ShowCurrentSprintCommand { get; }
         public ICommand ShowAllSprintsCommand { get; }
@@ -54,7 +57,8 @@ namespace TeamTaskManager.ViewModels
             RandomSeedDbCommand = new RelayCommand(() =>
             {
                 using var context = new AppDbContext();
-                SeedData.RandomSeed(context);
+                var authService = new AuthService(context);
+                SeedData.RandomSeed(context, authService);
                 System.Windows.MessageBox.Show("Sukces", "Sukces", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             });
 

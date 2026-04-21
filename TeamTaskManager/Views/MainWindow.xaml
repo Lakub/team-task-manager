@@ -68,7 +68,6 @@
                 <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}" Command="{Binding ShowTeamMembersCommand}"/>
                 <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}" Command="{Binding CreateNewSprintCommand}"/>
                 <Button Content="Sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintReportCommand}"/>
-                <Button Content="TEMP seeduj db" Style="{StaticResource TempNavButton}" Command="{Binding SeedDbCommand}"/>
                 <Button Content="TEMP rand seed db" Style="{StaticResource TempNavButton}" Command="{Binding RandomSeedDbCommand}"/>
                 <Button Content="TEMP reset db" Style="{StaticResource TempNavButton}" Command="{Binding ClearDbCommand}"/>
             </StackPanel>
@@ -81,10 +80,10 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0" Background="#D1D5DB" CornerRadius="8"
-                    Padding="12 0" HorizontalAlignment="Right" Width="160" Margin="0 0 0 8">
+                    Padding="12 0" HorizontalAlignment="Right" Width="Auto" Margin="0 0 0 8">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
-                    <TextBlock Text="Użytkownik" Foreground="#1F2937"
+                    <TextBlock Text="{Binding CurrentUserName}" Foreground="#1F2937"
                             FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>

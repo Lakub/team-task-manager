@@ -70,12 +70,21 @@ namespace TeamTaskManager.ViewModels
 
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            // TYMCZASOWE LADOWANIE PIERWSZEFGO LESPSZEGO
-            if (_projectId < 0)
+            var projects = await _projectService.GetAllProjectsWithProjectUsersAsync();
+
+            var currentUser = App.CurrentUser;
+            var userProjects = projects.Where(p => p.ProjectUsers.Any(pu => pu.UserId == currentUser?.Id)).ToList();
+
+            // TYMCZASOWO BIERZE PIERWSZY LEPSZY PROJEKT UZYTKOWNIKA
+            var projectId = userProjects.FirstOrDefault();
+
+            if (projectId == null)
             {
-                var projects = await _projectService.GetAllProjectsAsync();
-                _projectId = projects.FirstOrDefault()?.Id ?? 0;
+                MessageBox.Show("TEMP ten uzytkownik nie jest czlonkiem zadnego projektu.", "Brak projektu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
+
+            _projectId = projectId.Id;
 
             var (project, sprints) = await _projectService.GetSprintsByProjectIdAsync(_projectId);
 

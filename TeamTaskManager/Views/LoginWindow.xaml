@@ -20,23 +20,26 @@
                 <TextBlock Text="Email" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
                 <TextBox Height="44" Margin="0 0 0 16"
                         Background="White" Foreground="#1F2937"
-                        BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
-
-                <TextBlock Text="Hasło" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
+                        BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"
+                        x:Name="EmailBox"/>
+            
+        <TextBlock Text="Hasło" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
                 <PasswordBox Height="44" Margin="0 0 0 28"
                         Background="White" Foreground="#1F2937"
-                        BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
+                        BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"
+                        x:Name="PasswordBox"/>
 
                 <Button Content="ZALOGUJ" Height="46" Margin="0 0 0 20"
                         Background="{StaticResource DefaultButtonBackground}" Foreground="White"
-                        FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"/>
+                        FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"
+                        x:Name="LoginButton" Click="LoginButton_Click"/>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="Nie masz konta? " Foreground="#9CA3AF" FontSize="13" VerticalAlignment="Center"/>
-                        <Button Content="Zarejestruj się" Background="Transparent"
-                        Foreground="#4B5563" BorderThickness="0"
-                        FontSize="13" Cursor="Hand"/>
-                </StackPanel>
-
+        <TextBlock Text="TEMP" Foreground="#6B7280" FontSize="12" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="seed DB" Click="TempRandomSeedDb_Click"/>
+            <Button Content="clear DB" Click="TempClearDb_Click"/>
+            <Button Content="see users"  Click="TempSeeUsers_Click"/>
+            <Button Content="create user"  Click="TempAddUser_Click"/>
         </StackPanel>
+    </StackPanel>
 </Window>

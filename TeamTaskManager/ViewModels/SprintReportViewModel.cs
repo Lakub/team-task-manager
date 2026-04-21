@@ -94,6 +94,8 @@ namespace TeamTaskManager.ViewModels
         public double HoursLogged { get; set; }
         public int DoneCount { get; set; }
         public int InProgressCount { get; set; }
+        public bool IsCurrentUser { get; set; }
+        public Visibility YouBadgeVisibility => IsCurrentUser ? Visibility.Visible : Visibility.Collapsed;
 
         // TYMCZASOWY AVATRA
         public string Initials => string.Concat(FullName.Split(' ').Select(n => n[0])).ToUpper();
@@ -304,7 +306,8 @@ namespace TeamTaskManager.ViewModels
                     FullName = user.FullName,
                     HoursLogged = Math.Round(hours, 1),
                     DoneCount = done,
-                    InProgressCount = inProgress
+                    InProgressCount = inProgress,
+                    IsCurrentUser = user.Id == App.CurrentUser?.Id
                 };
 
                 TeamMembers.Add(member);

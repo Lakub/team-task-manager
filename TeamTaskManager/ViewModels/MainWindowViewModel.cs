@@ -21,10 +21,13 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowTeamMembersCommand { get; }
         public ICommand CreateNewSprintCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
+        public ICommand ShowHeadAdminPanelCommand { get; }
         public ICommand SeedDbCommand { get; }
         public ICommand RandomSeedDbCommand { get; }
         public ICommand ClearDbCommand { get; }
         public ICommand ShowWikiCommand { get; }
+
+        public bool IsHeadAdmin => string.Equals(App.CurrentUser?.Email, "j.kowalski@email.com", System.StringComparison.OrdinalIgnoreCase);
 
         public MainWindowViewModel()
         {
@@ -50,6 +53,17 @@ namespace TeamTaskManager.ViewModels
 
             ShowSprintReportCommand = new RelayCommand(() =>
                 CurrentView = new SprintReportView());
+
+            ShowHeadAdminPanelCommand = new RelayCommand(() =>
+            {
+                if (!IsHeadAdmin)
+                {
+                    System.Windows.MessageBox.Show("Brak uprawnień do panelu HeadAdmin.", "Autoryzacja", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                CurrentView = new HeadAdminPanelView();
+            });
 
             SeedDbCommand = new RelayCommand(() =>
             {
@@ -77,6 +91,8 @@ namespace TeamTaskManager.ViewModels
             {
                 CurrentView = message.TargetView;
             });
+
+            OnPropertyChanged(nameof(IsHeadAdmin));
         }
     }
 }

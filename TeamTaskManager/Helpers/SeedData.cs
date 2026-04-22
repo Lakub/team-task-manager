@@ -265,7 +265,8 @@ namespace TeamTaskManager.Helpers
                     FullName = FullName,
                     Email = Email,
                     CreatedAt = CreatedAt,
-                    LastLogin = LastLogin
+                    LastLogin = LastLogin,
+                    OrgRole = i < numProjectOwners ? OrgRole.Admin: OrgRole.User
                 });
             }
             context.Users.AddRange(users);

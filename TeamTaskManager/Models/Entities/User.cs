@@ -11,6 +11,8 @@ namespace TeamTaskManager.Models.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsDeleted { get; set; } = false;
 
+        public OrgRole OrgRole { get; set; } = OrgRole.User;
+
         // projekty
         public virtual ICollection<ProjectUser> ProjectUsers { get; set; } = new List<ProjectUser>();
 

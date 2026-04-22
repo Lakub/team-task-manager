@@ -21,6 +21,8 @@ namespace TeamTaskManager.Helpers
         {
             context.Database.EnsureCreated();
 
+            var authService = new AuthService(context);
+
             if (IsSeeded(context))
             {
                 return;
@@ -30,6 +32,16 @@ namespace TeamTaskManager.Helpers
             var user2 = new User { FullName = "Kamil Slimak", Email = "k.slimak@email.com" };
             var user3 = new User { FullName = "Joe Mama", Email = "j.mama@email.com" };
             context.Users.AddRange(user1, user2, user3);
+            context.SaveChanges();
+
+            var user1Salt = authService.GenerateSalt();
+            context.UserAuths.Add(new UserAuth
+            {
+                UserId = user1.Id,
+                PasswordSalt = user1Salt,
+                Password = authService.HashPassword("password", user1Salt)
+            });
+            context.SaveChanges();
 
             var project = new Project
             {

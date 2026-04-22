@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:TeamTaskManager"
              Startup="OnStartup" ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <SolidColorBrush x:Key="DefaultButtonBackground" Color="#4B5563"/>
     </Application.Resources>
 </Application>

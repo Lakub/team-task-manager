@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
 
@@ -20,6 +21,38 @@ namespace TeamTaskManager.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite("Data Source=app.db");
+
+        public void EnsureHeadAdminSchema()
+        {
+            Database.EnsureCreated();
+
+            using var connection = new SqliteConnection("Data Source=app.db");
+            connection.Open();
+
+            using var checkCommand = connection.CreateCommand();
+            checkCommand.CommandText = "PRAGMA table_info(Users);";
+
+            var hasSystemRoleColumn = false;
+
+            using (var reader = checkCommand.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    if (string.Equals(reader[1]?.ToString(), "SystemRole", StringComparison.OrdinalIgnoreCase))
+                    {
+                        hasSystemRoleColumn = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!hasSystemRoleColumn)
+            {
+                using var alterCommand = connection.CreateCommand();
+                alterCommand.CommandText = "ALTER TABLE Users ADD COLUMN SystemRole INTEGER NOT NULL DEFAULT 2;";
+                alterCommand.ExecuteNonQuery();
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

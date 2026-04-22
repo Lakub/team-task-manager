@@ -25,7 +25,7 @@ namespace TeamTaskManager.Services
 
         internal User? GetUser(string email)
         {
-            return _context.Users.FirstOrDefault(u => u.Email == email);
+            return _context.Users.AsEnumerable().FirstOrDefault(u => u.Email == email);
         }
 
         public User? Validate(string email, string password)
@@ -35,7 +35,7 @@ namespace TeamTaskManager.Services
                 return null;
             }
 
-            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            var user = GetUser(email);
             if (user == null)
             {
                 return null;

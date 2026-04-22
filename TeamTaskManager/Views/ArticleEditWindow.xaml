@@ -8,36 +8,44 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Tworzenie nowej strony" FontSize="28" FontWeight="Medium" Margin="0,0,0,20" Foreground="#1F2937"/>
+        <TextBlock Grid.Row="0" Text="{Binding WindowTitle}" FontSize="28" FontWeight="Medium" Margin="0,0,0,20" Foreground="#1F2937"/>
 
         <StackPanel Grid.Row="1" Margin="0,0,0,15">
             <TextBlock Text="Tytuł strony *" FontSize="14" Foreground="#6B7280" Margin="0,0,0,5"/>
             <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8" Height="40">
-                <TextBox x:Name="TitleTextBox" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="16"/>
+                <TextBox x:Name="TitleTextBox" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="16"/>
             </Border>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Margin="0,0,0,20">
-            <TextBlock Text="Treść (Obsługuje Markdown)" FontSize="14" Foreground="#6B7280" Margin="0,0,0,5"/>
-            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8" Height="400">
-                <TextBox x:Name="ContentTextBox" Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" Padding="15" FontSize="14" VerticalScrollBarVisibility="Auto" FontFamily="Consolas"/>
+        <StackPanel Grid.Row="2" Margin="0,0,0,15">
+            <TextBlock Text="Tagi (oddzielaj przecinkiem)" FontSize="14" Foreground="#6B7280" Margin="0,0,0,5"/>
+            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8" Height="40">
+                <TextBox x:Name="TagsTextBox" Text="{Binding TagsText, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="14" Foreground="#10B981"/>
             </Border>
         </StackPanel>
 
-        <Grid Grid.Row="3">
+        <StackPanel Grid.Row="3" Margin="0,0,0,20">
+            <TextBlock Text="Treść" FontSize="14" Foreground="#6B7280" Margin="0,0,0,5"/>
+            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8" Height="300">
+                <TextBox x:Name="ContentTextBox" Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" Padding="15" FontSize="14" VerticalScrollBarVisibility="Auto" FontFamily="Consolas"/>
+            </Border>
+        </StackPanel>
+
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Content="Anuluj" Width="100" Height="40" Margin="0,0,15,0" Background="Transparent" BorderThickness="0" Foreground="#6B7280" FontSize="14" FontWeight="Medium" Cursor="Hand" Click="CancelButton_Click"/>
+            <Button Grid.Column="1" Command="{Binding CancelCommand}" Content="Anuluj" Width="100" Height="40" Margin="0,0,15,0" Background="Transparent" BorderThickness="0" Foreground="#6B7280" FontSize="14" FontWeight="Medium" Cursor="Hand"/>
 
-            <Button Grid.Column="2" Width="120" Height="40" BorderThickness="0" Cursor="Hand" Background="{StaticResource DefaultButtonBackground}" Foreground="White" Click="SaveButton_Click">
+            <Button Grid.Column="2" Command="{Binding SaveCommand}" Width="120" Height="40" BorderThickness="0" Cursor="Hand" Background="{StaticResource DefaultButtonBackground}" Foreground="White">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="8">

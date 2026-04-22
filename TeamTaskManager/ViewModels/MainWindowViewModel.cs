@@ -24,6 +24,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand SeedDbCommand { get; }
         public ICommand RandomSeedDbCommand { get; }
         public ICommand ClearDbCommand { get; }
+        public ICommand ShowWikiCommand { get; }
 
         public MainWindowViewModel()
         {
@@ -37,6 +38,9 @@ namespace TeamTaskManager.ViewModels
 
             ShowTeamMembersCommand = new RelayCommand(() =>
                 System.Windows.MessageBox.Show("not implemented", "not implemented", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning));
+
+            ShowWikiCommand = new RelayCommand(() =>
+                CurrentView = new WikiMainView());
 
             CreateNewSprintCommand = new RelayCommand(() =>
             {

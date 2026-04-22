@@ -207,6 +207,22 @@ namespace TeamTaskManager.Helpers
                 ParentComment = comment1
             };
 
+            
+            if (!context.WikiArticles.Any())
+            {
+                var article = new WikiArticle
+                {
+                    Title = "Architektura Systemu",
+                    Content = "System opiera się na wzorcu MVVM z wykorzystaniem Entity Framework Core i SQLite. Dokumentacja jest dynamicznie ładowana z bazy danych.",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                var tag = new Tag { Name = "Dokumentacja" };
+                article.Tags.Add(tag);
+                context.WikiArticles.Add(article);
+            }
+
+            
             context.SaveChanges();
         }
 

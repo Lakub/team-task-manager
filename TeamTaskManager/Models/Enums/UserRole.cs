@@ -3,6 +3,7 @@
     public enum UserRole
     {
         Manager,
-        Developer
+        Developer,
+        Owner
     }
 }

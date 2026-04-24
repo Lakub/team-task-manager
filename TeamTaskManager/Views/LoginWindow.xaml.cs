@@ -65,11 +65,12 @@ namespace TeamTaskManager.Views
                 {
                     ua.UserId,
                     ua.User.Email,
+                    ua.User.OrgRole,
                     WorklogCount = ua.User.Worklogs.Count()
                 })
                 .ToList();
 
-            var message = "Hasło: password\n" + string.Join("\n", userData.Select(d => $"{d.UserId}: {d.Email}, Worklogów: {d.WorklogCount}"));
+            var message = "Hasło: password\n" + string.Join("\n", userData.Select(d => $"{d.UserId}: {d.Email} [{d.OrgRole}], Worklogów: {d.WorklogCount}"));
 
             MessageBox.Show(message, "Users", MessageBoxButton.OK, MessageBoxImage.Information);
         }

@@ -317,6 +317,9 @@ namespace TeamTaskManager.Migrations
                     b.Property<DateTime?>("LastLogin")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("OrgRole")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users");

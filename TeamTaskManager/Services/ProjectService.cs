@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
+using TeamTaskManager.Models.Enums;
 
 namespace TeamTaskManager.Services
 {
@@ -13,6 +14,7 @@ namespace TeamTaskManager.Services
     {
         Task<(Project Project, List<Sprint> Sprints)> GetSprintsByProjectIdAsync(int projectId);
         Task<List<Project>> GetAllProjectsAsync();
+        System.Threading.Tasks.Task<Project> CreateProjectAsync(string name, string description, User owner, List<(User User, UserRole Role)> members);
         Task<List<Project>> GetAllProjectsWithProjectUsersAsync();
     }
 
@@ -43,6 +45,42 @@ namespace TeamTaskManager.Services
         public async Task<List<Project>> GetAllProjectsAsync()
         {
             return await _context.Projects.ToListAsync();
+        }
+
+        public async System.Threading.Tasks.Task<Project> CreateProjectAsync(string name, string description, User owner, List<(User User, UserRole Role)> members)
+        {
+            var trackedOwner = await _context.Users.FindAsync(owner.Id);
+
+            var project = new Project
+            {
+                Name = name,
+                Description = description,
+                Owner = trackedOwner!,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            project.ProjectUsers.Add(new ProjectUser
+            {
+                User = trackedOwner!,
+                Project = project,
+                Role = UserRole.Owner
+            });
+
+            foreach (var (user, role) in members)
+            {
+                if (user.Id == owner.Id) continue;
+                var trackedUser = await _context.Users.FindAsync(user.Id);
+                project.ProjectUsers.Add(new ProjectUser
+                {
+                    User = trackedUser!,
+                    Project = project,
+                    Role = role
+                });
+            }
+
+            _context.Projects.Add(project);
+            await _context.SaveChangesAsync();
+            return project;
         }
 
         public async Task<List<Project>> GetAllProjectsWithProjectUsersAsync()

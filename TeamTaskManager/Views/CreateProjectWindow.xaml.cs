@@ -1,48 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using TeamTaskManager.Models;
+using TeamTaskManager.Models.Entities;
+using TeamTaskManager.Models.Enums;
+using TeamTaskManager.Services;
 
 namespace TeamTaskManager.Views
 {
-    /// <summary>
-    /// Logika interakcji dla klasy CreateProjectWindow.xaml
-    /// </summary>
     public partial class CreateProjectWindow : Window
     {
+        private readonly ObservableCollection<User> _assignedUsers = new();
+
         public CreateProjectWindow()
         {
             InitializeComponent();
-        }
-    private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
+            LoadUsers();
+            AssignedList.ItemsSource = _assignedUsers;
         }
 
-
-        private void CreateButton_Click(object sender, RoutedEventArgs e)
+        private void LoadUsers()
         {
+            using var context = new AppDbContext();
+            var users = context.Users
+                .Where(u => !u.IsDeleted && u.Id != App.CurrentUser!.Id)
+                .ToList();
+            UserComboBox.ItemsSource = users;
+            UserComboBox.DisplayMemberPath = "FullName";
+        }
 
-            if (string.IsNullOrWhiteSpace(TitleTextBox.Text))
+        private void UserComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (UserComboBox.SelectedItem is not User user) return;
+            if (_assignedUsers.Any(u => u.Id == user.Id)) return;
+            _assignedUsers.Add(user);
+            UserComboBox.SelectedItem = null;
+        }
+
+        private void RemoveUser_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is User user)
+                _assignedUsers.Remove(user);
+        }
+
+        private async void CreateButton_Click(object sender, RoutedEventArgs e)
+        {
+            var name = TitleTextBox.Text.Trim();
+            var description = DescriptionTextBox.Text.Trim();
+
+            if (string.IsNullOrEmpty(name))
             {
-                MessageBox.Show("Nazwa zadania jest wymagana!", "Błąd walidacji", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Nazwa projektu nie może być pusta.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
+            using var context = new AppDbContext();
+            var projectService = new ProjectService(context);
 
+            var members = _assignedUsers
+                .Select(u => (u, UserRole.Developer))
+                .ToList();
 
-            MessageBox.Show($"Utworzono zadanie: {TitleTextBox.Text}", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+            await projectService.CreateProjectAsync(name, description, App.CurrentUser!, members);
+            DialogResult = true;
+        }
 
-            this.Close();
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
         }
     }
 }

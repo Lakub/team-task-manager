@@ -1,4 +1,6 @@
-﻿namespace TeamTaskManager.Models.Entities
+﻿using TeamTaskManager.Models.Enums;
+
+namespace TeamTaskManager.Models.Entities
 {
     public class User
     {

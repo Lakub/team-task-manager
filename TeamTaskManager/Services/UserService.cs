@@ -6,12 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
+using TeamTaskManager.Models.Enums;
 
 namespace TeamTaskManager.Services
 {
     public interface IUserService
     {
         Task<User> GetByIdAsync(int userId);
+        Task<bool> IsHeadAdminAsync(int userId);
     }
 
     public class UserService : IUserService
@@ -30,5 +32,14 @@ namespace TeamTaskManager.Services
 
             return user!;
         }
+
+        public async Task<bool> IsHeadAdminAsync(int userId)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            return string.Equals(user?.Email, "j.kowalski@email.com", StringComparison.OrdinalIgnoreCase);
+        }
+
     }
 }

@@ -13,8 +13,11 @@ namespace TeamTaskManager
     {
         public static User? CurrentUser { get; private set; }
 
+        
         protected void OnStartup(object sender, StartupEventArgs e)
         {
+
+           
             var login = new LoginWindow();
 
             if (login.ShowDialog() == true)
@@ -28,6 +31,9 @@ namespace TeamTaskManager
             {
                 Shutdown();
             }
+            
         }
+       
     }
+        
 }

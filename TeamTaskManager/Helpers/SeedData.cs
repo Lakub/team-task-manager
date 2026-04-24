@@ -21,6 +21,8 @@ namespace TeamTaskManager.Helpers
         {
             context.Database.EnsureCreated();
 
+            var authService = new AuthService(context);
+
             if (IsSeeded(context))
             {
                 return;
@@ -30,6 +32,16 @@ namespace TeamTaskManager.Helpers
             var user2 = new User { FullName = "Kamil Slimak", Email = "k.slimak@email.com" };
             var user3 = new User { FullName = "Joe Mama", Email = "j.mama@email.com" };
             context.Users.AddRange(user1, user2, user3);
+            context.SaveChanges();
+
+            var user1Salt = authService.GenerateSalt();
+            context.UserAuths.Add(new UserAuth
+            {
+                UserId = user1.Id,
+                PasswordSalt = user1Salt,
+                Password = authService.HashPassword("password", user1Salt)
+            });
+            context.SaveChanges();
 
             var project = new Project
             {
@@ -207,6 +219,22 @@ namespace TeamTaskManager.Helpers
                 ParentComment = comment1
             };
 
+            
+            if (!context.WikiArticles.Any())
+            {
+                var article = new WikiArticle
+                {
+                    Title = "Architektura Systemu",
+                    Content = "System opiera się na wzorcu MVVM z wykorzystaniem Entity Framework Core i SQLite. Dokumentacja jest dynamicznie ładowana z bazy danych.",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                var tag = new Tag { Name = "Dokumentacja" };
+                article.Tags.Add(tag);
+                context.WikiArticles.Add(article);
+            }
+
+            
             context.SaveChanges();
         }
 

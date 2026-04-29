@@ -32,6 +32,7 @@ namespace TeamTaskManager.ViewModels
         public string Title => _model.Task.Title;
         public TaskType Type => _model.Task.Type;
         public TaskPriority Priority => _model.Task.Priority;
+        public bool IsAssigned => _model.AssigneeId.HasValue;
         public double? HoursSpent
         {
             get
@@ -111,7 +112,7 @@ namespace TeamTaskManager.ViewModels
         private readonly IUserService _userService;
         public ICommand FilterCommand { get; }
 
-        private int _sprintId;  // TYMCZASOWO USUNIETO READONLY
+        private readonly int _sprintId;
 
         private readonly List<SprintTaskItem> _allTaskItems = new();
 
@@ -178,6 +179,7 @@ namespace TeamTaskManager.ViewModels
         public int TodoTasks => _allTaskItems.Count(t => t.Status == TaskStatus.Open && t.Scope != ScopeChange.Descoped);
         public int DescoppedTasks => _allTaskItems.Count(t => t.Scope == ScopeChange.Descoped);
         public int ScopeCreepCount => _allTaskItems.Count(t => t.Scope == ScopeChange.Added);
+        public int UnassignedTasks => _allTaskItems.Count(t => !t.IsAssigned && t.Scope != ScopeChange.Descoped && t.Status != TaskStatus.Closed);
 
         public double ProgressPercent => TotalTasks == 0 ? 0 : (double)DoneTasks / TotalTasks * 100;
         public string ProgressText => $"{DoneTasks} / {TotalTasks} zadań ukończonych ({ProgressPercent:0}%)";
@@ -222,15 +224,17 @@ namespace TeamTaskManager.ViewModels
 
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            // TYMCZASOWE LADOWANIE PIERWSZEFGO AKTYWNEGO LUB PIERWSZEGO LEPSZEGO JESLI NIE MA AKTYWNEGO
-            if (_sprintId < 0)
+            var sprintId = _sprintId;
+
+            if (sprintId < 0)
             {
+                // LADOWANIE PIERWSZEFGO AKTYWNEGO LUB PIERWSZEGO LEPSZEGO JESLI NIE MA AKTYWNEGO
                 var sprints = await _sprintService.GetAllSprintsAsync();
                 var active = sprints.FirstOrDefault(s => s.Status == SprintStatus.Active);
-                _sprintId = active?.Id ?? sprints.FirstOrDefault()?.Id ?? 0;
+                sprintId = active?.Id ?? sprints.FirstOrDefault()?.Id ?? 0;
             }
 
-            var (sprint, sprintTasks) = await _sprintService.GetSprintReportDataAsync(_sprintId);
+            var (sprint, sprintTasks) = await _sprintService.GetSprintReportDataAsync(sprintId);
 
             if (sprint == null) return;
 

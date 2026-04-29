@@ -50,7 +50,7 @@ namespace TeamTaskManager.ViewModels
         private readonly ISprintService _sprintService;
         public ICommand OpenSprintRaportCommand { get; }
 
-        private int _projectId;  // TYMCZASOWO USUNIETO READONLY
+        private readonly int _projectId;
 
         public string ProjectName { get; set; }
 
@@ -73,20 +73,23 @@ namespace TeamTaskManager.ViewModels
             var projects = await _projectService.GetAllProjectsWithProjectUsersAsync();
 
             var currentUser = App.CurrentUser;
-            var userProjects = projects.Where(p => p.ProjectUsers.Any(pu => pu.UserId == currentUser?.Id)).ToList();
 
-            // TYMCZASOWO BIERZE PIERWSZY LEPSZY PROJEKT UZYTKOWNIKA
-            var projectId = userProjects.FirstOrDefault();
+            var projectId = _projectId;
 
-            if (projectId == null)
+            if (projectId < 0)
             {
-                MessageBox.Show("TEMP ten uzytkownik nie jest czlonkiem zadnego projektu.", "Brak projektu", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                // LADOWANIE PIERWSZEFGO LEPSZEGO
+                var userProjects = projects.Where(p => p.ProjectUsers.Any(pu => pu.UserId == currentUser?.Id)).ToList();
+                projectId = userProjects.FirstOrDefault()?.Id ?? -1;
+
+                if (projectId < 0)
+                {
+                    MessageBox.Show("TEMP nie ma przypisanych projektów.", "Brak projektu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
             }
 
-            _projectId = projectId.Id;
-
-            var (project, sprints) = await _projectService.GetSprintsByProjectIdAsync(_projectId);
+            var (project, sprints) = await _projectService.GetSprintsByProjectIdAsync(projectId);
 
             if (project == null) return;
 

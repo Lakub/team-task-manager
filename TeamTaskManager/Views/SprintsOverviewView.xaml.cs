@@ -8,7 +8,7 @@ namespace TeamTaskManager.Views
 {
     public partial class SprintsOverviewView : UserControl
     {
-        public SprintsOverviewView()
+        public SprintsOverviewView(int projectId = -1)
         {
             InitializeComponent();
 
@@ -16,7 +16,7 @@ namespace TeamTaskManager.Views
             DataContext = new SprintsOverviewViewModel(
                 new ProjectService(dbContext),
                 new SprintService(dbContext),
-                -1);
+                projectId);
 
             Loaded += SprintsOverviewView_Loaded;
         }

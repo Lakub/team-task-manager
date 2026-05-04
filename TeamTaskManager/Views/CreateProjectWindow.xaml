@@ -29,7 +29,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -42,18 +42,21 @@
                 <TextBox x:Name="TitleTextBox" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="16"/>
             </Border>
         </StackPanel>
-        <StackPanel Grid.Row="2" Margin="0,0,0,15">
-
-            <TextBlock Grid.Column="0" Text="Dodaj użytkownika"
+        <Grid Grid.Row="2" Margin="0,0,0,15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Dodaj użytkownika"
             FontSize="14" Foreground="Gray" Margin="0,0,15,5"/>
-            <ListBox MaxHeight="100" x:Name="usersList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Single" SelectionChanged="SelectUser" ItemTemplate="{StaticResource UserTemplate}" >
+            <ListBox Grid.Row="1" x:Name="usersList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Single" SelectionChanged="SelectUser" ItemTemplate="{StaticResource UserTemplate}" >
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel></WrapPanel>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </ListBox>
-        </StackPanel>
+        </Grid>
         
         <Grid Grid.Row="3" Margin="0,0,0,10">
             <Grid.RowDefinitions>

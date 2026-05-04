@@ -1,49 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows;
+using TeamTaskManager.Models;
+using TeamTaskManager.Models.Entities;
+using TeamTaskManager.Services;
+using TeamTaskManager.ViewModels;
 
 namespace TeamTaskManager.Views
 {
     public partial class CreateTaskWindow : Window
     {
-        public CreateTaskWindow()
+        public CreateTaskWindow(int projectId = -1)
         {
             InitializeComponent();
-        }
 
+            var dbContext = new AppDbContext();
+            var taskService = new TaskService(dbContext);
+            var projectService = new ProjectService(dbContext);
+            var vm = new CreateTaskViewModel(taskService, projectService, projectId);
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-
-        private void CreateButton_Click(object sender, RoutedEventArgs e)
-        {
-          
-            if (string.IsNullOrWhiteSpace(TitleTextBox.Text))
+            vm.OnSuccess = () =>
             {
-                MessageBox.Show("Nazwa zadania jest wymagana!", "Błąd walidacji", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+                DialogResult = true;
+                Close();
+            };
 
-            
+            vm.OnCancel = () =>
+            {
+                DialogResult = false;
+                Close();
+            };
 
-            MessageBox.Show($"Utworzono zadanie: {TitleTextBox.Text}", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+            DataContext = vm;
 
-            this.Close();
+            Loaded += async (_, _) => await vm.InitializeAsync();
         }
     }
 }

@@ -48,6 +48,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowAllSprintsCommand { get; }
         public ICommand ShowTeamMembersCommand { get; }
         public ICommand CreateNewSprintCommand { get; }
+        public ICommand CreateNewTaskCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
         public ICommand ShowHeadAdminPanelCommand { get; }
         public ICommand SeedDbCommand { get; }
@@ -147,6 +148,19 @@ namespace TeamTaskManager.ViewModels
             {
                 var createProjectWindow = new CreateProjectWindow();
                 if (createProjectWindow.ShowDialog() == true)
+                    LoadProjects();
+            });
+
+            CreateNewTaskCommand = new RelayCommand(() =>
+            {
+                if (SelectedProject == null)
+                {
+                    System.Windows.MessageBox.Show("Nie wybrano projektu.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                var createTaskWindow = new CreateTaskWindow(SelectedProject?.Id ?? -1);
+                if (createTaskWindow.ShowDialog() == true)
                     LoadProjects();
             });
 

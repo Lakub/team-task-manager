@@ -13,6 +13,7 @@ namespace TeamTaskManager.Services
     public interface IProjectService
     {
         Task<(Project Project, List<Sprint> Sprints)> GetSprintsByProjectIdAsync(int projectId);
+        System.Threading.Tasks.Task<List<User>> GetMembersByProjectIdAsync(int projectId);
         Task<List<Project>> GetAllProjectsAsync();
         Task<List<Project>> GetNonDeletedProjectsWithSprintsByUserIdAsync(int userId);
         System.Threading.Tasks.Task<Project> CreateProjectAsync(string name, string description, User owner, List<(User User, UserRole Role)> members);
@@ -41,6 +42,15 @@ namespace TeamTaskManager.Services
                 .ToListAsync();
 
             return (project!, sprints);
+        }
+
+        public async Task<List<User>> GetMembersByProjectIdAsync(int projectId)
+        {
+            return await _context.ProjectUsers
+                .Include(pu => pu.User)
+                .Where(pu => pu.ProjectId == projectId && !pu.IsDeleted)
+                .Select(pu => pu.User)
+                .ToListAsync();
         }
 
         public async Task<List<Project>> GetAllProjectsAsync()

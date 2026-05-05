@@ -69,7 +69,7 @@
                     <StackPanel>
                         <TextBlock Text="Projekt" Foreground="#9CA3AF" FontSize="10" FontFamily="Segoe UI" Margin="0 0 0 4"/>
                         <DockPanel>
-                            <Button Style="{StaticResource NavButton}" Visibility="{Binding Path=SelectedProject, Converter={StaticResource ProjectOwnerVisConverter}}" DockPanel.Dock="Right" Height="30" Margin="0" >
+                            <Button Command="{Binding EditProjectCommand}" Style="{StaticResource NavButton}" Visibility="{Binding Path=SelectedProject, Converter={StaticResource ProjectOwnerVisConverter}}" DockPanel.Dock="Right" Height="30" Margin="0" >
                                 <Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Canvas Name="svg10" Width="24" Height="24">
                                         <Canvas.RenderTransform>

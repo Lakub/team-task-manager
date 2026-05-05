@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -57,15 +58,45 @@ namespace TeamTaskManager.Views
         readonly ObservableCollection<User> assignedUsers = new();
         readonly Collection<User> assignedProjectManagers = new();
         readonly ObservableCollection<User> allUsers;
-
-        public CreateProjectWindow()
+        public Project editedProject;
+        bool editing;
+        public CreateProjectWindow(bool editing=false, Project? project=null)
         {
             InitializeComponent();
+            var context = new AppDbContext();
+            allUsers = new ObservableCollection<User>(context.Users.Where(u => !u.IsDeleted && u.Id != App.CurrentUser!.Id).ToList());
+            this.editing=editing;
+            if (editing)
+            {
+                Title = "Edytowanie projektu";
+                FormTitle.Text = "Edytuj projekt";
+                CreateButtonTextfield.Text = "Zapisz";
+                editedProject = project;
+                TitleTextBox.Text = project.Name;
+                var assignedUsersIds = project.ProjectUsers.Where(e => e.Role == UserRole.Developer).Select(e => e.UserId);
+                foreach (var userId in assignedUsersIds)
+                {
+                    var user = allUsers.FirstOrDefault(e => e.Id == userId);
+                    if (user == null) continue;
+                    allUsers.Remove(user);
+                    assignedUsers.Add(user);
+                    allUsers.Insert(0, user);
+                }
+                assignedUsersIds = project.ProjectUsers.Where(e => e.Role == UserRole.Manager).Select(e => e.UserId);
+                foreach (var userId in assignedUsersIds)
+                {
+                    var user = allUsers.FirstOrDefault(e => e.Id == userId);
+                    if (user == null) continue;
+                    allUsers.Remove(user);
+                    allUsers.Insert(0, user);
+                    assignedUsers.Remove(user);
+                    assignedProjectManagers.Add(user);
+                    assignedUsers.Insert(0, user);
+                }
+            }
             (Resources["CheckedToColorConverter"] as CheckedToColorConverter).assignedUsers = assignedUsers;
             (Resources["CheckedToColorProjectConverter"] as CheckedToColorConverter).assignedUsers = assignedProjectManagers;
             
-            using var context = new AppDbContext();
-            allUsers = new ObservableCollection<User>(context.Users.Where(u => !u.IsDeleted && u.Id != App.CurrentUser!.Id).ToList());
             usersList.ItemsSource = allUsers;
             projectManagerList.ItemsSource = assignedUsers;
         }
@@ -95,7 +126,7 @@ namespace TeamTaskManager.Views
                 lowerCol.Remove(user);
                 if(lowerCol!=assignedProjectManagers)
                     assignedProjectManagers.Remove(user);
-                higherCol.Add(user);
+                higherCol.Insert(lowerCol.Count,user);
             }
             else
             {
@@ -125,7 +156,10 @@ namespace TeamTaskManager.Views
                 .ToList();
             members.AddRange(assignedProjectManagers.Select(u => (u, UserRole.Manager)).ToList());
 
-            await projectService.CreateProjectAsync(name, description, App.CurrentUser!, members);
+            if (!editing)
+                await projectService.CreateProjectAsync(name, description, App.CurrentUser!, members);
+            else
+                await projectService.EditProjectAsync(name, description, editedProject, members);
             DialogResult = true;
         }
      

@@ -16,7 +16,7 @@ namespace TeamTaskManager.Views
             var CurrentProject = (Project)value;
             if (CurrentProject == null)
                 return Visibility.Collapsed;
-            //if (App.CurrentUser.OrgRole == Models.Enums.OrgRole.Admin) <- tu dla giga admina się doda
+            //if (App.CurrentUser.OrgRole == Models.Enums.OrgRole.GigaUltraAdmin) <- tu dla giga admina się doda
             //    return Visibility.Visible;
             int lvl = int.Parse(VisibilityLevel);
             var projectUsers = CurrentProject.ProjectUsers;

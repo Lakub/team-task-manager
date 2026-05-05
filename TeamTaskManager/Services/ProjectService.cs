@@ -14,6 +14,7 @@ namespace TeamTaskManager.Services
     {
         Task<(Project Project, List<Sprint> Sprints)> GetSprintsByProjectIdAsync(int projectId);
         Task<List<Project>> GetAllProjectsAsync();
+        void SwitchContext();
         Task<List<Project>> GetNonDeletedProjectsWithSprintsByUserIdAsync(int userId);
         System.Threading.Tasks.Task<Project> CreateProjectAsync(string name, string description, User owner, List<(User User, UserRole Role)> members);
         Task<List<Project>> GetAllProjectsWithProjectUsersAsync();
@@ -21,11 +22,15 @@ namespace TeamTaskManager.Services
 
     public class ProjectService : IProjectService
     {
-        private readonly AppDbContext _context;
+        private AppDbContext _context;
 
         public ProjectService(AppDbContext context)
         {
             _context = context;
+        }
+        public void SwitchContext()
+        {
+            _context = new AppDbContext(); // nie mam pojęcia czemu to jest potrzebne, bez ustawiania nowego contextu zmiany nie są wyświetlane do wyłączenia aplikacji
         }
         public async Task<(Project Project, List<Sprint> Sprints)> GetSprintsByProjectIdAsync(int projectId)
         {
@@ -57,6 +62,36 @@ namespace TeamTaskManager.Services
                 .ToListAsync();
 
             return projects;
+        }
+
+        public async Task<Project> EditProjectAsync(string name, string description, Project baseProject, List<(User User, UserRole Role)> members)
+        {
+            var trackedProject = await _context.Projects.FindAsync(baseProject.Id);
+            var projectUsers = await _context.ProjectUsers.Where(e => e.ProjectId == trackedProject.Id).ToListAsync();
+            var trackedOwner = await _context.Users.FindAsync(baseProject.OwnerId);
+            _context.ProjectUsers.RemoveRange(projectUsers);
+            trackedProject.ProjectUsers.Add(new ProjectUser
+            {
+                User = trackedOwner,
+                Project = trackedProject,
+                Role = UserRole.Owner
+            });
+            _context.ProjectUsers.Add(trackedProject.ProjectUsers.Last());
+            foreach (var (user, role) in members)
+            {
+                if (user.Id == trackedOwner.Id) continue;
+                var trackedUser = await _context.Users.FindAsync(user.Id);
+                trackedProject.ProjectUsers.Add(new ProjectUser
+                {
+                    User = trackedUser!,
+                    Project = trackedProject,
+                    Role = role
+                });
+                _context.ProjectUsers.Add(trackedProject.ProjectUsers.Last());
+            }
+            _context.Projects.Update(trackedProject);
+            await _context.SaveChangesAsync();
+            return trackedProject;
         }
 
         public async System.Threading.Tasks.Task<Project> CreateProjectAsync(string name, string description, User owner, List<(User User, UserRole Role)> members)

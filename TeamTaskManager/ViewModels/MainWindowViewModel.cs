@@ -1,14 +1,16 @@
-﻿using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using SQLitePCL;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using TeamTaskManager.Helpers;
-using TeamTaskManager.Views;
 using TeamTaskManager.Models;
-using TeamTaskManager.Services;
-using CommunityToolkit.Mvvm.Messaging;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
+using TeamTaskManager.Services;
+using TeamTaskManager.Views;
 
 namespace TeamTaskManager.ViewModels
 {
@@ -54,19 +56,24 @@ namespace TeamTaskManager.ViewModels
         public ICommand RandomSeedDbCommand { get; }
         public ICommand ClearDbCommand { get; }
         public ICommand ShowWikiCommand { get; }
+        public ICommand EditProjectCommand { get; }
 
         public bool IsHeadAdmin => string.Equals(App.CurrentUser?.Email, "j.kowalski@email.com", System.StringComparison.OrdinalIgnoreCase);
 
         public ICommand CreateNewProjectCommand { get;  }
         public bool IsAdmin => App.CurrentUser?.OrgRole == Models.Enums.OrgRole.Admin;
 
-        private async void LoadProjects()
+        private async void LoadProjects(int id=-1)
         {
+            _projectService.SwitchContext();
             var projects = await _projectService.GetNonDeletedProjectsWithSprintsByUserIdAsync(App.CurrentUser!.Id);
             Projects.Clear();
             foreach (var p in projects)
                 Projects.Add(p);
-            SelectedProject = Projects.FirstOrDefault();
+            if (id < 0)
+                SelectedProject = Projects.FirstOrDefault();
+            else
+                SelectedProject = Projects.FirstOrDefault(e => e.Id == id);
         }
 
         public MainWindowViewModel(IProjectService projectService)
@@ -148,6 +155,14 @@ namespace TeamTaskManager.ViewModels
                 var createProjectWindow = new CreateProjectWindow();
                 if (createProjectWindow.ShowDialog() == true)
                     LoadProjects();
+            });
+
+            EditProjectCommand = new RelayCommand(() =>
+            {
+                var editProjectWindow = new CreateProjectWindow(true,SelectedProject);
+                if (editProjectWindow.ShowDialog() == true){
+                    LoadProjects(editProjectWindow.editedProject.Id);
+                }
             });
 
             WeakReferenceMessenger.Default.Register<NavigationMessage>(this, (recipient, message) =>

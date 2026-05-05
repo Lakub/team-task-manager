@@ -6,6 +6,7 @@
     <Application.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <SolidColorBrush x:Key="DefaultButtonBackground" Color="#4B5563"/>
+        <SolidColorBrush x:Key="DefaultButtonBackgroundHover" Color="#8299B8"/>
 
         <!-- card duh -->
         <Style x:Key="Card" TargetType="Border">
@@ -84,7 +85,5 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
-        
     </Application.Resources>
 </Application>

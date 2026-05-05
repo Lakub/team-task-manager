@@ -15,12 +15,29 @@
             selectedUserNameBrush="#263313" 
             unselectedUserNameBrush="#1F2937"
             />
+        <local:CheckedToColorConverter
+            x:Key="CheckedToColorProjectConverter" x:Name="ProjectUsersBorderConverter"
+            unselectedUserBorderBrush="#CCC"
+            selectedUserBackgroundBrush="#b0e8e4"
+            selectedUserBorderBrush="#1aeddc" 
+            selectedUserNameBrush="#003825" 
+            unselectedUserNameBrush="#1F2937"
+            />
         <DataTemplate x:Key="UserTemplate">
-            <Border BorderBrush="{Binding Path=Email, Converter={StaticResource CheckedToColorConverter},ConverterParameter=border}" Background="{Binding Path=Email, Converter={StaticResource CheckedToColorConverter},ConverterParameter=background}" BorderThickness="1" CornerRadius="8" Padding="3,0,3,0" Height="40">
+            <Border BorderBrush="{Binding Path=Id, Converter={StaticResource CheckedToColorConverter},ConverterParameter=border}" Background="{Binding Path=Id, Converter={StaticResource CheckedToColorConverter},ConverterParameter=background}" BorderThickness="1" CornerRadius="8" Padding="3,0,3,0" Height="40">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
-                    <TextBlock Text="{Binding Path=FullName}" Foreground="{Binding Path=Email, Converter={StaticResource CheckedToColorConverter}}"
+                    <TextBlock Text="{Binding Path=FullName}" Foreground="{Binding Path=Id, Converter={StaticResource CheckedToColorConverter}}"
                     FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="ProjectUserTemplate">
+            <Border BorderBrush="{Binding Path=Id, Converter={StaticResource CheckedToColorProjectConverter},ConverterParameter=border}" Background="{Binding Path=Id, Converter={StaticResource CheckedToColorProjectConverter},ConverterParameter=background}" BorderThickness="1" CornerRadius="8" Padding="3,0,3,0" Height="40">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
+                    <TextBlock Text="{Binding Path=FullName}" Foreground="{Binding Path=Id, Converter={StaticResource CheckedToColorProjectConverter}}"
+            FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
         </DataTemplate>
@@ -30,7 +47,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="1.5*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -43,13 +60,26 @@
             </Border>
         </StackPanel>
         <Grid Grid.Row="2" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="Dodaj użytkownika"
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Dodaj użytkownika"
             FontSize="14" Foreground="Gray" Margin="0,0,15,5"/>
-            <ListBox Grid.Row="1" x:Name="usersList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Single" SelectionChanged="SelectUser" ItemTemplate="{StaticResource UserTemplate}" >
+            <ListBox Grid.Row="1" Grid.Column="0" x:Name="usersList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Single" SelectionChanged="SelectUser" ItemTemplate="{StaticResource UserTemplate}" >
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Przypisz kierowników projektu"
+                FontSize="14" Foreground="Gray" Margin="0,0,15,5"/>
+            <ListBox Grid.Row="1" Grid.Column="1" x:Name="projectManagerList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Single" SelectionChanged="SelectUser" ItemTemplate="{StaticResource ProjectUserTemplate}" >
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel></WrapPanel>

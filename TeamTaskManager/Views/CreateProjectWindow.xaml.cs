@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
@@ -20,27 +22,27 @@ namespace TeamTaskManager.Views
         public Brush selectedUserBackgroundBrush { get; set; }
         public Brush selectedUserNameBrush { get; set; }
         public Brush unselectedUserNameBrush { get; set; }
-        public List<User> assignedUsers { get; set; }
+        public Collection<User> assignedUsers { get; set; }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if ((string)parameter == "border")
             {
                 if (assignedUsers == null) return unselectedUserBorderBrush;
-                if (assignedUsers.Any(e => e.Email == (string)value))
+                if (assignedUsers.Any(e => e.Id == (int)value))
                     return selectedUserBorderBrush;
                 return unselectedUserBorderBrush;
             }
             else if((string)parameter == "background")
             {
                 if (assignedUsers == null) return null;
-                if (assignedUsers.Any(e => e.Email == (string)value))
+                if (assignedUsers.Any(e => e.Id == (int)value))
                     return selectedUserBackgroundBrush;
                 return null;
             }
             else
             {
                 if (assignedUsers == null) return unselectedUserNameBrush;
-                if (assignedUsers.Any(e => e.Email == (string)value))
+                if (assignedUsers.Any(e => e.Id == (int)value))
                     return selectedUserNameBrush;
                 return unselectedUserNameBrush;
             }
@@ -52,50 +54,53 @@ namespace TeamTaskManager.Views
     }
     public partial class CreateProjectWindow : Window
     {
-        readonly List<User> assignedUsers = new();
+        readonly ObservableCollection<User> assignedUsers = new();
+        readonly Collection<User> assignedProjectManagers = new();
         readonly ObservableCollection<User> allUsers;
 
         public CreateProjectWindow()
         {
             InitializeComponent();
             (Resources["CheckedToColorConverter"] as CheckedToColorConverter).assignedUsers = assignedUsers;
+            (Resources["CheckedToColorProjectConverter"] as CheckedToColorConverter).assignedUsers = assignedProjectManagers;
+            
             using var context = new AppDbContext();
             allUsers = new ObservableCollection<User>(context.Users.Where(u => !u.IsDeleted && u.Id != App.CurrentUser!.Id).ToList());
             usersList.ItemsSource = allUsers;
+            projectManagerList.ItemsSource = assignedUsers;
         }
 
         void SelectUser(object sender, RoutedEventArgs e)
         {
-            var user = usersList.SelectedItem as User;
-            usersList.SelectedItem = null;
+            Collection<User> higherCol;
+            Collection<User> lowerCol;
+            User user;
+            if (((ListBox)sender).Name=="usersList"){
+                user = usersList.SelectedItem as User;
+                    usersList.SelectedItem = null;
+                higherCol = allUsers;
+                lowerCol = assignedUsers;
+            }
+            else
+            {
+                user = projectManagerList.SelectedItem as User;
+                projectManagerList.SelectedItem = null;
+                higherCol = assignedUsers;
+                lowerCol = assignedProjectManagers;
+            }
             if (user == null) return;
-            allUsers.Remove(user);
-            if (assignedUsers.Contains(user))
+            higherCol.Remove(user);
+            if (lowerCol.Contains(user))
             {
-                assignedUsers.Remove(user);
-                allUsers.Add(user);
+                lowerCol.Remove(user);
+                if(lowerCol!=assignedProjectManagers)
+                    assignedProjectManagers.Remove(user);
+                higherCol.Add(user);
             }
             else
             {
-                assignedUsers.Add(user);
-                allUsers.Insert(0, user);
-            }
-        }
-        private void SelectUser(object sender, MouseEventArgs e)
-        {
-            if (sender == null) return;
-            if (!(sender is Grid)) return;
-            Focus();
-            var user = ((Grid)sender).Tag as User;
-            allUsers.Remove(user);
-            if (assignedUsers.Contains(user)){
-                assignedUsers.Remove(user);
-                allUsers.Add(user);
-            }
-            else
-            {
-                assignedUsers.Add(user);
-                allUsers.Insert(0,user);
+                lowerCol.Add(user);
+                higherCol.Insert(0, user);
             }
         }
 
@@ -112,10 +117,13 @@ namespace TeamTaskManager.Views
 
             using var context = new AppDbContext();
             var projectService = new ProjectService(context);
+            foreach (var user in assignedProjectManagers)
+                assignedUsers.Remove(user);
 
             var members = assignedUsers
                 .Select(u => (u, UserRole.Developer))
                 .ToList();
+            members.AddRange(assignedProjectManagers.Select(u => (u, UserRole.Manager)).ToList());
 
             await projectService.CreateProjectAsync(name, description, App.CurrentUser!, members);
             DialogResult = true;

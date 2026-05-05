@@ -91,6 +91,7 @@ namespace TeamTaskManager.Services
             }
 
             _context.Projects.Add(project);
+            _context.ProjectUsers.AddRange(project.ProjectUsers);
             await _context.SaveChangesAsync();
             return project;
         }

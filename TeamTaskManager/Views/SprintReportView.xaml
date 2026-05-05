@@ -8,12 +8,6 @@
 
     <UserControl.Resources>
         <local:IntToStarGridLengthConverter x:Key="StarConverter" />
-        
-        <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="16"/>
-        </Style>
 
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI"/>

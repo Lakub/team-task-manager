@@ -114,6 +114,8 @@
                 <Button Content="Wszystkie Sprinty" Style="{StaticResource NavButton}" Command="{Binding ShowAllSprintsCommand}"/>
                 <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}" Command="{Binding ShowTeamMembersCommand}"/>
                 <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}" Command="{Binding CreateNewSprintCommand}"/>
+                <Button Content="Stwórz nowy Task" Style="{StaticResource NavButton}" Command="{Binding CreateNewTaskCommand}"/>
+                <Button Content="Backlog" Style="{StaticResource NavButton}" Command="{Binding ShowBacklogCommand}"/>
                 <Button Content="Sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintReportCommand}"/>
                 <Button Content="Panel HeadAdmin" Style="{StaticResource NavButton}" Command="{Binding ShowPanelHeadAdminCommand}" Visibility="{Binding IsHeadAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Content="Dokumentacja" Style="{StaticResource NavButton}" Command="{Binding ShowWikiCommand}"/>

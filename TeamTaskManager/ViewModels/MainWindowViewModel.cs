@@ -30,7 +30,7 @@ namespace TeamTaskManager.ViewModels
             set
             {
                 SetProperty(ref _selectedProject, value);
-                ActiveSprint = value?.Sprints.FirstOrDefault(s => s.Status == SprintStatus.Active);;
+                ActiveSprint = value?.Sprints.FirstOrDefault(s => s.Status == SprintStatus.Active);
                 CurrentView = CurrentView switch
                 {
                     CurrentSprintView => new CurrentSprintView(),
@@ -50,6 +50,8 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowAllSprintsCommand { get; }
         public ICommand ShowTeamMembersCommand { get; }
         public ICommand CreateNewSprintCommand { get; }
+        public ICommand CreateNewTaskCommand { get; }
+        public ICommand ShowBacklogCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
         public ICommand ShowHeadAdminPanelCommand { get; }
         public ICommand SeedDbCommand { get; }
@@ -107,6 +109,23 @@ namespace TeamTaskManager.ViewModels
                 createSprintWindow.ShowDialog();
             });
 
+            ShowBacklogCommand = new RelayCommand(() =>
+            {
+                if(ActiveSprint == null)
+                {
+                    System.Windows.MessageBox.Show("Brak aktywnego sprintu w projekcie.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (SelectedProject == null)
+                {
+                    System.Windows.MessageBox.Show("Nie wybrano projektu.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                CurrentView = new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject?.Id ?? -1);
+            });
+
             ShowSprintReportCommand = new RelayCommand(() =>
             {
                 if (ActiveSprint == null)
@@ -157,6 +176,19 @@ namespace TeamTaskManager.ViewModels
                     LoadProjects();
             });
 
+            CreateNewTaskCommand = new RelayCommand(() =>
+            {
+                if (SelectedProject == null)
+                {
+                    System.Windows.MessageBox.Show("Nie wybrano projektu.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                var createTaskWindow = new CreateTaskWindow(SelectedProject?.Id ?? -1);
+                if (createTaskWindow.ShowDialog() == true)
+                    LoadProjects();
+            });
+                    
             EditProjectCommand = new RelayCommand(() =>
             {
                 var editProjectWindow = new CreateProjectWindow(true,SelectedProject);

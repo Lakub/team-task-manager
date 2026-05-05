@@ -49,6 +49,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowTeamMembersCommand { get; }
         public ICommand CreateNewSprintCommand { get; }
         public ICommand CreateNewTaskCommand { get; }
+        public ICommand ShowBacklogCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
         public ICommand ShowHeadAdminPanelCommand { get; }
         public ICommand SeedDbCommand { get; }
@@ -99,6 +100,23 @@ namespace TeamTaskManager.ViewModels
             {
                 var createSprintWindow = new CreateSprintView();
                 createSprintWindow.ShowDialog();
+            });
+
+            ShowBacklogCommand = new RelayCommand(() =>
+            {
+                if(ActiveSprint == null)
+                {
+                    System.Windows.MessageBox.Show("Brak aktywnego sprintu w projekcie.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (SelectedProject == null)
+                {
+                    System.Windows.MessageBox.Show("Nie wybrano projektu.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                CurrentView = new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject?.Id ?? -1);
             });
 
             ShowSprintReportCommand = new RelayCommand(() =>

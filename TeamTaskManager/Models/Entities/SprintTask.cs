@@ -5,13 +5,14 @@ namespace TeamTaskManager.Models.Entities
 {
     public class SprintTask
     {
+        public int Id { get; set; }
         // sprint
         public int SprintId { get; set; }
-        public virtual required Sprint Sprint { get; set; }
+        public virtual Sprint Sprint { get; set; }
 
         // task
         public int TaskId { get; set; }
-        public virtual required Task Task { get; set; }
+        public virtual Task Task { get; set; }
 
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
         public DateTime? RemovedAt { get; set; }
@@ -29,7 +30,7 @@ namespace TeamTaskManager.Models.Entities
 
         // kto dodal
         public int AddedById { get; set; }
-        public required virtual User AddedBy { get; set; }
+        public virtual User AddedBy { get; set; }
 
         // kto usunal
         public int? RemovedById { get; set; }

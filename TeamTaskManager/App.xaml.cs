@@ -17,21 +17,24 @@ namespace TeamTaskManager
         protected void OnStartup(object sender, StartupEventArgs e)
         {
 
-           
-            var login = new LoginWindow();
-
-            if (login.ShowDialog() == true)
-            {
-                CurrentUser = login.LoggedInUser;
-                var main = new MainWindow();
-                main.Closed += (s, args) => Shutdown();
-                main.Show();
-            }
-            else
-            {
-                Shutdown();
-            }
             
+
+            
+             var login = new LoginWindow();
+
+             if (login.ShowDialog() == true)
+             {
+                 CurrentUser = login.LoggedInUser;
+                 var main = new MainWindow();
+                 main.Closed += (s, args) => Shutdown();
+                 main.Show();
+             }
+             else
+             {
+                 Shutdown();
+             }
+            
+
         }
        
     }

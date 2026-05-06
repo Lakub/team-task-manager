@@ -5,10 +5,10 @@ namespace TeamTaskManager.Views
 {
     public partial class WikiMainView : UserControl
     {
-        public WikiMainView()
+        public WikiMainView(int projectId)
         {
             InitializeComponent();
-            DataContext = new WikiMainViewModel();
+            DataContext = new WikiMainViewModel(projectId);
         }
     }
 }

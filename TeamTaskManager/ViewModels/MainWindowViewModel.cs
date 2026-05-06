@@ -37,6 +37,7 @@ namespace TeamTaskManager.ViewModels
                     SprintsOverviewView => new SprintsOverviewView(SelectedProject?.Id ?? -1),
                     SprintReportView => ActiveSprint != null ? new SprintReportView(ActiveSprint.Id) : CurrentView,
                     BacklogView => ActiveSprint != null && SelectedProject != null ? new BacklogView(ActiveSprint.Id, SelectedProject.Id) : CurrentView,
+                    WikiMainView => SelectedProject != null ? new WikiMainView(SelectedProject.Id) : CurrentView,
                     _ => CurrentView
                 };
             }
@@ -101,7 +102,14 @@ namespace TeamTaskManager.ViewModels
                 System.Windows.MessageBox.Show("not implemented", "not implemented", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning));
 
             ShowWikiCommand = new RelayCommand(() =>
-                CurrentView = new WikiMainView());
+            {
+                if (SelectedProject == null)
+                {
+                    System.Windows.MessageBox.Show("Najpierw wybierz projekt z listy po lewej stronie.", "Brak projektu", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+                CurrentView = new WikiMainView(SelectedProject.Id);
+            });
 
             CreateNewSprintCommand = new RelayCommand(() =>
             {
@@ -188,7 +196,7 @@ namespace TeamTaskManager.ViewModels
             {
                 CurrentView = message.TargetView;
             });
-
+            
             LoadProjects();
 
             OnPropertyChanged(nameof(IsHeadAdmin));

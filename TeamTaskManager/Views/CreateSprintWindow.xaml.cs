@@ -3,9 +3,9 @@ using System.Windows;
 
 namespace TeamTaskManager.Views;
 
-public partial class CreateSprintView : Window
+public partial class CreateSprintWindow : Window
 {
-    public CreateSprintView()
+    public CreateSprintWindow(int projectId)
     {
         InitializeComponent();
     }

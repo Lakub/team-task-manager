@@ -121,6 +121,10 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+
+                <Button Content="+ Utwórz nowy sprint" Margin="0,4,0,0"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Command="{Binding CreateSprintCommand}"/>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

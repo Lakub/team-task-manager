@@ -49,8 +49,9 @@ namespace TeamTaskManager.ViewModels
         private readonly IProjectService _projectService;
         private readonly ISprintService _sprintService;
         public ICommand OpenSprintRaportCommand { get; }
+        public ICommand CreateSprintCommand { get; }
 
-        private readonly int _projectId;
+        private int _projectId;
 
         public string ProjectName { get; set; }
 
@@ -62,34 +63,38 @@ namespace TeamTaskManager.ViewModels
 
         public SprintsOverviewViewModel(IProjectService projectService, ISprintService sprintService, int projectId)
         {
-            OpenSprintRaportCommand = new RelayCommand<SprintItem>(OpenSprintRaport);
             _projectService = projectService;
             _sprintService = sprintService;
             _projectId = projectId;
+
+            OpenSprintRaportCommand = new RelayCommand<SprintItem>(OpenSprintRaport);
+            CreateSprintCommand = new RelayCommand(CreateSprint);
+
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            var projects = await _projectService.GetAllProjectsWithProjectUsersAsync();
-
-            var currentUser = App.CurrentUser;
-
-            var projectId = _projectId;
-
-            if (projectId < 0)
+            if (_projectId < 0)
             {
-                // LADOWANIE PIERWSZEFGO LEPSZEGO
-                var userProjects = projects.Where(p => p.ProjectUsers.Any(pu => pu.UserId == currentUser?.Id)).ToList();
-                projectId = userProjects.FirstOrDefault()?.Id ?? -1;
+                var projects = await _projectService.GetAllProjectsWithProjectUsersAsync();
+                var currentUser = App.CurrentUser;
 
-                if (projectId < 0)
+                var userProjects = projects.Where(p => p.ProjectUsers.Any(pu => pu.UserId == currentUser?.Id)).ToList();
+                _projectId = userProjects.FirstOrDefault()?.Id ?? -1;
+
+                if (_projectId < 0)
                 {
                     MessageBox.Show("TEMP nie ma przypisanych projektów.", "Brak projektu", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
 
-            var (project, sprints) = await _projectService.GetSprintsByProjectIdAsync(projectId);
+            await LoadSprintsAsync();
+        }
+
+        public async System.Threading.Tasks.Task LoadSprintsAsync()
+        {
+            var (project, sprints) = await _projectService.GetSprintsByProjectIdAsync(_projectId);
 
             if (project == null) return;
 
@@ -121,10 +126,17 @@ namespace TeamTaskManager.ViewModels
         private void OpenSprintRaport(SprintItem sprintItem)
         {
             if (sprintItem == null) return;
-
             var reportView = new SprintReportView(sprintItem.Id);
-
             WeakReferenceMessenger.Default.Send(new NavigationMessage(reportView));
+        }
+
+        private void CreateSprint()
+        {
+            var createTaskWindow = new CreateSprintWindow(_projectId);
+            if (createTaskWindow.ShowDialog() == true)
+            {
+                _ = LoadSprintsAsync();
+            }
         }
     }
 }

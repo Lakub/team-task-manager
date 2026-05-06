@@ -105,7 +105,7 @@ namespace TeamTaskManager.ViewModels
 
             CreateNewSprintCommand = new RelayCommand(() =>
             {
-                var createSprintWindow = new CreateSprintView();
+                var createSprintWindow = new CreateSprintWindow(SelectedProject?.Id ?? -1);
                 createSprintWindow.ShowDialog();
             });
 

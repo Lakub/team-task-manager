@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Windows;
 using System.Windows.Input;
 using TeamTaskManager.Models.Entities;
@@ -9,17 +10,18 @@ using TeamTaskManager.Services;
 
 namespace TeamTaskManager.ViewModels
 {
-    public partial class CreateTaskViewModel : ObservableObject
+    public partial class CreateTaskViewModel : ObservableValidator
     {
         private readonly ITaskService _taskService;
         private readonly IProjectService _projectService;
         private readonly int _projectId;
 
         private string _title = string.Empty;
+        [Required(ErrorMessage = "Tytuł jest wymagany.")]
         public string Title
         {
             get => _title;
-            set { _title = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
+            set { SetProperty(ref _title, value, true); OnPropertyChanged(nameof(IsValid)); }
         }
 
         [ObservableProperty]
@@ -38,7 +40,7 @@ namespace TeamTaskManager.ViewModels
         public ObservableCollection<TaskType> TaskTypes { get; } = new(Enum.GetValues(typeof(TaskType)).Cast<TaskType>());
         public ObservableCollection<TaskPriority> Priorities { get; } = new(Enum.GetValues(typeof(TaskPriority)).Cast<TaskPriority>());
 
-        public bool IsValid => !string.IsNullOrWhiteSpace(Title);
+        public bool IsValid => !string.IsNullOrWhiteSpace(Title) && !HasErrors;
 
         [ObservableProperty]
         private bool _isBusy;
@@ -77,7 +79,7 @@ namespace TeamTaskManager.ViewModels
 
             if (!IsValid)
             {
-                MessageBox.Show("Proszę wypełnić wszystkie wymagane pola.", "Nieprawidłowe dane", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Nieprawidłowe dane.", "Nieprawidłowe dane", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 

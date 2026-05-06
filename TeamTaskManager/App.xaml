@@ -38,10 +38,15 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{StaticResource DefaultButtonBackgroundHover}"/>
                 </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#E5E7EB"/>
+                    <Setter Property="Foreground" Value="#9CA3AF"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
             </Style.Triggers>
         </Style>
         
-        <!-- to co wyzej ale tymczasowe -->
+        <!-- to co wyzej, ale tymczasowe -->
         <Style x:Key="TempButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
             <Setter Property="Background" Value="#ffcccc"/>
             <Setter Property="Foreground" Value="#1F2937"/>
@@ -52,7 +57,7 @@
             </Style.Triggers>
         </Style>
         
-        <!-- ogolny przycisk ale z marginesem -->
+        <!-- ogolny przycisk, ale z marginesem -->
         <Style x:Key="NavButton" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
             <Setter Property="Margin" Value="0 0 0 4"/>
         </Style>
@@ -114,5 +119,25 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- szablon do walidacji -->
+        <ControlTemplate x:Key="ErrorTemplate">
+            <StackPanel>
+                <AdornedElementPlaceholder x:Name="placeholder"/>
+                <TextBlock Text="{Binding ElementName=placeholder, Path=AdornedElement.(Validation.Errors)[0].ErrorContent}"
+                           Foreground="Red" 
+                           FontSize="11" 
+                           Margin="0,2,0,0"
+                           TextWrapping="Wrap"
+                           MaxWidth="{Binding ElementName=placeholder, Path=ActualWidth}"/>
+            </StackPanel>
+        </ControlTemplate>
+
+        <!-- to co wyzej, ale bez pokazywania bledu -->
+        <ControlTemplate x:Key="SilentErrorTemplate">
+            <StackPanel>
+                <AdornedElementPlaceholder/>
+            </StackPanel>
+        </ControlTemplate>
     </Application.Resources>
 </Application>

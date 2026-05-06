@@ -50,7 +50,6 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowCurrentSprintCommand { get; }
         public ICommand ShowAllSprintsCommand { get; }
         public ICommand ShowTeamMembersCommand { get; }
-        public ICommand CreateNewSprintCommand { get; }
         public ICommand ShowBacklogCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
         public ICommand ShowHeadAdminPanelCommand { get; }
@@ -102,12 +101,6 @@ namespace TeamTaskManager.ViewModels
 
             ShowWikiCommand = new RelayCommand(() =>
                 CurrentView = new WikiMainView());
-
-            CreateNewSprintCommand = new RelayCommand(() =>
-            {
-                var createSprintWindow = new CreateSprintWindow(SelectedProject?.Id ?? -1);
-                createSprintWindow.ShowDialog();
-            });
 
             ShowBacklogCommand = new RelayCommand(() =>
             {

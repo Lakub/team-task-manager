@@ -75,14 +75,13 @@
 
                     </StackPanel>
                 </Border>
-                <Button Content="Stwórz nowy projekt" Style="{StaticResource NavButton}" Command="{Binding CreateNewProjectCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                <Button Content="Panel HeadAdmin" Style="{StaticResource NavButton}" Command="{Binding ShowPanelHeadAdminCommand}" Visibility="{Binding IsHeadAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Content="Aktualny Sprint" Style="{StaticResource NavButton}" Command="{Binding ShowCurrentSprintCommand}"/>
                 <Button Content="Wszystkie Sprinty" Style="{StaticResource NavButton}" Command="{Binding ShowAllSprintsCommand}"/>
-                <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}" Command="{Binding ShowTeamMembersCommand}"/>
-                <Button Content="Stwórz nowy Sprint" Style="{StaticResource NavButton}" Command="{Binding CreateNewSprintCommand}"/>
                 <Button Content="Backlog" Style="{StaticResource NavButton}" Command="{Binding ShowBacklogCommand}"/>
                 <Button Content="Sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintReportCommand}"/>
-                <Button Content="Panel HeadAdmin" Style="{StaticResource NavButton}" Command="{Binding ShowPanelHeadAdminCommand}" Visibility="{Binding IsHeadAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <Button Content="Członkowie zespołu" Style="{StaticResource NavButton}" Command="{Binding ShowTeamMembersCommand}"/>
+                <Button Content="Stwórz nowy projekt" Style="{StaticResource NavButton}" Command="{Binding CreateNewProjectCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
                 <Button Content="Dokumentacja" Style="{StaticResource NavButton}" Command="{Binding ShowWikiCommand}"/>
                 <Button Content="TEMP rand seed db" Style="{StaticResource TempButtonStyle}" Command="{Binding RandomSeedDbCommand}"/>
                 <Button Content="TEMP reset db" Style="{StaticResource TempButtonStyle}" Command="{Binding ClearDbCommand}"/>

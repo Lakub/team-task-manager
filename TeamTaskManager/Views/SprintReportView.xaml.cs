@@ -25,6 +25,26 @@ namespace TeamTaskManager.Views
         {
             if (DataContext is SprintReportViewModel vm)
             {
+                vm.OnTaskSelected = item =>
+                {
+                    if (item != null)
+                    {
+                        MessageBox.Show($"Task: {item.Title}", "Task Details Window", MessageBoxButton.OK, MessageBoxImage.Information);
+                        //var taskDetailWindow = new TaskDetailWindow(item.TaskId);
+                        //taskDetailWindow.ShowDialog();
+                    }
+                };
+
+                vm.OnTeamMemberSelected = item =>
+                {
+                    if (item != null)
+                    {
+                        MessageBox.Show($"User: {item.FullName}", "User Profile Window", MessageBoxButton.OK, MessageBoxImage.Information);
+                        //var userProfileWindow = new UserProfileWindow(item.Id);
+                        //userProfileWindow.ShowDialog();
+                    }
+                };
+
                 await vm.InitializeAsync();
             }
         }

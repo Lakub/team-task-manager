@@ -15,7 +15,7 @@ namespace TeamTaskManager.ViewModels
 {
     public class BacklogTaskItem
     {
-        public int Id { get; set; }
+        public int TaskId { get; set; }
         public string Title { get; set; }
         public TaskType Type { get; set; }
         public TaskPriority Priority { get; set; }
@@ -45,6 +45,7 @@ namespace TeamTaskManager.ViewModels
         private readonly int _sprintId;
         private readonly int _projectId;
 
+        public Action<BacklogTaskItem>? OnTaskSelected { get; set; }
         public ICommand MoveToSprintCommand { get; }
         public ICommand RemoveFromSprintCommand { get; }
         public ICommand OpenTaskCommand { get; }
@@ -65,7 +66,7 @@ namespace TeamTaskManager.ViewModels
 
             MoveToSprintCommand = new AsyncRelayCommand<BacklogTaskItem>(MoveToSprint);
             RemoveFromSprintCommand = new AsyncRelayCommand<BacklogTaskItem>(RemoveFromSprint);
-            OpenTaskCommand = new RelayCommand<BacklogTaskItem>(OpenTask);
+            OpenTaskCommand = new RelayCommand<BacklogTaskItem?>(OpenTask);
             OpenSprintReportCommand = new RelayCommand(OpenSprintReport);
             CreateTaskCommand = new RelayCommand(CreateTask);
         }
@@ -89,7 +90,7 @@ namespace TeamTaskManager.ViewModels
             {
                 SprintTasks.Add(new BacklogTaskItem
                 {
-                    Id = t.Id,
+                    TaskId = t.Id,
                     Title = t.Title,
                     Type = t.Type,
                     Priority = t.Priority
@@ -102,7 +103,7 @@ namespace TeamTaskManager.ViewModels
             {
                 BacklogTasks.Add(new BacklogTaskItem
                 {
-                    Id = t.Id,
+                    TaskId = t.Id,
                     Title = t.Title,
                     Type = t.Type,
                     Priority = t.Priority
@@ -112,13 +113,13 @@ namespace TeamTaskManager.ViewModels
 
         private async System.Threading.Tasks.Task MoveToSprint(BacklogTaskItem item)
         {
-            await _backlogService.AddTaskToSprintAsync(_sprintId, item.Id);
+            await _backlogService.AddTaskToSprintAsync(_sprintId, item.TaskId);
             await LoadTasksAsync();
         }
 
         private async System.Threading.Tasks.Task RemoveFromSprint(BacklogTaskItem item)
         {
-            await _backlogService.RemoveTaskFromSprintAsync(_sprintId, item.Id);
+            await _backlogService.RemoveTaskFromSprintAsync(_sprintId, item.TaskId);
             await LoadTasksAsync();
         }
 
@@ -137,9 +138,9 @@ namespace TeamTaskManager.ViewModels
             }
         }
 
-        private void OpenTask(BacklogTaskItem item)
+        public void OpenTask(BacklogTaskItem? item)
         {
-            MessageBox.Show("mmm task view", "task", MessageBoxButton.OK, MessageBoxImage.Warning);
+            if (item != null) OnTaskSelected?.Invoke(item);
         }
     }
 }

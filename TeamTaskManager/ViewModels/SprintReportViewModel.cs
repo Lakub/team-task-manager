@@ -29,6 +29,7 @@ namespace TeamTaskManager.ViewModels
             _sprintEnd = sprintEnd;
         }
 
+        public int TaskId => _model.TaskId;
         public string Title => _model.Task.Title;
         public TaskType Type => _model.Task.Type;
         public TaskPriority Priority => _model.Task.Priority;
@@ -91,6 +92,7 @@ namespace TeamTaskManager.ViewModels
 
     public class TeamMemberItem : INotifyPropertyChanged
     {
+        public int Id { get; set; }
         public string FullName { get; set; } = string.Empty;
         public double HoursLogged { get; set; }
         public int DoneCount { get; set; }
@@ -116,6 +118,12 @@ namespace TeamTaskManager.ViewModels
 
         private readonly List<SprintTaskItem> _allTaskItems = new();
 
+        public Action<SprintTaskItem>? OnTaskSelected { get; set; }
+        public ICommand OpenTaskCommand { get; }
+
+        public Action<TeamMemberItem>? OnTeamMemberSelected { get; set; }
+        public ICommand OpenUserProfileCommand { get; }
+
         public string SprintName { get; set; }
         public string ProjectName { get; set; }
         public string CreatorName { get; set; }
@@ -129,42 +137,21 @@ namespace TeamTaskManager.ViewModels
         public string AvgTaskTime
         {
             get => _avgTaskTime;
-            set
-            {
-                if (_avgTaskTime != value)
-                {
-                    _avgTaskTime = value;
-                    OnPropertyChanged(nameof(AvgTaskTime));
-                }
-            }
+            set { if (_avgTaskTime != value) { _avgTaskTime = value; OnPropertyChanged(nameof(AvgTaskTime)); } }
         }
 
         private string _longestTaskTime = "-";
         public string LongestTaskTime
         {
             get => _longestTaskTime;
-            set
-            {
-                if (_longestTaskTime != value)
-                {
-                    _longestTaskTime = value;
-                    OnPropertyChanged(nameof(LongestTaskTime));
-                }
-            }
+            set { if (_longestTaskTime != value) { _longestTaskTime = value; OnPropertyChanged(nameof(LongestTaskTime)); } }
         }
 
         private string _longestTaskName = "-";
         public string LongestTaskName
         {
             get => _longestTaskName;
-            set
-            {
-                if (_longestTaskName != value)
-                {
-                    _longestTaskName = value;
-                    OnPropertyChanged(nameof(LongestTaskName));
-                }
-            }
+            set { if (_longestTaskName != value) { _longestTaskName = value; OnPropertyChanged(nameof(LongestTaskName)); } }
         }
 
         public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
@@ -201,7 +188,8 @@ namespace TeamTaskManager.ViewModels
         public int NonLowPrioCount => Math.Max(0, TotalTasks - LowPrioCount);
 
         private ObservableCollection<SprintTaskItem> _tasks = new();
-        public ObservableCollection<SprintTaskItem> Tasks {
+        public ObservableCollection<SprintTaskItem> Tasks
+        {
             get => _tasks;
             set { _tasks = value; OnPropertyChanged(); }
         }
@@ -220,6 +208,8 @@ namespace TeamTaskManager.ViewModels
             _sprintId = sprintId;
 
             FilterCommand = new RelayCommand<string?>(ApplyFilter);
+            OpenTaskCommand = new RelayCommand<SprintTaskItem?>(OpenTask);
+            OpenUserProfileCommand = new RelayCommand<TeamMemberItem?>(OpenUserProfile);
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
@@ -307,6 +297,7 @@ namespace TeamTaskManager.ViewModels
 
                 var member = new TeamMemberItem
                 {
+                    Id = user.Id,
                     FullName = user.FullName,
                     HoursLogged = Math.Round(hours, 1),
                     DoneCount = done,
@@ -328,6 +319,16 @@ namespace TeamTaskManager.ViewModels
                 _ => _allTaskItems
             };
             Tasks = new ObservableCollection<SprintTaskItem>(filtered);
+        }
+
+        public void OpenTask(SprintTaskItem? item)
+        {
+            if (item != null) OnTaskSelected?.Invoke(item);
+        }
+
+        public void OpenUserProfile(TeamMemberItem? item)
+        {
+            if (item != null) OnTeamMemberSelected?.Invoke(item);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

@@ -30,30 +30,6 @@
             <Setter Property="Foreground" Value="#6B7280"/>
             <Setter Property="Margin" Value="0,2,0,0"/>
         </Style>
-
-        <Style x:Key="FilterButton" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="12,5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="20" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="FilterButtonActive" TargetType="Button" BasedOn="{StaticResource FilterButton}">
-            <Setter Property="Background" Value="#1F2937"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -351,10 +327,10 @@
                     <Grid Margin="0,0,0,10">
                         <TextBlock Text="ZADANIA SPRINTU" Style="{StaticResource SectionTitle}" Margin="0"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Style="{StaticResource FilterButtonActive}" Content="Wszystkie" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="{x:Null}"/>
-                            <Button Style="{StaticResource FilterButton}" Content="Ukończone" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="done"/>
-                            <Button Style="{StaticResource FilterButton}" Content="W trakcie" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="inprogress"/>
-                            <Button Style="{StaticResource FilterButton}" Content="Scope zmiany" Command="{Binding FilterCommand}" CommandParameter="scope"/>
+                            <Button Content="Wszystkie" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="{x:Null}"/>
+                            <Button Content="Ukończone" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="done"/>
+                            <Button Content="W trakcie" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="inprogress"/>
+                            <Button Content="Scope zmiany" Command="{Binding FilterCommand}" CommandParameter="scope"/>
                         </StackPanel>
                     </Grid>
 

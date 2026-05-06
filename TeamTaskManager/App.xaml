@@ -14,7 +14,49 @@
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Padding" Value="16"/>
         </Style>
+
+        <!-- ogolny przycisk -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource DefaultButtonBackground}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource DefaultButtonBackgroundHover}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         
+        <!-- to co wyzej ale tymczasowe -->
+        <Style x:Key="TempButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="#ffcccc"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#AA7171"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- ogolny przycisk ale z marginesem -->
+        <Style x:Key="NavButton" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Margin" Value="0 0 0 4"/>
+        </Style>
+
         <!-- klikalny w liscie -->
         <Style x:Key="ListItemButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -45,33 +87,7 @@
             </Setter>
         </Style>
 
-        <!-- taki ogolnikowy przycisk -->
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#2563EB"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="16,10"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                            CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#1D4ED8"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- taki przycisk do usun, edit czy innych tego typu rzeczy -->
+        <!-- neutralny przycisk do np. usun, edit itp -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#4B5563"/>

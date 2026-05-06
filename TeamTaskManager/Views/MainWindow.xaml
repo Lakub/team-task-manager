@@ -9,40 +9,6 @@
     <Window.Resources>
         <local:RoleVisibilityConverter x:Key="ProjectOwnerVisConverter" VisibilityLevel="2"/>
         <local:RoleVisibilityConverter x:Key="ProjectManagerVisConverter" VisibilityLevel="1"/>
-        <Style x:Key="NavButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource DefaultButtonBackground}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="0 0 0 6"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource DefaultButtonBackgroundHover}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="TempNavButton" TargetType="Button" BasedOn="{StaticResource NavButton}">
-            <Setter Property="Background" Value="#ffcccc"/>
-            <Setter Property="Foreground" Value="#1F2937"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#AA7171"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </Window.Resources>
 
@@ -69,7 +35,7 @@
                     <StackPanel>
                         <TextBlock Text="Projekt" Foreground="#9CA3AF" FontSize="10" FontFamily="Segoe UI" Margin="0 0 0 4"/>
                         <DockPanel>
-                            <Button Command="{Binding EditProjectCommand}" Style="{StaticResource NavButton}" Visibility="{Binding Path=SelectedProject, Converter={StaticResource ProjectOwnerVisConverter}}" DockPanel.Dock="Right" Height="30" Margin="0" >
+                            <Button Command="{Binding EditProjectCommand}" Style="{StaticResource PrimaryButtonStyle}" Visibility="{Binding Path=SelectedProject, Converter={StaticResource ProjectOwnerVisConverter}}" DockPanel.Dock="Right" Height="30" Margin="0" >
                                 <Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Canvas Name="svg10" Width="24" Height="24">
                                         <Canvas.RenderTransform>
@@ -118,8 +84,8 @@
                 <Button Content="Sprint raport" Style="{StaticResource NavButton}" Command="{Binding ShowSprintReportCommand}"/>
                 <Button Content="Panel HeadAdmin" Style="{StaticResource NavButton}" Command="{Binding ShowPanelHeadAdminCommand}" Visibility="{Binding IsHeadAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Content="Dokumentacja" Style="{StaticResource NavButton}" Command="{Binding ShowWikiCommand}"/>
-                <Button Content="TEMP rand seed db" Style="{StaticResource TempNavButton}" Command="{Binding RandomSeedDbCommand}"/>
-                <Button Content="TEMP reset db" Style="{StaticResource TempNavButton}" Command="{Binding ClearDbCommand}"/>
+                <Button Content="TEMP rand seed db" Style="{StaticResource TempButtonStyle}" Command="{Binding RandomSeedDbCommand}"/>
+                <Button Content="TEMP reset db" Style="{StaticResource TempButtonStyle}" Command="{Binding ClearDbCommand}"/>
             </StackPanel>
         </Grid>
 

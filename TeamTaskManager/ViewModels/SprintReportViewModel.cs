@@ -34,6 +34,8 @@ namespace TeamTaskManager.ViewModels
 
         public int TaskId => _model.TaskId;
         public string Title => _model.Task.Title;
+        public string Key => $"{_model.Task.Project.Key}-{_model.Task.PerProjectId}";
+        public string KeyAndTitle => $"{Key} - {Title}";
         public TaskType Type => _model.Task.Type;
         public TaskPriority Priority => _model.Task.Priority;
         public bool IsAssigned => _model.AssigneeId.HasValue;
@@ -69,25 +71,56 @@ namespace TeamTaskManager.ViewModels
 
         public Brush StatusColor => Status switch
         {
-            TaskStatus.Closed => new SolidColorBrush(Color.FromRgb(0x10, 0xB9, 0x81)),
-            TaskStatus.InProgress => new SolidColorBrush(Color.FromRgb(0x60, 0xA5, 0xFA)),
-            _ => new SolidColorBrush(Color.FromRgb(0xD1, 0xD5, 0xDB))
+            TaskStatus.Closed => new SolidColorBrush(Color.FromRgb(0x10, 0xB9, 0x81)),      // zielony
+            TaskStatus.InProgress => new SolidColorBrush(Color.FromRgb(0x60, 0xA5, 0xFA)),  // niebieski
+            TaskStatus.Open => new SolidColorBrush(Color.FromRgb(0xD1, 0xD5, 0xDB)),        // szary
+            _ => new SolidColorBrush(Color.FromRgb(0xD1, 0xD5, 0xDB))                       // szary
         };
 
         public Brush PriorityColor => Priority switch
         {
-            TaskPriority.High => new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C)),
-            TaskPriority.Medium => new SolidColorBrush(Color.FromRgb(0xB4, 0x53, 0x09)),
-            _ => new SolidColorBrush(Color.FromRgb(0x06, 0x5F, 0x46))
+            TaskPriority.High => new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C)),      // czerwony
+            TaskPriority.Medium => new SolidColorBrush(Color.FromRgb(0xB4, 0x53, 0x09)),    // pomarańczowy
+            TaskPriority.Low => new SolidColorBrush(Color.FromRgb(0x16, 0xA3, 0x9C)),       // morski
+            _ => new SolidColorBrush(Color.FromRgb(0x2B, 0x2B, 0x2B))                       // szary
         };
 
-        public Brush TypeBadgeBg => Type == TaskType.Bug ? new SolidColorBrush(Color.FromRgb(0xFE, 0xF2, 0xF2)) : new SolidColorBrush(Color.FromRgb(0xEF, 0xF6, 0xFF));         // bug => czerwony, feature => niebieski
-        public Brush TypeBadgeFg => Type == TaskType.Bug ? new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C)) : new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8));
+        public Brush TypeBadgeBg => Type switch
+        {
+            TaskType.Bug => new SolidColorBrush(Color.FromRgb(0xFE, 0xF2, 0xF2)),       // czerwony
+            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0xEF, 0xF6, 0xFF)),   // niebieski
+            TaskType.Task => new SolidColorBrush(Color.FromRgb(0xF3, 0xE8, 0xFF)),      // fioletowy
+            _ => new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0))                   // szary
+        };
+        public Brush TypeBadgeFg => Type switch
+        {
+            TaskType.Bug => new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C)),       // czerwony
+            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8)),   // niebieski
+            TaskType.Task => new SolidColorBrush(Color.FromRgb(0x8B, 0x5C, 0xF6)),      // fioletowy
+            _ => new SolidColorBrush(Color.FromRgb(0x2B, 0x2B, 0x2B))                   // szary
+
+        };
 
         public Visibility ScopeBadgeVisibility => Scope == ScopeChange.None ? Visibility.Collapsed : Visibility.Visible;                                                        // nie pokazujemy badge jesli nie bylo zmiany
-        public string ScopeBadgeText => Scope == ScopeChange.Added ? "+dodane" : "descoped";
-        public Brush ScopeBadgeBg => Scope == ScopeChange.Added ? new SolidColorBrush(Color.FromRgb(0xFE, 0xF3, 0xC7)) : new SolidColorBrush(Color.FromRgb(0xFE, 0xE2, 0xE2));  // dodany => pomaranczowy, descoped => czerwony
-        public Brush ScopeBadgeFg => Scope == ScopeChange.Added ? new SolidColorBrush(Color.FromRgb(0x92, 0x40, 0x0E)) : new SolidColorBrush(Color.FromRgb(0x99, 0x1B, 0x1B));
+        public string ScopeBadgeText => Scope switch
+        {
+            ScopeChange.Added => "+dodane",
+            ScopeChange.Descoped => "descoped",
+            _ => ""
+        };
+
+        public Brush ScopeBadgeBg => Scope switch
+        {
+            ScopeChange.Added => new SolidColorBrush(Color.FromRgb(0xFE, 0xF3, 0xC7)),      // pomaranczowy
+            ScopeChange.Descoped => new SolidColorBrush(Color.FromRgb(0xFE, 0xE2, 0xE2)),   // czerwony
+            _ => new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0))                       // szary
+        };
+        public Brush ScopeBadgeFg => Scope switch
+        {
+            ScopeChange.Added => new SolidColorBrush(Color.FromRgb(0x92, 0x40, 0x0E)),      // pomaranczowy
+            ScopeChange.Descoped => new SolidColorBrush(Color.FromRgb(0x99, 0x1B, 0x1B)),   // czerwony
+            _ => new SolidColorBrush(Color.FromRgb(0x2B, 0x2B, 0x2B))                       // szary
+        };
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
@@ -119,6 +152,7 @@ namespace TeamTaskManager.ViewModels
 
         private int _sprintId;
         private int _projectId;
+        private string ProjectKey;
 
         private readonly List<SprintTaskItem> _allTaskItems = new();
 
@@ -132,6 +166,9 @@ namespace TeamTaskManager.ViewModels
         public string SprintName { get; set; }
         public string ProjectName { get; set; }
         public string CreatorName { get; set; }
+        public string CreatorInitials => string.IsNullOrWhiteSpace(CreatorName) ? "?" : string.Concat(CreatorName.Split(' ').Select(n => n[0])).ToUpper();
+        public Brush CreatorAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
+        public Brush CreatorAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
@@ -153,11 +190,11 @@ namespace TeamTaskManager.ViewModels
             set { if (_longestTaskTime != value) { _longestTaskTime = value; OnPropertyChanged(nameof(LongestTaskTime)); } }
         }
 
-        private string _longestTaskName = "-";
-        public string LongestTaskName
+        private string _longestTaskKey = "-";
+        public string LongestTaskKey
         {
-            get => _longestTaskName;
-            set { if (_longestTaskName != value) { _longestTaskName = value; OnPropertyChanged(nameof(LongestTaskName)); } }
+            get => _longestTaskKey;
+            set { if (_longestTaskKey != value) { _longestTaskKey = value; OnPropertyChanged(nameof(LongestTaskKey)); } }
         }
 
         public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
@@ -248,6 +285,7 @@ namespace TeamTaskManager.ViewModels
 
             _projectId = sprint.ProjectId;
 
+            ProjectKey = sprint.Project.Key;
             SprintName = sprint.Name;
             ProjectName = sprint.Project.Name;
             CreatorName = sprint.Creator.FullName;
@@ -279,7 +317,7 @@ namespace TeamTaskManager.ViewModels
             {
                 var longest = worklogs.OrderByDescending(w => w.TimeSpent).First();
                 LongestTaskTime = $"{longest.TimeSpent.TotalHours:0.#}h";
-                LongestTaskName = longest.Task.Title;
+                LongestTaskKey = $"{ProjectKey}-{longest.Task.PerProjectId}";
                 var avgTime = worklogs.Average(w => w.TimeSpent.TotalHours);
                 AvgTaskTime = $"{avgTime:0.#}h";
             }

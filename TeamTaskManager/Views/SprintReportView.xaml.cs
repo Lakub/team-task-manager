@@ -30,9 +30,8 @@ namespace TeamTaskManager.Views
                 {
                     if (item != null)
                     {
-                        MessageBox.Show($"Task: {item.Title}", "Task Details Window", MessageBoxButton.OK, MessageBoxImage.Information);
-                        //var taskDetailWindow = new TaskDetailWindow(item.TaskId);
-                        //taskDetailWindow.ShowDialog();
+                        var taskDetailWindow = new TaskDetailsWindow(item.TaskId);
+                        taskDetailWindow.ShowDialog();
                     }
                 };
 

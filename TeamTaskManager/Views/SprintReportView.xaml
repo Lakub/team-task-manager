@@ -9,14 +9,6 @@
     <UserControl.Resources>
         <local:IntToStarGridLengthConverter x:Key="StarConverter" />
 
-        <Style x:Key="SectionTitle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
-
         <Style x:Key="MetricValue" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="26"/>
@@ -73,7 +65,12 @@
                             <StackPanel Margin="0,0,20,0">
                                 <TextBlock Text="AUTOR" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="18" Height="18" Fill="#D1D5DB" Margin="0,0,5,0"/>
+                                    <Border Background="{Binding CreatorAvatarBg}" CornerRadius="9"
+                                            Width="18" Height="18" Margin="0,0,5,0">
+                                        <TextBlock Text="{Binding CreatorInitials}" FontFamily="Segoe UI" FontSize="8"
+                                                   FontWeight="SemiBold" Foreground="{Binding CreatorAvatarFg}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
                                     <TextBlock Text="{Binding CreatorName, FallbackValue='Autor Sprintu'}" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
                                 </StackPanel>
                             </StackPanel>
@@ -133,7 +130,7 @@
                     <StackPanel>
                         <TextBlock Text="NAJDŁUŻSZE" Style="{StaticResource SectionTitle}"/>
                         <TextBlock Text="{Binding LongestTaskTime, FallbackValue='0.0h'}" Style="{StaticResource MetricValue}" Foreground="#B45309"/>
-                        <TextBlock Text="{Binding LongestTaskName, FallbackValue='Nazwa zadania'}" Style="{StaticResource MetricLabel}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding LongestTaskKey, FallbackValue='Nazwa zadania'}" Style="{StaticResource MetricLabel}" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Border>
 
@@ -370,7 +367,7 @@
                                         <Ellipse Grid.Column="0" Width="8" Height="8" VerticalAlignment="Center" Fill="{Binding StatusColor}"/>
 
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
+                                            <TextBlock Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13"
                                                        Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                             <Border Background="{Binding ScopeBadgeBg}" CornerRadius="10" Padding="7,2"
                                                     Margin="8,0,0,0" Visibility="{Binding ScopeBadgeVisibility}">

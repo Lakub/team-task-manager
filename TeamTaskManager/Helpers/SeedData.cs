@@ -352,10 +352,14 @@ namespace TeamTaskManager.Helpers
                 var pDescription = LoremIpsum.Substring(0, Random.Shared.Next(50, LoremIpsum.Length));
                 var pOwner = projectOwners[Random.Shared.Next(projectOwners.Count)];
                 var pCreatedAt = DateTime.UtcNow.AddDays(-Random.Shared.Next(40, 50));
+                var pNounNoDiacritics = pNoun.RemoveDiacritics();
+                var pAdjectiveNoDiacritics = pAdjective.RemoveDiacritics();
+                var pKey = $"{pNounNoDiacritics[0..1]}{pAdjectiveNoDiacritics[0..1]}{Random.Shared.Next(100, 999)}".ToUpper();
                 var project = new Project
                 {
                     Name = pName,
                     Description = pDescription,
+                    Key = pKey,
                     Owner = pOwner,
                     CreatedAt = pCreatedAt
                 };
@@ -412,11 +416,13 @@ namespace TeamTaskManager.Helpers
                     var tCreatedAt = pCreatedAt.AddDays(Random.Shared.Next(1, 3)).AddHours(Random.Shared.Next(1, 24));
                     var tUpdatedAt = (Random.Shared.NextDouble() < 0.8) ? tCreatedAt : tCreatedAt.AddDays(Random.Shared.Next(1, 10));   // 20% ze bedzie edytowany
                     var tReporter = managersForProject[Random.Shared.Next(managersForProject.Count)];
+                    var tPerProjectId = j;
 
                     tasks.Add(new Task
                     {
                         Title = tTitle,
                         Description = tDescription,
+                        PerProjectId = tPerProjectId,
                         Type = tType,
                         Status = tStatus,
                         Priority = tPriority,

@@ -11,6 +11,7 @@ namespace TeamTaskManager.Services
     public interface IBacklogService
     {
         Task<Sprint?> GetSprintAsync(int sprintId);
+        Task<Project?> GetProjectAsync(int projectId);
         Task<List<Task>> GetActiveSprintTasksAsync(int sprintId);
         Task<List<Task>> GetBacklogTasksAsync(int projectId);
         System.Threading.Tasks.Task AddTaskToSprintAsync(int sprintId, int taskId);
@@ -29,6 +30,11 @@ namespace TeamTaskManager.Services
         public async Task<Sprint?> GetSprintAsync(int sprintId)
         {
             return await _context.Sprints.FirstOrDefaultAsync(s => s.Id == sprintId);
+        }
+
+        public async Task<Project?> GetProjectAsync(int projectId)
+        {
+            return await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
         }
 
         public async Task<List<Task>> GetActiveSprintTasksAsync(int sprintId)

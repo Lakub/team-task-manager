@@ -17,6 +17,8 @@ namespace TeamTaskManager.ViewModels
     {
         public int TaskId { get; set; }
         public string Title { get; set; }
+        public string Key { get; set; }
+        public string KeyAndTitle => $"{Key} - {Title}";
         public TaskType Type { get; set; }
         public TaskPriority Priority { get; set; }
 
@@ -44,6 +46,7 @@ namespace TeamTaskManager.ViewModels
         private readonly IBacklogService _backlogService;
         private readonly int _sprintId;
         private readonly int _projectId;
+        private string ProjectKey;
 
         public Action<BacklogTaskItem>? OnTaskSelected { get; set; }
         public ICommand MoveToSprintCommand { get; }
@@ -82,6 +85,12 @@ namespace TeamTaskManager.ViewModels
                 SprintName = sprint.Name;
             }
 
+            var project = await _backlogService.GetProjectAsync(_projectId);
+            if (project != null)
+            {
+                ProjectKey = project.Key;
+            }
+
             await LoadTasksAsync();
         }
 
@@ -95,6 +104,7 @@ namespace TeamTaskManager.ViewModels
                 {
                     TaskId = t.Id,
                     Title = t.Title,
+                    Key = $"{ProjectKey}-{t.PerProjectId}",
                     Type = t.Type,
                     Priority = t.Priority
                 });
@@ -108,6 +118,7 @@ namespace TeamTaskManager.ViewModels
                 {
                     TaskId = t.Id,
                     Title = t.Title,
+                    Key = $"{ProjectKey}-{t.PerProjectId}",
                     Type = t.Type,
                     Priority = t.Priority
                 });

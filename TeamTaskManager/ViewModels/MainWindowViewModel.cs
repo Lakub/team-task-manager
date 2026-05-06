@@ -35,8 +35,8 @@ namespace TeamTaskManager.ViewModels
                 {
                     CurrentSprintView => new CurrentSprintView(),
                     SprintsOverviewView => new SprintsOverviewView(SelectedProject?.Id ?? -1),
-                    SprintReportView => ActiveSprint != null ? new SprintReportView(ActiveSprint.Id) : CurrentView,
-                    BacklogView => ActiveSprint != null && SelectedProject != null ? new BacklogView(ActiveSprint.Id, SelectedProject.Id) : CurrentView,
+                    SprintReportView => SelectedProject != null ? new SprintReportView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
+                    BacklogView => SelectedProject != null ? new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
                     _ => CurrentView
                 };
             }
@@ -104,12 +104,6 @@ namespace TeamTaskManager.ViewModels
 
             ShowBacklogCommand = new RelayCommand(() =>
             {
-                if(ActiveSprint == null)
-                {
-                    System.Windows.MessageBox.Show("Brak aktywnego sprintu w projekcie.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                    return;
-                }
-
                 if (SelectedProject == null)
                 {
                     System.Windows.MessageBox.Show("Nie wybrano projektu.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
@@ -121,12 +115,12 @@ namespace TeamTaskManager.ViewModels
 
             ShowSprintReportCommand = new RelayCommand(() =>
             {
-                if (ActiveSprint == null)
+                if (SelectedProject == null)
                 {
-                    System.Windows.MessageBox.Show("Brak aktywnego sprintu w projekcie.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    System.Windows.MessageBox.Show("Nie wybrano projektu.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                     return;
                 }
-                CurrentView = new SprintReportView(ActiveSprint?.Id ?? -1);
+                CurrentView = new SprintReportView(ActiveSprint?.Id ?? -1, SelectedProject?.Id ?? -1);
             });
 
             ShowHeadAdminPanelCommand = new RelayCommand(() =>

@@ -40,7 +40,7 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Orientation="Vertical" Margin="0 0 8 0">
-            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding SprintVisibility}">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
@@ -125,7 +125,7 @@
                                         <Button Grid.Column="3" Content="+"
                                                         Style="{StaticResource ActionButtonStyle}"
                                                         Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                        CommandParameter="{Binding}"/>
+                                                        CommandParameter="{Binding}" Visibility="{Binding DataContext.SprintVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                                     </Grid>
                                 </Button>
                             </DataTemplate>

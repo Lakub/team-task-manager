@@ -10,6 +10,7 @@ using System.Security.Policy;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using TeamTaskManager.Helpers;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
@@ -48,7 +49,7 @@ namespace TeamTaskManager.ViewModels
     {
         private readonly IProjectService _projectService;
         private readonly ISprintService _sprintService;
-        public ICommand OpenSprintRaportCommand { get; }
+        public ICommand OpenSprintReportCommand { get; }
         public ICommand CreateSprintCommand { get; }
 
         private int _projectId;
@@ -67,7 +68,7 @@ namespace TeamTaskManager.ViewModels
             _sprintService = sprintService;
             _projectId = projectId;
 
-            OpenSprintRaportCommand = new RelayCommand<SprintItem>(OpenSprintRaport);
+            OpenSprintReportCommand = new RelayCommand<SprintItem>(OpenSprintReport);
             CreateSprintCommand = new RelayCommand(CreateSprint);
 
         }
@@ -123,10 +124,11 @@ namespace TeamTaskManager.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
-        private void OpenSprintRaport(SprintItem sprintItem)
+        private void OpenSprintReport(SprintItem? sprintItem)
         {
             if (sprintItem == null) return;
-            var reportView = new SprintReportView(sprintItem.Id);
+
+            var reportView = new SprintReportView(sprintItem.Id, _projectId);
             WeakReferenceMessenger.Default.Send(new NavigationMessage(reportView));
         }
 

@@ -325,7 +325,11 @@
             <Border Style="{StaticResource Card}" Margin="0,0,0,8">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">
-                        <TextBlock Text="ZADANIA SPRINTU" Style="{StaticResource SectionTitle}" Margin="0"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <TextBlock Text="ZADANIA SPRINTU" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center"/>
+                            <Button Style="{StaticResource ActionButtonStyle}" Command="{Binding OpenSprintBacklogCommand}" Visibility="{Binding TaskListEditVisibility}"
+                                    Padding="3,0,3,0" Margin="2,0,0,0" Content="✎" FontFamily="Segoe UI Symbol" FontSize="14"/>
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Content="Wszystkie" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="{x:Null}"/>
                             <Button Content="Ukończone" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="done"/>

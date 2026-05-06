@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,9 +10,11 @@ using System.Security.Policy;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using TeamTaskManager.Helpers;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
+using TeamTaskManager.Views;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
 
 namespace TeamTaskManager.ViewModels
@@ -114,7 +117,8 @@ namespace TeamTaskManager.ViewModels
         private readonly IUserService _userService;
         public ICommand FilterCommand { get; }
 
-        private readonly int _sprintId;
+        private int _sprintId;
+        private int _projectId;
 
         private readonly List<SprintTaskItem> _allTaskItems = new();
 
@@ -123,6 +127,7 @@ namespace TeamTaskManager.ViewModels
 
         public Action<TeamMemberItem>? OnTeamMemberSelected { get; set; }
         public ICommand OpenUserProfileCommand { get; }
+        public ICommand OpenSprintBacklogCommand { get; }
 
         public string SprintName { get; set; }
         public string ProjectName { get; set; }
@@ -130,8 +135,9 @@ namespace TeamTaskManager.ViewModels
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
-        public Visibility DaysRemainingVisibility => IsActive ? Visibility.Visible : Visibility.Collapsed;
         public bool IsPlanned { get; set; }
+        public Visibility DaysRemainingVisibility => IsActive ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility TaskListEditVisibility => IsActive || IsPlanned ? Visibility.Visible : Visibility.Collapsed;
 
         private string _avgTaskTime = "-";
         public string AvgTaskTime
@@ -201,32 +207,46 @@ namespace TeamTaskManager.ViewModels
             set { _teamMembers = value; OnPropertyChanged(); }
         }
 
-        public SprintReportViewModel(ISprintService sprintService, IUserService userService, int sprintId)
+        public SprintReportViewModel(ISprintService sprintService, IUserService userService, int sprintId, int projectId)
         {
             _sprintService = sprintService;
             _userService = userService;
             _sprintId = sprintId;
+            _projectId = projectId;
 
             FilterCommand = new RelayCommand<string?>(ApplyFilter);
             OpenTaskCommand = new RelayCommand<SprintTaskItem?>(OpenTask);
             OpenUserProfileCommand = new RelayCommand<TeamMemberItem?>(OpenUserProfile);
+            OpenSprintBacklogCommand = new RelayCommand(OpenSprintBacklog);
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            var sprintId = _sprintId;
-
-            if (sprintId < 0)
+            if (_sprintId < 0)
             {
-                // LADOWANIE PIERWSZEFGO AKTYWNEGO LUB PIERWSZEGO LEPSZEGO JESLI NIE MA AKTYWNEGO
-                var sprints = await _sprintService.GetAllSprintsAsync();
-                var active = sprints.FirstOrDefault(s => s.Status == SprintStatus.Active);
-                sprintId = active?.Id ?? sprints.FirstOrDefault()?.Id ?? 0;
+                var sprints = await _sprintService.GetAllSprintsByProjectIdAsync(_projectId);
+                
+                // aktywny sprint, jesli nie ma to ostatni zaczety, jesli nie ma to info o braku sprinta
+                var targetSprint = sprints.FirstOrDefault(s => s.Status == SprintStatus.Active)
+                                ?? sprints.Where(s => s.Status != SprintStatus.Planned).OrderByDescending(s => s.StartDate).FirstOrDefault()
+                                ?? sprints.FirstOrDefault();
+
+                if (targetSprint == null)
+                {
+                    MessageBox.Show("Brak sprintów w projekcie.");
+                    var backlogView = new BacklogView(-1, _projectId);
+                    WeakReferenceMessenger.Default.Send(new NavigationMessage(backlogView));
+                    return;
+                }
+
+                _sprintId = targetSprint.Id;
             }
 
-            var (sprint, sprintTasks) = await _sprintService.GetSprintReportDataAsync(sprintId);
+            var (sprint, sprintTasks) = await _sprintService.GetSprintReportDataAsync(_sprintId);
 
             if (sprint == null) return;
+
+            _projectId = sprint.ProjectId;
 
             SprintName = sprint.Name;
             ProjectName = sprint.Project.Name;
@@ -234,6 +254,7 @@ namespace TeamTaskManager.ViewModels
             StartDate = sprint.StartDate;
             EndDate = sprint.EndDate;
             IsActive = sprint.Status == SprintStatus.Active;
+            IsPlanned = sprint.Status == SprintStatus.Planned;
 
             _allTaskItems.Clear();
             foreach (var st in sprintTasks)
@@ -324,6 +345,12 @@ namespace TeamTaskManager.ViewModels
         public void OpenTask(SprintTaskItem? item)
         {
             if (item != null) OnTaskSelected?.Invoke(item);
+        }
+
+        private void OpenSprintBacklog()
+        {
+            var backlogView = new BacklogView(_sprintId, _projectId);
+            WeakReferenceMessenger.Default.Send(new NavigationMessage(backlogView));
         }
 
         public void OpenUserProfile(TeamMemberItem? item)

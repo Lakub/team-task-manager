@@ -8,7 +8,7 @@ namespace TeamTaskManager.Views
 {
     public partial class SprintReportView : UserControl
     {
-        public SprintReportView(int sprintId = -1)
+        public SprintReportView(int sprintId, int projectId)
         {
             InitializeComponent();
 
@@ -16,7 +16,8 @@ namespace TeamTaskManager.Views
             DataContext = new SprintReportViewModel(
                 new SprintService(dbContext),
                 new UserService(dbContext),
-                sprintId);
+                sprintId,
+                projectId);
 
             Loaded += SprintReportView_Loaded;
         }

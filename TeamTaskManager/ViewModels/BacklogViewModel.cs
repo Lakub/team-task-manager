@@ -55,6 +55,9 @@ namespace TeamTaskManager.ViewModels
         [ObservableProperty]
         private string sprintName = string.Empty;
 
+        public bool IsBacklogOnly => _sprintId <= 0;
+        public Visibility SprintVisibility => IsBacklogOnly ? Visibility.Collapsed : Visibility.Visible;
+
         public ObservableCollection<BacklogTaskItem> SprintTasks { get; } = new();
         public ObservableCollection<BacklogTaskItem> BacklogTasks { get; } = new();
 
@@ -125,7 +128,7 @@ namespace TeamTaskManager.ViewModels
 
         private void OpenSprintReport()
         {
-            var reportView = new SprintReportView(_sprintId);
+            var reportView = new SprintReportView(_sprintId, _projectId);
             WeakReferenceMessenger.Default.Send(new NavigationMessage(reportView));
         }
 

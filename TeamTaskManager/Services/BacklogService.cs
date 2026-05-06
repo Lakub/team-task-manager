@@ -35,7 +35,8 @@ namespace TeamTaskManager.Services
         {
             return await _context.SprintTasks
                 .Include(st => st.Task)
-                .Where(st => st.SprintId == sprintId && st.RemovedAt == null)
+                .Where(st => st.SprintId == sprintId    // tylko z tego sprintu
+                          && st.RemovedAt == null)      // tylko nieusuniete ze sprintu
                 .Select(st => st.Task)
                 .ToListAsync();
         }
@@ -43,15 +44,16 @@ namespace TeamTaskManager.Services
         public async Task<List<Task>> GetBacklogTasksAsync(int projectId)
         {
             var activeSprintTaskIds = await _context.SprintTasks
-                .Where(st => st.Sprint.Status == SprintStatus.Active && st.RemovedAt == null)
+                .Where(st => st.Sprint.Status == SprintStatus.Active    // tylko z aktywnego sprintu
+                          && st.RemovedAt == null)                      // tylko nieusuniete ze sprintu
                 .Select(st => st.TaskId)
                 .ToListAsync();
 
             return await _context.Tasks
                 .Where(t => t.ProjectId == projectId
-                         && !t.IsDeleted
-                         && t.Status != TaskStatus.Closed
-                         && !activeSprintTaskIds.Contains(t.Id))
+                         && !t.IsDeleted                            // tylko nieusuniete
+                         && t.Status != TaskStatus.Closed           // tylko otwarte lub w trakcie
+                         && !activeSprintTaskIds.Contains(t.Id))    // tylko te poza aktywnym sprintem
                 .ToListAsync();
         }
 
@@ -82,11 +84,13 @@ namespace TeamTaskManager.Services
         public async System.Threading.Tasks.Task RemoveTaskFromSprintAsync(int sprintId, int taskId)
         {
             var sprintTask = await _context.SprintTasks
-                .FirstOrDefaultAsync(st => st.SprintId == sprintId && st.TaskId == taskId && st.RemovedAt == null);
+                .FirstOrDefaultAsync(st => st.SprintId == sprintId  // z tego sprintu
+                                        && st.TaskId == taskId      // konkretny task
+                                        && st.RemovedAt == null);   // tylko nieusuniete ze sprintu
 
             if (sprintTask != null)
             {
-                sprintTask.RemovedAt = DateTime.UtcNow;
+                sprintTask.RemovedAt = DateTime.UtcNow;             // staje sie usuniete
                 await _context.SaveChangesAsync();
             }
         }

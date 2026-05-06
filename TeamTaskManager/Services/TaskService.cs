@@ -47,8 +47,8 @@ namespace TeamTaskManager.Services
                 Reporter = reporter!,
                 Assignee = assignee,
                 Project = project!,
-                CreatedAt = System.DateTime.UtcNow,
-                UpdatedAt = System.DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
                 IsDeleted = false
             };
 

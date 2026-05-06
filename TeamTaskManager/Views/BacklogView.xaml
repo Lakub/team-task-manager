@@ -60,10 +60,10 @@
                     <ItemsControl x:Name="SprintTasksControl" ItemsSource="{Binding SprintTasks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ClickableListItemStyle}">
-                                    <Border.InputBindings>
-                                        <MouseBinding Gesture="LeftClick" Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                    </Border.InputBindings>
+                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                        Command="{Binding DataContext.OpenTaskCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -81,11 +81,11 @@
                                         <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
                                         <Button Grid.Column="3" Content="-"
-                                                Style="{StaticResource ActionButtonStyle}"
-                                                Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                CommandParameter="{Binding}"/>
+                                                    Style="{StaticResource ActionButtonStyle}"
+                                                    Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                    CommandParameter="{Binding}"/>
                                     </Grid>
-                                </Border>
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -102,10 +102,10 @@
                     <ItemsControl x:Name="BacklogTasksControl" ItemsSource="{Binding BacklogTasks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ClickableListItemStyle}">
-                                    <Border.InputBindings>
-                                        <MouseBinding Gesture="LeftClick" Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                    </Border.InputBindings>
+                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                        Command="{Binding DataContext.OpenTaskCommand,
+                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -123,11 +123,11 @@
                                         <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
                                         <Button Grid.Column="3" Content="+"
-                                                Style="{StaticResource ActionButtonStyle}"
-                                                Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                CommandParameter="{Binding}"/>
+                                                        Style="{StaticResource ActionButtonStyle}"
+                                                        Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                        CommandParameter="{Binding}"/>
                                     </Grid>
-                                </Border>
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

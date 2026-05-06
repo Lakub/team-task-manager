@@ -8,7 +8,16 @@
 
     <UserControl.Resources>
         <local:IntToStarGridLengthConverter x:Key="StarConverter" />
-        
+
+        <Style x:Key="GrayoutableCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                    <Setter Property="Background" Value="#FFE5E7EB"/>
+                    <Setter Property="Opacity" Value="0.6"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="11"/>
@@ -24,7 +33,7 @@
                 <ItemsControl ItemsSource="{Binding Sprints}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource Card}" Margin="0,0,0,8" Cursor="Hand">
+                            <Border Style="{StaticResource GrayoutableCard}" Margin="0,0,0,8" Cursor="Hand">
                                 <Border.InputBindings>
                                     <MouseBinding MouseAction="LeftClick" 
                                         Command="{Binding DataContext.OpenSprintRaportCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 

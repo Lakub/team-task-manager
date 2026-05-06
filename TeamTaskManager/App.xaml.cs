@@ -11,8 +11,8 @@ namespace TeamTaskManager
     /// </summary>
     public partial class App : Application
     {
-        public static User? CurrentUser { get; private set; }
-
+        public static User? CurrentUser { get; set; }
+        public static bool IsLoggingOut { get; set; } = false;
         
         protected void OnStartup(object sender, StartupEventArgs e)
         {
@@ -22,17 +22,17 @@ namespace TeamTaskManager
             
              var login = new LoginWindow();
 
-             if (login.ShowDialog() == true)
-             {
-                 CurrentUser = login.LoggedInUser;
-                 var main = new MainWindow();
-                 main.Closed += (s, args) => Shutdown();
-                 main.Show();
-             }
-             else
-             {
-                 Shutdown();
-             }
+            if (login.ShowDialog() == true)
+            {
+                CurrentUser = login.LoggedInUser;
+                var main = new MainWindow();
+                main.Closed += (s, args) => { if (!IsLoggingOut) Shutdown(); };
+                main.Show();
+            }
+            else
+            {
+                Shutdown();
+            }
             
 
         }

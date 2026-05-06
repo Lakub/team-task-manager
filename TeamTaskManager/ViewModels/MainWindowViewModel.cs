@@ -60,7 +60,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand ClearDbCommand { get; }
         public ICommand ShowWikiCommand { get; }
         public ICommand EditProjectCommand { get; }
-
+        public ICommand LogoutCommand { get;  }
         public bool IsHeadAdmin => string.Equals(App.CurrentUser?.Email, "j.kowalski@email.com", System.StringComparison.OrdinalIgnoreCase);
 
         public ICommand CreateNewProjectCommand { get;  }
@@ -189,6 +189,27 @@ namespace TeamTaskManager.ViewModels
                 var editProjectWindow = new CreateProjectWindow(true,SelectedProject);
                 if (editProjectWindow.ShowDialog() == true){
                     LoadProjects(editProjectWindow.editedProject.Id);
+                }
+            });
+            LogoutCommand = new RelayCommand(() =>
+            {
+                App.IsLoggingOut = true;
+                App.CurrentUser = null;
+
+                System.Windows.Application.Current.MainWindow.Close();
+
+                var login = new LoginWindow();
+                if (login.ShowDialog() == true)
+                {
+                    App.CurrentUser = login.LoggedInUser;
+                    App.IsLoggingOut = false;
+                    var main = new MainWindow();
+                    main.Closed += (s, args) => { if (!App.IsLoggingOut) System.Windows.Application.Current.Shutdown(); };
+                    main.Show();
+                }
+                else
+                {
+                    System.Windows.Application.Current.Shutdown();
                 }
             });
 

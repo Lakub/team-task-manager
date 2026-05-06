@@ -16,13 +16,19 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="{Binding SprintName, StringFormat='Sprint: {0}'}" 
-                                   FontFamily="Segoe UI" FontSize="16" FontWeight="SemiBold" 
-                                   Foreground="#1F2937" Cursor="Hand" VerticalAlignment="Center">
-                            <TextBlock.InputBindings>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Cursor="Hand">
+                            <TextBlock Text="{Binding SprintName, FallbackValue='Sprint'}"
+                                       FontFamily="Segoe UI" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                            <Border Background="#D1FAE5" CornerRadius="12" Padding="10,3" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding StatusText, FallbackValue='W toku'}" FontFamily="Segoe UI" FontSize="12"
+                                            FontWeight="Medium" Foreground="#065F46"/>
+                            </Border>
+                            <StackPanel.InputBindings>
                                 <MouseBinding Gesture="LeftClick" Command="{Binding OpenSprintReportCommand}" />
-                            </TextBlock.InputBindings>
-                        </TextBlock>
+                            </StackPanel.InputBindings>
+                        </StackPanel>
                     </Grid>
 
                     <ItemsControl x:Name="SprintTasksControl" ItemsSource="{Binding SprintTasks}">

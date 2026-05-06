@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -58,6 +59,10 @@ namespace TeamTaskManager.ViewModels
         [ObservableProperty]
         private string sprintName = string.Empty;
 
+        public bool IsActive { get; set; }
+        public bool IsPlanned { get; set; }
+        public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
+
         public bool IsBacklogOnly => _sprintId <= 0;
         public Visibility SprintVisibility => IsBacklogOnly ? Visibility.Collapsed : Visibility.Visible;
 
@@ -83,6 +88,10 @@ namespace TeamTaskManager.ViewModels
             if (sprint != null)
             {
                 SprintName = sprint.Name;
+                IsActive = sprint.Status == SprintStatus.Active;
+                IsPlanned = sprint.Status == SprintStatus.Planned;
+                OnPropertyChanged(nameof(StatusText));
+                OnPropertyChanged(nameof(SprintVisibility));
             }
 
             var project = await _backlogService.GetProjectAsync(_projectId);
@@ -90,6 +99,8 @@ namespace TeamTaskManager.ViewModels
             {
                 ProjectKey = project.Key;
             }
+
+            OnPropertyChanged(string.Empty);
 
             await LoadTasksAsync();
         }

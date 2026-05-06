@@ -26,14 +26,14 @@
             </Border>
         </StackPanel>
 
-        <Grid Grid.Row="2" Margin="0,0,0,15">
+        <Grid Grid.Row="2" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="20"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Margin="0,0,0,15">
+            <StackPanel Grid.Column="0">
                 <TextBlock Text="Typ zadania *" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
                 <ComboBox x:Name="TaskTypeComboBox" Height="35" FontSize="14" ItemsSource="{Binding TaskTypes}" SelectedItem="{Binding SelectedType}"/>
             </StackPanel>
@@ -44,7 +44,7 @@
             </StackPanel>
         </Grid>
 
-        <StackPanel Grid.Row="3" Grid.Column="2">
+        <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,0,0,10">
             <TextBlock Text="Przypisany" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
             <ComboBox x:Name="AssigneeComboBox" Height="35" FontSize="14" ItemsSource="{Binding ProjectMembers}" SelectedItem="{Binding SelectedAssignee}" DisplayMemberPath="FullName"/>
         </StackPanel>

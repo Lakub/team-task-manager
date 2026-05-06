@@ -23,7 +23,19 @@ namespace TeamTaskManager.Views
             if (DataContext is TaskDetailsViewModel vm)
             {
                 await vm.InitializeAsync();
+
+                DescriptionText.SizeChanged += (_, _) => CheckDescriptionOverflow(vm);
+
+                DescriptionText.UpdateLayout();
+                CheckDescriptionOverflow(vm);
             }
+        }
+
+        private void CheckDescriptionOverflow(TaskDetailsViewModel vm)
+        {
+            // jesli wiecej niz 4 linijki tesku to 'pokaz wiecej'
+            DescriptionText.Measure(new Size(DescriptionText.ActualWidth, double.PositiveInfinity));
+            vm.DescriptionOverflows = DescriptionText.DesiredSize.Height > 88;
         }
     }
 }

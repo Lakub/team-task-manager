@@ -25,13 +25,15 @@ namespace TeamTaskManager.ViewModels
         public int Id { get; set;  }
         public string SprintName { get; set; }
         public string CreatorName { get; set; }
+        public string CreatorInitials => string.Join("", CreatorName.Split(' ').Select(n => n[0])).ToUpper();
+        public Brush CreatorAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
+        public Brush CreatorAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
         public Visibility DaysRemainingVisibility => IsActive ? Visibility.Visible : Visibility.Collapsed;
         public bool IsPlanned { get; set; }
         public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
-        public Brush SprintCardColor => IsActive ? new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF)) : new SolidColorBrush(Color.FromRgb(0xDD, 0xDD, 0xDD));
         public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
         public string EndDateStr => EndDate.ToString("dd.MM.yyyy");
         public int DaysRemaining => Math.Max(0, (EndDate - DateTime.Today).Days);
@@ -48,7 +50,6 @@ namespace TeamTaskManager.ViewModels
     public partial class SprintsOverviewViewModel : INotifyPropertyChanged
     {
         private readonly IProjectService _projectService;
-        private readonly ISprintService _sprintService;
         public ICommand OpenSprintReportCommand { get; }
         public ICommand CreateSprintCommand { get; }
 
@@ -62,10 +63,9 @@ namespace TeamTaskManager.ViewModels
             set { _sprints = value; OnPropertyChanged(); }
         }
 
-        public SprintsOverviewViewModel(IProjectService projectService, ISprintService sprintService, int projectId)
+        public SprintsOverviewViewModel(IProjectService projectService, int projectId)
         {
             _projectService = projectService;
-            _sprintService = sprintService;
             _projectId = projectId;
 
             OpenSprintReportCommand = new RelayCommand<SprintItem>(OpenSprintReport);

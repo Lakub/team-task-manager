@@ -31,6 +31,7 @@ namespace TeamTaskManager.ViewModels
 
             AddCommentCommand = new RelayCommand(AddComment);
             LogWorkCommand = new RelayCommand(LogWork);
+            ToggleDescriptionCommand = new RelayCommand(() => IsDescriptionExpanded = !IsDescriptionExpanded);
 
         }
 
@@ -77,6 +78,7 @@ namespace TeamTaskManager.ViewModels
 
         public ICommand LogWorkCommand { get; }
         public ICommand AddCommentCommand { get; }
+        public ICommand ToggleDescriptionCommand { get; }
 
         public string WindowTitle => _task != null ? $"Szczegóły zadania {TaskKey}" : "Szczegóły zadania";
 
@@ -87,6 +89,28 @@ namespace TeamTaskManager.ViewModels
         public string Description => _task?.Description ?? string.Empty;
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public bool HasNoDescription => !HasDescription;
+
+        // pokaz wiecej/zwin w opisie
+        private bool _descriptionOverflows;
+        public bool DescriptionOverflows
+        {
+            get => _descriptionOverflows;
+            set => SetProperty(ref _descriptionOverflows, value);
+        }
+        public double DescriptionMaxHeight => IsDescriptionExpanded ? double.PositiveInfinity : 88;
+        public string ShowMoreLabel => IsDescriptionExpanded ? "Zwiń" : "Zobacz więcej";
+
+        private bool _isDescriptionExpanded = false;
+        public bool IsDescriptionExpanded
+        {
+            get => _isDescriptionExpanded;
+            set
+            {
+                SetProperty(ref _isDescriptionExpanded, value);
+                OnPropertyChanged(nameof(DescriptionMaxHeight));
+                OnPropertyChanged(nameof(ShowMoreLabel));
+            }
+        }
 
         // kolorki i tekst dla typu, statusu i priorytetu
         public string TypeDisplay => _task?.Type.ToString() ?? string.Empty;

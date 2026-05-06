@@ -31,6 +31,7 @@ namespace TeamTaskManager.ViewModels
 
             AddCommentCommand = new RelayCommand(AddComment);
             LogWorkCommand = new RelayCommand(LogWork);
+            OpenWorklogCommand = new RelayCommand<WorklogItem>(OpenWorklog);
             ToggleDescriptionCommand = new RelayCommand(() => IsDescriptionExpanded = !IsDescriptionExpanded);
 
         }
@@ -78,6 +79,7 @@ namespace TeamTaskManager.ViewModels
 
         public ICommand LogWorkCommand { get; }
         public ICommand AddCommentCommand { get; }
+        public ICommand OpenWorklogCommand { get; }
         public ICommand ToggleDescriptionCommand { get; }
 
         public string WindowTitle => _task != null ? $"Szczegóły zadania {TaskKey}" : "Szczegóły zadania";
@@ -200,6 +202,11 @@ namespace TeamTaskManager.ViewModels
         }
 
         private void AddComment()
+        {
+            MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void OpenWorklog(WorklogItem? item)
         {
             MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }

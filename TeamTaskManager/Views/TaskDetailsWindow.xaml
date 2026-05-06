@@ -64,24 +64,34 @@
                             <ItemsControl ItemsSource="{Binding Worklogs}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,10">
+                                        <Button Style="{StaticResource AltListItemButtonStyle}" Padding="0,10"
+                                                Command="{Binding DataContext.OpenWorklogCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Grid.Column="0">
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,2"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                        <Border Background="{Binding AvatarBg}" CornerRadius="9"
+                                                                Width="18" Height="18" Margin="0,0,5,0">
+                                                            <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="8"
+                                                                       FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
+                                                    </StackPanel>
                                                     <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
                                                 </StackPanel>
                                                 <Border Grid.Column="1" Background="#F3F4F6" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding TimeSpentStr}" Foreground="#374151" FontWeight="SemiBold" FontSize="13"/>
                                                 </Border>
                                             </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
 
                             <TextBlock Text="Brak wpisów." FontStyle="Italic" Foreground="#9CA3AF" Margin="0,10,0,0"
                                        Visibility="{Binding HasNoWorklogs, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -98,6 +108,12 @@
                                         <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,10">
                                             <StackPanel>
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                    <Border Background="{Binding AvatarBg}" CornerRadius="9"
+                                                            Width="18" Height="18" Margin="0,0,5,0">
+                                                        <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="8"
+                                                                   FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
                                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
                                                     <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
                                                 </StackPanel>

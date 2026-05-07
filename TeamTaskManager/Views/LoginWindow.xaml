@@ -30,7 +30,7 @@
                         x:Name="PasswordBox"/>
 
                 <Button Style="{StaticResource PrimaryButtonStyle}" Content="ZALOGUJ" Height="46" Margin="0 0 0 20"
-                        FontWeight="SemiBold" x:Name="LoginButton" Click="LoginButton_Click"/>
+                        FontWeight="SemiBold" x:Name="LoginButton" Click="LoginButton_Click" IsDefault="True"/>
 
         <TextBlock Text="TEMP" Foreground="#6B7280" FontSize="12" HorizontalAlignment="Center"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

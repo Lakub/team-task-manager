@@ -38,7 +38,7 @@ namespace TeamTaskManager.Services
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
-            return string.Equals(user?.Email, "j.kowalski@email.com", StringComparison.OrdinalIgnoreCase);
+            return user?.OrgRole == OrgRole.HeadAdmin;
         }
 
     }

@@ -55,7 +55,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand ClearDbCommand { get; }
         public ICommand ShowWikiCommand { get; }
 
-        public bool IsHeadAdmin => string.Equals(App.CurrentUser?.Email, "j.kowalski@email.com", System.StringComparison.OrdinalIgnoreCase);
+        public bool IsHeadAdmin => App.CurrentUser?.OrgRole == OrgRole.HeadAdmin;
 
         public ICommand CreateNewProjectCommand { get;  }
         public bool IsAdmin => App.CurrentUser?.OrgRole == Models.Enums.OrgRole.Admin;

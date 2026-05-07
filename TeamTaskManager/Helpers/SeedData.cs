@@ -28,7 +28,7 @@ namespace TeamTaskManager.Helpers
                 return;
             }
 
-            var user1 = new User { FullName = "Jan Kowalski", Email = "j.kowalski@email.com" };
+            var user1 = new User { FullName = "Jan Kowalski", Email = "j.kowalski@email.com", OrgRole = OrgRole.HeadAdmin };
             var user2 = new User { FullName = "Kamil Slimak", Email = "k.slimak@email.com" };
             var user3 = new User { FullName = "Joe Mama", Email = "j.mama@email.com" };
             context.Users.AddRange(user1, user2, user3);
@@ -294,7 +294,7 @@ namespace TeamTaskManager.Helpers
                     Email = Email,
                     CreatedAt = CreatedAt,
                     LastLogin = LastLogin,
-                    OrgRole = i < numProjectOwners ? OrgRole.Admin: OrgRole.User
+                    OrgRole = i == 0 ? OrgRole.HeadAdmin : (i <= numProjectOwners ? OrgRole.Admin : OrgRole.User)
                 });
             }
             context.Users.AddRange(users);

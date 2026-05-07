@@ -11,6 +11,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Nagłówek -->
         <Border Background="White" CornerRadius="8" Padding="20" Margin="0 0 0 12">
             <StackPanel>
                 <TextBlock Text="Panel HeadAdmin" FontSize="24" FontWeight="Bold" Foreground="#1F2937"/>
@@ -20,26 +21,137 @@
         </Border>
 
         <Grid Grid.Row="1">
-            <Border Background="#FEE2E2"
-                    CornerRadius="8"
-                    Padding="20"
+
+            <!-- Brak dostępu -->
+            <Border Background="#FEE2E2" CornerRadius="8" Padding="20"
                     Visibility="{Binding AccessDenied, Converter={StaticResource BoolToVisibilityConverter}}">
                 <TextBlock Text="{Binding AccessMessage}" Foreground="#991B1B" FontWeight="SemiBold" TextWrapping="Wrap"/>
             </Border>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           Visibility="{Binding HasAccess, Converter={StaticResource BoolToVisibilityConverter}}">
-                <UniformGrid Columns="2" Rows="4">
-                    <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Użytkownicy" Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding UsersCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                    <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Projekty" Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding ProjectsCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                    <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Taski" Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding TasksCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                    <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Sprinty" Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding SprintsCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                    <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Komentarze" Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding CommentsCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                    <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Worklogi" Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding WorklogsCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                    <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Załączniki" Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding AttachmentsCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                    <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Dokumentacja" Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding DocumentationCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/><TextBlock Text="Na razie panel raportuje dostępność modułu dokumentacji." Margin="0 8 0 0" Foreground="#9CA3AF" TextWrapping="Wrap"/></StackPanel></Border>
-                </UniformGrid>
+                <StackPanel>
+
+                    <StackPanel Visibility="{Binding ShowStats, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <TextBlock Text="Statystyki systemu" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="#1F2937" Margin="0 0 0 10"/>
+
+                        <UniformGrid Columns="2" Rows="4">
+                            <Button Command="{Binding ShowUsersCommand}" Cursor="Hand"
+                                    Margin="0 0 12 12" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="White" CornerRadius="8" Padding="18">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                                            <Setter Property="Background" Value="#EFF6FF"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel>
+                                                <TextBlock Text="Użytkownicy" Foreground="#6B7280" FontSize="12"/>
+                                                <TextBlock Text="{Binding UsersCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/>
+                                                <TextBlock Text="Zarządzaj rolami" FontSize="10" Foreground="#3B82F6" Margin="0 6 0 0"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Projekty"      Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding ProjectsCount}"      FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
+                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Taski"         Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding TasksCount}"         FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
+                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Sprinty"        Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding SprintsCount}"        FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
+                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Komentarze"    Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding CommentsCount}"    FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
+                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Worklogi"       Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding WorklogsCount}"       FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
+                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Załączniki"    Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding AttachmentsCount}"    FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
+                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Dokumentacja"  Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding DocumentationCount}"  FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
+                        </UniformGrid>
+
+                    </StackPanel>
+
+                    <!-- ══════════════════════════════════════════ -->
+                    <!-- WIDOK: LISTA UŻYTKOWNIKÓW                 -->
+                    <!-- ══════════════════════════════════════════ -->
+                    <StackPanel Visibility="{Binding ShowUserListPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <!-- Pasek z przyciskiem powrotu -->
+                        <Border Background="White" CornerRadius="8" Padding="14 10" Margin="0 0 0 12">
+                            <DockPanel>
+                                <Button Content="← Wróć do statystyk" Command="{Binding BackToStatsCommand}"
+                                        DockPanel.Dock="Left" Cursor="Hand"
+                                        Background="Transparent" BorderThickness="0"
+                                        Foreground="#3B82F6" FontSize="13" Padding="0"/>
+                                <TextBlock Text="Zarządzanie rolami użytkowników"
+                                           FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"
+                                           VerticalAlignment="Center" Margin="16 0 0 0"/>
+                            </DockPanel>
+                        </Border>
+
+                        <!-- Tabela użytkowników -->
+                        <Border Background="White" CornerRadius="8" Padding="0">
+                            <StackPanel>
+
+                                <!-- Nagłówek kolumn -->
+                                <Border Background="#F3F4F6" CornerRadius="8 8 0 0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="220"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Imię i nazwisko" Foreground="#6B7280" FontSize="12" FontWeight="SemiBold" Padding="14 10"/>
+                                        <TextBlock Grid.Column="1" Text="Email"           Foreground="#6B7280" FontSize="12" FontWeight="SemiBold" Padding="10 10"/>
+                                        <TextBlock Grid.Column="2" Text="Rola"            Foreground="#6B7280" FontSize="12" FontWeight="SemiBold" Padding="10 10"/>
+                                        <TextBlock Grid.Column="3" Text="Akcja"           Foreground="#6B7280" FontSize="12" FontWeight="SemiBold" Padding="10 10"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Wiersze -->
+                                <ItemsControl ItemsSource="{Binding UserList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F3F4F6" BorderThickness="0 1 0 0">
+                                                <Grid MinHeight="42">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="180"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="220"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding FullName}"  Foreground="#1F2937" FontWeight="SemiBold" VerticalAlignment="Center" Padding="14 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Email}"     Foreground="#6B7280" VerticalAlignment="Center" Padding="10 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding RoleLabel}" Foreground="#374151" VerticalAlignment="Center" Padding="10 0"/>
+                                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="8 6">
+                                                        <Button Content="Ustaw Admin"
+                                                                Command="{Binding PromoteCommand}"
+                                                                Visibility="{Binding CanPromote, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                Background="#3B82F6" Foreground="White"
+                                                                BorderThickness="0" Padding="12 5" Cursor="Hand"/>
+                                                        <Button Content="Cofnij do User"
+                                                                Command="{Binding DemoteCommand}"
+                                                                Visibility="{Binding CanDemote, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                Background="#EF4444" Foreground="White"
+                                                                BorderThickness="0" Padding="12 5" Cursor="Hand"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+
+                </StackPanel>
             </ScrollViewer>
+
         </Grid>
     </Grid>
 </UserControl>

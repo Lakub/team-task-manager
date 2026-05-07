@@ -1,10 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using TeamTaskManager.Models;
 
 #nullable disable
 
 namespace TeamTaskManager.Migrations
 {
-    /// <inheritdoc />
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20260422181842_roleorganizacyjne")]
     public partial class roleorganizacyjne : Migration
     {
         /// <inheritdoc />

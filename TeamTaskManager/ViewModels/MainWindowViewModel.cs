@@ -1,14 +1,16 @@
-﻿using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using SQLitePCL;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using TeamTaskManager.Helpers;
-using TeamTaskManager.Views;
 using TeamTaskManager.Models;
-using TeamTaskManager.Services;
-using CommunityToolkit.Mvvm.Messaging;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
+using TeamTaskManager.Services;
+using TeamTaskManager.Views;
 
 namespace TeamTaskManager.ViewModels
 {
@@ -28,12 +30,14 @@ namespace TeamTaskManager.ViewModels
             set
             {
                 SetProperty(ref _selectedProject, value);
-                ActiveSprint = value?.Sprints.FirstOrDefault(s => s.Status == SprintStatus.Active);;
+                ActiveSprint = value?.Sprints.FirstOrDefault(s => s.Status == SprintStatus.Active);
                 CurrentView = CurrentView switch
                 {
                     CurrentSprintView => new CurrentSprintView(),
                     SprintsOverviewView => new SprintsOverviewView(SelectedProject?.Id ?? -1),
-                    SprintReportView => ActiveSprint != null ? new SprintReportView(ActiveSprint.Id) : CurrentView,
+                    SprintReportView => SelectedProject != null ? new SprintReportView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
+                    BacklogView => SelectedProject != null ? new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
+                    WikiMainView => SelectedProject != null ? new WikiMainView(SelectedProject.Id) : CurrentView,
                     _ => CurrentView
                 };
             }
@@ -47,26 +51,31 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowCurrentSprintCommand { get; }
         public ICommand ShowAllSprintsCommand { get; }
         public ICommand ShowTeamMembersCommand { get; }
-        public ICommand CreateNewSprintCommand { get; }
+        public ICommand ShowBacklogCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
         public ICommand ShowHeadAdminPanelCommand { get; }
         public ICommand SeedDbCommand { get; }
         public ICommand RandomSeedDbCommand { get; }
         public ICommand ClearDbCommand { get; }
         public ICommand ShowWikiCommand { get; }
-
+        public ICommand EditProjectCommand { get; }
+        public ICommand LogoutCommand { get; }
         public bool IsHeadAdmin => App.CurrentUser?.OrgRole == OrgRole.HeadAdmin;
 
         public ICommand CreateNewProjectCommand { get;  }
         public bool IsAdmin => App.CurrentUser?.OrgRole == Models.Enums.OrgRole.Admin;
 
-        private async void LoadProjects()
+        private async void LoadProjects(int id=-1)
         {
+            _projectService.SwitchContext();
             var projects = await _projectService.GetNonDeletedProjectsWithSprintsByUserIdAsync(App.CurrentUser!.Id);
             Projects.Clear();
             foreach (var p in projects)
                 Projects.Add(p);
-            SelectedProject = Projects.FirstOrDefault();
+            if (id < 0)
+                SelectedProject = Projects.FirstOrDefault();
+            else
+                SelectedProject = Projects.FirstOrDefault(e => e.Id == id);
         }
 
         public MainWindowViewModel(IProjectService projectService)
@@ -92,22 +101,34 @@ namespace TeamTaskManager.ViewModels
                 System.Windows.MessageBox.Show("not implemented", "not implemented", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning));
 
             ShowWikiCommand = new RelayCommand(() =>
-                CurrentView = new WikiMainView());
-
-            CreateNewSprintCommand = new RelayCommand(() =>
             {
-                var createSprintWindow = new CreateSprintView();
-                createSprintWindow.ShowDialog();
+                if (SelectedProject == null)
+                {
+                    System.Windows.MessageBox.Show("Najpierw wybierz projekt z listy po lewej stronie.", "Brak projektu", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+                CurrentView = new WikiMainView(SelectedProject.Id);
+            });
+
+            ShowBacklogCommand = new RelayCommand(() =>
+            {
+                if (SelectedProject == null)
+                {
+                    System.Windows.MessageBox.Show("Nie wybrano projektu.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                CurrentView = new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject?.Id ?? -1);
             });
 
             ShowSprintReportCommand = new RelayCommand(() =>
             {
-                if (ActiveSprint == null)
+                if (SelectedProject == null)
                 {
-                    System.Windows.MessageBox.Show("Brak aktywnego sprintu w projekcie.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    System.Windows.MessageBox.Show("Nie wybrano projektu.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                     return;
                 }
-                CurrentView = new SprintReportView(ActiveSprint?.Id ?? -1);
+                CurrentView = new SprintReportView(ActiveSprint?.Id ?? -1, SelectedProject?.Id ?? -1);
             });
 
             ShowHeadAdminPanelCommand = new RelayCommand(() =>
@@ -119,13 +140,6 @@ namespace TeamTaskManager.ViewModels
                 }
 
                 CurrentView = new HeadAdminPanelView();
-            });
-
-            SeedDbCommand = new RelayCommand(() =>
-            {
-                using var context = new AppDbContext();
-                SeedData.Seed(context);
-                System.Windows.MessageBox.Show("Sukces", "Sukces", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             });
 
             RandomSeedDbCommand = new RelayCommand(() =>
@@ -149,12 +163,41 @@ namespace TeamTaskManager.ViewModels
                 if (createProjectWindow.ShowDialog() == true)
                     LoadProjects();
             });
+                    
+            EditProjectCommand = new RelayCommand(() =>
+            {
+                var editProjectWindow = new CreateProjectWindow(true,SelectedProject);
+                if (editProjectWindow.ShowDialog() == true){
+                    LoadProjects(editProjectWindow.editedProject.Id);
+                }
+            });
+            LogoutCommand = new RelayCommand(() =>
+            {
+                App.IsLoggingOut = true;
+                App.CurrentUser = null;
+
+                System.Windows.Application.Current.MainWindow.Close();
+
+                var login = new LoginWindow();
+                if (login.ShowDialog() == true)
+                {
+                    App.CurrentUser = login.LoggedInUser;
+                    App.IsLoggingOut = false;
+                    var main = new MainWindow();
+                    main.Closed += (s, args) => { if (!App.IsLoggingOut) System.Windows.Application.Current.Shutdown(); };
+                    main.Show();
+                }
+                else
+                {
+                    System.Windows.Application.Current.Shutdown();
+                }
+            });
 
             WeakReferenceMessenger.Default.Register<NavigationMessage>(this, (recipient, message) =>
             {
                 CurrentView = message.TargetView;
             });
-
+            
             LoadProjects();
 
             OnPropertyChanged(nameof(IsHeadAdmin));

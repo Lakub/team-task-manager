@@ -8,7 +8,7 @@ namespace TeamTaskManager.Views
 {
     public partial class SprintReportView : UserControl
     {
-        public SprintReportView(int sprintId = -1)
+        public SprintReportView(int sprintId, int projectId)
         {
             InitializeComponent();
 
@@ -16,7 +16,8 @@ namespace TeamTaskManager.Views
             DataContext = new SprintReportViewModel(
                 new SprintService(dbContext),
                 new UserService(dbContext),
-                sprintId);
+                sprintId,
+                projectId);
 
             Loaded += SprintReportView_Loaded;
         }
@@ -25,6 +26,25 @@ namespace TeamTaskManager.Views
         {
             if (DataContext is SprintReportViewModel vm)
             {
+                vm.OnTaskSelected = item =>
+                {
+                    if (item != null)
+                    {
+                        var taskDetailWindow = new TaskDetailsWindow(item.TaskId);
+                        taskDetailWindow.ShowDialog();
+                    }
+                };
+
+                vm.OnTeamMemberSelected = item =>
+                {
+                    if (item != null)
+                    {
+                        MessageBox.Show($"User: {item.FullName}", "User Profile Window", MessageBoxButton.OK, MessageBoxImage.Information);
+                        //var userProfileWindow = new UserProfileWindow(item.Id);
+                        //userProfileWindow.ShowDialog();
+                    }
+                };
+
                 await vm.InitializeAsync();
             }
         }

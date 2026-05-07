@@ -59,19 +59,6 @@ namespace TeamTaskManager.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<SprintTask>()
-                .HasKey(st => new { st.SprintId, st.TaskId });
-
-            modelBuilder.Entity<SprintTask>()
-                .HasOne(st => st.Sprint)
-                .WithMany(s => s.SprintTasks)
-                .HasForeignKey(st => st.SprintId);
-
-            modelBuilder.Entity<SprintTask>()
-                .HasOne(st => st.Task)
-                .WithMany(t => t.SprintTasks)
-                .HasForeignKey(st => st.TaskId);
-
             modelBuilder.Entity<ProjectUser>()
                 .HasKey(pu => new { pu.ProjectId, pu.UserId });
 

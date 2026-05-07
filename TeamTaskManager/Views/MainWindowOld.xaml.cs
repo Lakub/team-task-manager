@@ -19,7 +19,6 @@ namespace TeamTaskManager.Views
             InitializeComponent();
 
             using var context = new AppDbContext();
-            SeedData.Seed(context);
 
             var dbTasks = context.Tasks
                 .Include(t => t.Reporter)

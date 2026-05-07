@@ -9,10 +9,7 @@
     <UserControl.Resources>
         <local:IntToStarGridLengthConverter x:Key="StarConverter" />
 
-        <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="16"/>
+        <Style x:Key="GrayoutableCard" TargetType="Border" BasedOn="{StaticResource Card}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsActive}" Value="False">
                     <Setter Property="Background" Value="#FFE5E7EB"/>
@@ -20,7 +17,6 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-
 
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI"/>
@@ -37,10 +33,10 @@
                 <ItemsControl ItemsSource="{Binding Sprints}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource Card}" Margin="0,0,0,8" Cursor="Hand">
+                            <Border Style="{StaticResource GrayoutableCard}" Margin="0,0,0,8" Cursor="Hand">
                                 <Border.InputBindings>
                                     <MouseBinding MouseAction="LeftClick" 
-                                        Command="{Binding DataContext.OpenSprintRaportCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                        Command="{Binding DataContext.OpenSprintReportCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                         CommandParameter="{Binding}" />
                                 </Border.InputBindings>
                                 <Grid>
@@ -80,7 +76,12 @@
                                             <StackPanel Margin="0,0,20,0">
                                                 <TextBlock Text="AUTOR" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Ellipse Width="18" Height="18" Fill="#D1D5DB" Margin="0,0,5,0"/>
+                                                    <Border Background="{Binding CreatorAvatarBg}" CornerRadius="9"
+                                                            Width="18" Height="18" Margin="0,0,5,0">
+                                                        <TextBlock Text="{Binding CreatorInitials}" FontFamily="Segoe UI" FontSize="8"
+                                                                   FontWeight="SemiBold" Foreground="{Binding CreatorAvatarFg}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
                                                     <TextBlock Text="{Binding CreatorName, FallbackValue='Autor Sprintu'}" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
                                                 </StackPanel>
                                             </StackPanel>
@@ -121,6 +122,10 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+
+                <Button Content="+ Utwórz nowy sprint" Margin="0,4,0,0"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Command="{Binding CreateSprintCommand}"/>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

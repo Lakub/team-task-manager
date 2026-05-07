@@ -18,7 +18,7 @@
         <StackPanel Grid.Row="1" Margin="0,0,0,15">
             <TextBlock Text="Tytuł strony *" FontSize="14" Foreground="#6B7280" Margin="0,0,0,5"/>
             <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8" Height="40">
-                <TextBox x:Name="TitleTextBox" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="16"/>
+                <TextBox x:Name="TitleTextBox" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="16"/>
             </Border>
         </StackPanel>
 
@@ -29,12 +29,26 @@
             </Border>
         </StackPanel>
 
-        <StackPanel Grid.Row="3" Margin="0,0,0,20">
-            <TextBlock Text="Treść" FontSize="14" Foreground="#6B7280" Margin="0,0,0,5"/>
-            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8" Height="300">
-                <TextBox x:Name="ContentTextBox" Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" Padding="15" FontSize="14" VerticalScrollBarVisibility="Auto" FontFamily="Consolas"/>
+        <Grid Grid.Row="3" Margin="0,0,0,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                <TextBlock Text="Treść (Markdown)" FontSize="14" Foreground="#6B7280" Margin="0,0,15,0" VerticalAlignment="Center"/>
+
+                <Button Content=" B " FontWeight="Bold" Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnBold_Click"/>
+                <Button Content=" I " FontStyle="Italic" Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnItalic_Click"/>
+                <Button Content=" H1 " Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnH1_Click"/>
+                <Button Content=" H2 " Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnH2_Click"/>
+                <Button Content=" Lista " Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnList_Click"/>
+            </StackPanel>
+
+            <Border Grid.Row="1" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8">
+                <TextBox x:Name="ContentTextBox" Text="{Binding Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" Padding="15" FontSize="14" VerticalScrollBarVisibility="Auto" FontFamily="Consolas"/>
             </Border>
-        </StackPanel>
+        </Grid>
 
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
@@ -43,18 +57,11 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Command="{Binding CancelCommand}" Content="Anuluj" Width="100" Height="40" Margin="0,0,15,0" Background="Transparent" BorderThickness="0" Foreground="#6B7280" FontSize="14" FontWeight="Medium" Cursor="Hand"/>
+            <Button Grid.Column="1" Style="{StaticResource ActionButtonStyle}" Command="{Binding CancelCommand}"
+                    Content="Anuluj" Width="100" Height="40" Margin="0,0,15,0" FontSize="14" FontWeight="SemiBold"/>
 
-            <Button Grid.Column="2" Command="{Binding SaveCommand}" Width="120" Height="40" BorderThickness="0" Cursor="Hand" Background="{StaticResource DefaultButtonBackground}" Foreground="White">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-                <TextBlock Text="Zapisz" FontSize="14" FontWeight="SemiBold"/>
-            </Button>
+            <Button Grid.Column="2" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding SaveCommand}"
+                    Content="Zapisz" Width="120" Height="40" FontSize="14" FontWeight="SemiBold"/>
         </Grid>
     </Grid>
 </Window>

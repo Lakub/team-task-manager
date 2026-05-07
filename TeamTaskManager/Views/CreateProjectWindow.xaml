@@ -5,17 +5,53 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TeamTaskManager.Views"
         mc:Ignorable="d"
-        Title="CreateProjectWindow" Height="450" Width="800">
+        Title="Tworzenie projektu" Height="500" Width="800">
+    <Window.Resources>
+        <local:CheckedToColorConverter
+            x:Key="CheckedToColorConverter" x:Name="BorderConverter"
+            unselectedUserBorderBrush="#CCC"
+            selectedUserBackgroundBrush="#b1d184"
+            selectedUserBorderBrush="#8bb84d" 
+            selectedUserNameBrush="#263313" 
+            unselectedUserNameBrush="#1F2937"
+            />
+        <local:CheckedToColorConverter
+            x:Key="CheckedToColorProjectConverter" x:Name="ProjectUsersBorderConverter"
+            unselectedUserBorderBrush="#CCC"
+            selectedUserBackgroundBrush="#b0e8e4"
+            selectedUserBorderBrush="#1aeddc" 
+            selectedUserNameBrush="#003825" 
+            unselectedUserNameBrush="#1F2937"
+            />
+        <DataTemplate x:Key="UserTemplate">
+            <Border BorderBrush="{Binding Path=Id, Converter={StaticResource CheckedToColorConverter},ConverterParameter=border}" Background="{Binding Path=Id, Converter={StaticResource CheckedToColorConverter},ConverterParameter=background}" BorderThickness="1" CornerRadius="8" Padding="3,0,3,0" Height="40">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
+                    <TextBlock Text="{Binding Path=FullName}" Foreground="{Binding Path=Id, Converter={StaticResource CheckedToColorConverter}}"
+                    FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="ProjectUserTemplate">
+            <Border BorderBrush="{Binding Path=Id, Converter={StaticResource CheckedToColorProjectConverter},ConverterParameter=border}" Background="{Binding Path=Id, Converter={StaticResource CheckedToColorProjectConverter},ConverterParameter=background}" BorderThickness="1" CornerRadius="8" Padding="3,0,3,0" Height="40">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
+                    <TextBlock Text="{Binding Path=FullName}" Foreground="{Binding Path=Id, Converter={StaticResource CheckedToColorProjectConverter}}"
+            FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1.5*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Utwórz projekt" FontSize="28" FontWeight="Medium" Margin="0,-10,0,20" Foreground="#333"/>
+        <TextBlock Grid.Row="0" Text="Utwórz projekt" Name="FormTitle" FontSize="28" FontWeight="Medium" Margin="0,-10,0,20" Foreground="#333"/>
 
         <StackPanel Grid.Row="1" Margin="0,0,0,15">
             <TextBlock Text="Nazwa projektu" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
@@ -24,52 +60,33 @@
             </Border>
         </StackPanel>
         <Grid Grid.Row="2" Margin="0,0,0,15">
-    <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
-
-    <TextBlock Grid.Row="0" Grid.Column="0" Text="Dodaj użytkownika"
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Dodaj użytkownika"
             FontSize="14" Foreground="Gray" Margin="0,0,15,5"/>
-    <ComboBox x:Name="UserComboBox" Grid.Row="1" Grid.Column="0"
-            Margin="0,0,15,0" Width="160"
-            SelectionChanged="UserComboBox_SelectionChanged"/>
-
-    <TextBlock Grid.Row="0" Grid.Column="1" Text="Przypisani"
-            FontSize="14" Foreground="Gray"/>
-    <ScrollViewer Grid.Row="1" Grid.Column="1"
-                VerticalScrollBarVisibility="Disabled"
-                HorizontalScrollBarVisibility="Auto" Height="34">
-        <ItemsControl x:Name="AssignedList">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border Background="#D9D9D9" CornerRadius="15" Height="30"
-                            Margin="0,0,8,0" Padding="6,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding FullName}" FontSize="13"
-                                    Foreground="#555" VerticalAlignment="Center"
-                                    Margin="0,0,6,0"/>
-                            <Button Content="✕" FontSize="11"
-                                    Background="Transparent" BorderThickness="0"
-                                    Foreground="#888" Cursor="Hand" Padding="0"
-                                    VerticalAlignment="Center"
-                                    Click="RemoveUser_Click"/>
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-    </ScrollViewer>
-</Grid>
+            <ListBox Grid.Row="1" Grid.Column="0" x:Name="usersList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Single" SelectionChanged="SelectUser" ItemTemplate="{StaticResource UserTemplate}" >
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Przypisz kierowników projektu"
+                FontSize="14" Foreground="Gray" Margin="0,0,15,5"/>
+            <ListBox Grid.Row="1" Grid.Column="1" x:Name="projectManagerList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Single" SelectionChanged="SelectUser" ItemTemplate="{StaticResource ProjectUserTemplate}" >
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+        </Grid>
         
         <Grid Grid.Row="3" Margin="0,0,0,10">
             <Grid.RowDefinitions>
@@ -84,22 +101,13 @@
 
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Content="Anuluj" Width="100" Height="40" Margin="0,0,15,0" Background="Transparent" BorderThickness="0" Foreground="Gray" FontSize="14" FontWeight="Medium" Click="CancelButton_Click"/>
+            <Button Grid.Column="0" Content="Utwórz" Height="40" FontSize="14" FontWeight="SemiBold" Style="{StaticResource PrimaryButtonStyle}" Click="CreateButton_Click" Name="CreateButton"/>
 
-            <Button Grid.Column="0" Height="40" BorderThickness="0" Background="{StaticResource DefaultButtonBackground}" Foreground="White" Click="CreateButton_Click">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-                <TextBlock Text="Utwórz" FontSize="14" FontWeight="SemiBold"/>
-            </Button>
+            <Button Grid.Column="1" Content="Anuluj" Height="40" FontSize="14" FontWeight="SemiBold" Style="{StaticResource ActionButtonStyle}" Click="CancelButton_Click"/>
         </Grid>
     </Grid>
 </Window>

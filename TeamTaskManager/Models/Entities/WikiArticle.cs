@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+
 namespace TeamTaskManager.Models.Entities
 {
     public class WikiArticle
@@ -15,7 +16,10 @@ namespace TeamTaskManager.Models.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        
+        // RELACJA Z PROJEKTEM (Bez 'required', używamy '= null!;')
+        public int ProjectId { get; set; }
+        public virtual Project Project { get; set; } = null!;
+
         public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
     }
 }

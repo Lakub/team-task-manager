@@ -8,20 +8,6 @@
 
     <UserControl.Resources>
         <local:IntToStarGridLengthConverter x:Key="StarConverter" />
-        
-        <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="16"/>
-        </Style>
-
-        <Style x:Key="SectionTitle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
 
         <Style x:Key="MetricValue" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI"/>
@@ -35,30 +21,6 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="#6B7280"/>
             <Setter Property="Margin" Value="0,2,0,0"/>
-        </Style>
-
-        <Style x:Key="FilterButton" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="12,5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="20" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="FilterButtonActive" TargetType="Button" BasedOn="{StaticResource FilterButton}">
-            <Setter Property="Background" Value="#1F2937"/>
-            <Setter Property="Foreground" Value="White"/>
         </Style>
     </UserControl.Resources>
 
@@ -103,7 +65,12 @@
                             <StackPanel Margin="0,0,20,0">
                                 <TextBlock Text="AUTOR" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="18" Height="18" Fill="#D1D5DB" Margin="0,0,5,0"/>
+                                    <Border Background="{Binding CreatorAvatarBg}" CornerRadius="9"
+                                            Width="18" Height="18" Margin="0,0,5,0">
+                                        <TextBlock Text="{Binding CreatorInitials}" FontFamily="Segoe UI" FontSize="8"
+                                                   FontWeight="SemiBold" Foreground="{Binding CreatorAvatarFg}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
                                     <TextBlock Text="{Binding CreatorName, FallbackValue='Autor Sprintu'}" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
                                 </StackPanel>
                             </StackPanel>
@@ -137,13 +104,9 @@
                                 <ColumnDefinition Width="{Binding DoneTasks, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=0}" />
                                 <ColumnDefinition Width="{Binding RemainingTasks, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=1}" />
                             </Grid.ColumnDefinitions>
-
-                            <Border Grid.Column="0" 
-                                Background="#10B981" 
-                                CornerRadius="5" />
+                            <Border Grid.Column="0" Background="#10B981" CornerRadius="5" />
                         </Grid>
                     </Border>
-
                 </StackPanel>
             </Border>
 
@@ -167,7 +130,7 @@
                     <StackPanel>
                         <TextBlock Text="NAJDŁUŻSZE" Style="{StaticResource SectionTitle}"/>
                         <TextBlock Text="{Binding LongestTaskTime, FallbackValue='0.0h'}" Style="{StaticResource MetricValue}" Foreground="#B45309"/>
-                        <TextBlock Text="{Binding LongestTaskName, FallbackValue='Nazwa zadania'}" Style="{StaticResource MetricLabel}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding LongestTaskKey, FallbackValue='Nazwa zadania'}" Style="{StaticResource MetricLabel}" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Border>
 
@@ -234,13 +197,11 @@
                                 <TextBlock Grid.Column="0" Text="Feature" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
                                 <Grid Grid.Column="1" Margin="6,0">
                                     <Border Background="#EFF6FF" CornerRadius="4" Height="8"/>
-
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="{Binding FeatureCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=0}"/>
                                             <ColumnDefinition Width="{Binding NonFeatureCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=1}"/>
                                         </Grid.ColumnDefinitions>
-
                                         <Border Grid.Column="0" Background="#3B82F6" CornerRadius="4" Height="8"/>
                                     </Grid>
                                 </Grid>
@@ -256,13 +217,11 @@
                                 <TextBlock Grid.Column="0" Text="Bug" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
                                 <Grid Grid.Column="1" Margin="6,0">
                                     <Border Background="#FEF2F2" CornerRadius="4" Height="8"/>
-
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="{Binding BugCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=0}"/>
                                             <ColumnDefinition Width="{Binding NonBugCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=1}"/>
                                         </Grid.ColumnDefinitions>
-
                                         <Border Grid.Column="0" Background="#EF4444" CornerRadius="4" Height="8"/>
                                     </Grid>
                                 </Grid>
@@ -278,13 +237,11 @@
                                 <TextBlock Grid.Column="0" Text="Task" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
                                 <Grid Grid.Column="1" Margin="6,0">
                                     <Border Background="#F5F3FF" CornerRadius="4" Height="8"/>
-
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="{Binding TaskCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=0}"/>
                                             <ColumnDefinition Width="{Binding NonTaskCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=1}"/>
                                         </Grid.ColumnDefinitions>
-
                                         <Border Grid.Column="0" Background="#8B5CF6" CornerRadius="4" Height="8"/>
                                     </Grid>
                                 </Grid>
@@ -307,13 +264,11 @@
                                 <TextBlock Grid.Column="0" Text="High" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
                                 <Grid Grid.Column="1" Margin="6,0">
                                     <Border Background="#FEF2F2" CornerRadius="4" Height="8"/>
-
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="{Binding HighPrioCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=0}"/>
                                             <ColumnDefinition Width="{Binding NonHighPrioCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=1}"/>
                                         </Grid.ColumnDefinitions>
-
                                         <Border Grid.Column="0" Background="#EF4444" CornerRadius="4" Height="8"/>
                                     </Grid>
                                 </Grid>
@@ -329,13 +284,11 @@
                                 <TextBlock Grid.Column="0" Text="Medium" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
                                 <Grid Grid.Column="1" Margin="6,0">
                                     <Border Background="#FFFBEB" CornerRadius="4" Height="8"/>
-
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="{Binding MediumPrioCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=0}"/>
                                             <ColumnDefinition Width="{Binding NonMediumPrioCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=1}"/>
                                         </Grid.ColumnDefinitions>
-
                                         <Border Grid.Column="0" Background="#F59E0B" CornerRadius="4" Height="8"/>
                                     </Grid>
                                 </Grid>
@@ -351,13 +304,11 @@
                                 <TextBlock Grid.Column="0" Text="Low" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
                                 <Grid Grid.Column="1" Margin="6,0">
                                     <Border Background="#F0FDF4" CornerRadius="4" Height="8"/>
-
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="{Binding LowPrioCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=0}"/>
                                             <ColumnDefinition Width="{Binding NonLowPrioCount, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=1}"/>
                                         </Grid.ColumnDefinitions>
-
                                         <Border Grid.Column="0" Background="#22C55E" CornerRadius="4" Height="8"/>
                                     </Grid>
                                 </Grid>
@@ -371,33 +322,39 @@
             <Border Style="{StaticResource Card}" Margin="0,0,0,8">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">
-                        <TextBlock Text="ZADANIA SPRINTU" Style="{StaticResource SectionTitle}" Margin="0"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <TextBlock Text="ZADANIA SPRINTU" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center"/>
+                            <Button Style="{StaticResource ActionButtonStyle}" Command="{Binding OpenSprintBacklogCommand}" Visibility="{Binding TaskListEditVisibility}"
+                                    Padding="3,0,3,0" Margin="2,0,0,0" Content="✎" FontFamily="Segoe UI Symbol" FontSize="14"/>
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Style="{StaticResource FilterButtonActive}" Content="Wszystkie" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="{x:Null}"/>
-                            <Button Style="{StaticResource FilterButton}" Content="Ukończone" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="done"/>
-                            <Button Style="{StaticResource FilterButton}" Content="W trakcie" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="inprogress"/>
-                            <Button Style="{StaticResource FilterButton}" Content="Scope zmiany" Command="{Binding FilterCommand}" CommandParameter="scope"/>
+                            <Button Content="Wszystkie" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="{x:Null}"/>
+                            <Button Content="Ukończone" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="done"/>
+                            <Button Content="W trakcie" Margin="0,0,4,0" Command="{Binding FilterCommand}" CommandParameter="inprogress"/>
+                            <Button Content="Scope zmiany" Command="{Binding FilterCommand}" CommandParameter="scope"/>
                         </StackPanel>
                     </Grid>
 
-                    <Grid Margin="0,0,0,6">
+                    <Grid Margin="26,0,0,6">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="16"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="70"/>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="60"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="Zadanie" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#9CA3AF"/>
-                        <TextBlock Grid.Column="2" Text="Typ" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#9CA3AF"/>
-                        <TextBlock Grid.Column="3" Text="Priorytet" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#9CA3AF"/>
-                        <TextBlock Grid.Column="4" Text="Czas" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#9CA3AF" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="Zadanie" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                        <TextBlock Grid.Column="1" Text="Typ" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                        <TextBlock Grid.Column="2" Text="Priorytet" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#9CA3AF"/>
+                        <TextBlock Grid.Column="3" Text="Czas" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#9CA3AF" HorizontalAlignment="Right"/>
                     </Grid>
 
                     <ItemsControl x:Name="TaskListControl" ItemsSource="{Binding Tasks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#F9FAFB" CornerRadius="8" Padding="10,8" Margin="0,0,0,4">
+                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                        Command="{Binding DataContext.OpenTaskCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="16"/>
@@ -410,21 +367,28 @@
                                         <Ellipse Grid.Column="0" Width="8" Height="8" VerticalAlignment="Center" Fill="{Binding StatusColor}"/>
 
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                            <Border Background="{Binding ScopeBadgeBg}" CornerRadius="10" Padding="7,2" Margin="8,0,0,0" Visibility="{Binding ScopeBadgeVisibility}">
-                                                <TextBlock Text="{Binding ScopeBadgeText}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding ScopeBadgeFg}"/>
+                                            <TextBlock Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13"
+                                                       Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <Border Background="{Binding ScopeBadgeBg}" CornerRadius="10" Padding="7,2"
+                                                    Margin="8,0,0,0" Visibility="{Binding ScopeBadgeVisibility}">
+                                                <TextBlock Text="{Binding ScopeBadgeText}" FontFamily="Segoe UI" FontSize="11"
+                                                           Foreground="{Binding ScopeBadgeFg}"/>
                                             </Border>
                                         </StackPanel>
 
-                                        <Border Grid.Column="2" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
+                                        <Border Grid.Column="2" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11"
+                                                       Foreground="{Binding TypeBadgeFg}"/>
                                         </Border>
 
-                                        <TextBlock Grid.Column="3" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12"
+                                                   Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
-                                        <TextBlock Grid.Column="4" Text="{Binding TimeSpent}" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding TimeSpent}" FontFamily="Segoe UI" FontSize="12"
+                                                   Foreground="#6B7280" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                     </Grid>
-                                </Border>
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -437,7 +401,10 @@
                     <ItemsControl ItemsSource="{Binding TeamMembers}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#F9FAFB" CornerRadius="8" Padding="12,10" Margin="0,0,0,4">
+                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                        Command="{Binding DataContext.OpenUserProfileCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="36"/>
@@ -448,30 +415,39 @@
                                             <ColumnDefinition Width="60"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <Border Grid.Column="0" Background="{Binding AvatarBg}" CornerRadius="18" Width="30" Height="30" HorizontalAlignment="Left">
-                                            <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="{Binding AvatarFg}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Border Grid.Column="0" Background="{Binding AvatarBg}" CornerRadius="18"
+                                                Width="30" Height="30" HorizontalAlignment="Left">
+                                            <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="11"
+                                                       FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
 
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding FullName}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center"/>
-                                            <Border Background="#e0e7ff" CornerRadius="10" Padding="7,2" Margin="8,0,0,0" Visibility="{Binding YouBadgeVisibility}">
+                                            <TextBlock Text="{Binding FullName}" FontFamily="Segoe UI" FontSize="13"
+                                                       Foreground="#1F2937" VerticalAlignment="Center"/>
+                                            <Border Background="#e0e7ff" CornerRadius="10" Padding="7,2"
+                                                    Margin="8,0,0,0" Visibility="{Binding YouBadgeVisibility}">
                                                 <TextBlock Text="Ty" FontFamily="Segoe UI" FontSize="11" Foreground="#4338ca"/>
                                             </Border>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
                                             <Ellipse Width="8" Height="8" Fill="#10B981" Margin="0,0,5,0"/>
-                                            <TextBlock Text="{Binding DoneCount, StringFormat='{}{0} ukończone'}" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280"/>
+                                            <TextBlock Text="{Binding DoneCount, StringFormat='{}{0} ukończone'}"
+                                                       FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280"/>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
                                             <Ellipse Width="8" Height="8" Fill="#60A5FA" Margin="0,0,5,0"/>
-                                            <TextBlock Text="{Binding InProgressCount, StringFormat='{}{0} w toku'}" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280"/>
+                                            <TextBlock Text="{Binding InProgressCount, StringFormat='{}{0} w toku'}"
+                                                       FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280"/>
                                         </StackPanel>
 
-                                        <TextBlock Grid.Column="5" Text="{Binding HoursLogged, StringFormat='{}{0}h'}" FontFamily="Segoe UI" FontSize="13" FontWeight="Medium" Foreground="#374151" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding HoursLogged, StringFormat='{}{0}h'}"
+                                                   FontFamily="Segoe UI" FontSize="13" FontWeight="Medium" Foreground="#374151"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                     </Grid>
-                                </Border>
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

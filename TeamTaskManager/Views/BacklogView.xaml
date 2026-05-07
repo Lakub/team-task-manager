@@ -1,0 +1,116 @@
+<UserControl x:Class="TeamTaskManager.Views.BacklogView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local="clr-namespace:TeamTaskManager.Helpers"
+             mc:Ignorable="d"
+        Background="#F3F4F6">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Orientation="Vertical" Margin="0 0 8 0">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding SprintVisibility}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Cursor="Hand">
+                            <TextBlock Text="{Binding SprintName, FallbackValue='Sprint'}"
+                                       FontFamily="Segoe UI" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                            <Border Background="#D1FAE5" CornerRadius="12" Padding="10,3" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding StatusText, FallbackValue='W toku'}" FontFamily="Segoe UI" FontSize="12"
+                                            FontWeight="Medium" Foreground="#065F46"/>
+                            </Border>
+                            <StackPanel.InputBindings>
+                                <MouseBinding Gesture="LeftClick" Command="{Binding OpenSprintReportCommand}" />
+                            </StackPanel.InputBindings>
+                        </StackPanel>
+                    </Grid>
+
+                    <ItemsControl x:Name="SprintTasksControl" ItemsSource="{Binding SprintTasks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                        Command="{Binding DataContext.OpenTaskCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+
+                                        <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
+                                        </Border>
+
+                                        <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
+
+                                        <Button Grid.Column="3" Content="-"
+                                                    Style="{StaticResource ActionButtonStyle}"
+                                                    Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                    CommandParameter="{Binding}"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="Brak zadań w sprincie." Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="13" Margin="0 8 0 0"
+                               Visibility="{Binding SprintTasks.Count, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Backlog" Style="{StaticResource SectionTitle}"/>
+
+                    <ItemsControl x:Name="BacklogTasksControl" ItemsSource="{Binding BacklogTasks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                        Command="{Binding DataContext.OpenTaskCommand,
+                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+
+                                        <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
+                                        </Border>
+
+                                        <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
+
+                                        <Button Grid.Column="3" Content="+"
+                                                        Style="{StaticResource ActionButtonStyle}"
+                                                        Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                        CommandParameter="{Binding}" Visibility="{Binding DataContext.SprintVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Button Content="+ Utwórz nowe zadanie" Margin="0,4,0,0"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding CreateTaskCommand}"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

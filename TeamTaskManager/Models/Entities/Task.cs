@@ -8,6 +8,7 @@ namespace TeamTaskManager.Models.Entities
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public int PerProjectId { get; set; }
         public TaskType Type { get; set; } = TaskType.Feature;
         public Enums.TaskStatus Status { get; set; } = Enums.TaskStatus.Open;
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;

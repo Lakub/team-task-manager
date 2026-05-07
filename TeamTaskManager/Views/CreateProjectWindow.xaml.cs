@@ -70,7 +70,7 @@ namespace TeamTaskManager.Views
             {
                 Title = "Edytowanie projektu";
                 FormTitle.Text = "Edytuj projekt";
-                CreateButtonTextfield.Text = "Zapisz";
+                CreateButton.Content = "Zapisz";
                 editedProject = project;
                 TitleTextBox.Text = project.Name;
                 var assignedUsersIds = project.ProjectUsers.Where(e => e.Role == UserRole.Developer).Select(e => e.UserId);

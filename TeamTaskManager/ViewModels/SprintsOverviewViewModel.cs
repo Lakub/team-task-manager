@@ -10,6 +10,7 @@ using System.Security.Policy;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using TeamTaskManager.Helpers;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
@@ -24,13 +25,15 @@ namespace TeamTaskManager.ViewModels
         public int Id { get; set;  }
         public string SprintName { get; set; }
         public string CreatorName { get; set; }
+        public string CreatorInitials => string.Join("", CreatorName.Split(' ').Select(n => n[0])).ToUpper();
+        public Brush CreatorAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
+        public Brush CreatorAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
         public Visibility DaysRemainingVisibility => IsActive ? Visibility.Visible : Visibility.Collapsed;
         public bool IsPlanned { get; set; }
         public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
-        public Brush SprintCardColor => IsActive ? new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF)) : new SolidColorBrush(Color.FromRgb(0xDD, 0xDD, 0xDD));
         public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
         public string EndDateStr => EndDate.ToString("dd.MM.yyyy");
         public int DaysRemaining => Math.Max(0, (EndDate - DateTime.Today).Days);
@@ -47,10 +50,10 @@ namespace TeamTaskManager.ViewModels
     public partial class SprintsOverviewViewModel : INotifyPropertyChanged
     {
         private readonly IProjectService _projectService;
-        private readonly ISprintService _sprintService;
-        public ICommand OpenSprintRaportCommand { get; }
+        public ICommand OpenSprintReportCommand { get; }
+        public ICommand CreateSprintCommand { get; }
 
-        private readonly int _projectId;
+        private int _projectId;
 
         public string ProjectName { get; set; }
 
@@ -60,36 +63,39 @@ namespace TeamTaskManager.ViewModels
             set { _sprints = value; OnPropertyChanged(); }
         }
 
-        public SprintsOverviewViewModel(IProjectService projectService, ISprintService sprintService, int projectId)
+        public SprintsOverviewViewModel(IProjectService projectService, int projectId)
         {
-            OpenSprintRaportCommand = new RelayCommand<SprintItem>(OpenSprintRaport);
             _projectService = projectService;
-            _sprintService = sprintService;
             _projectId = projectId;
+
+            OpenSprintReportCommand = new RelayCommand<SprintItem>(OpenSprintReport);
+            CreateSprintCommand = new RelayCommand(CreateSprint);
+
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            var projects = await _projectService.GetAllProjectsWithProjectUsersAsync();
-
-            var currentUser = App.CurrentUser;
-
-            var projectId = _projectId;
-
-            if (projectId < 0)
+            if (_projectId < 0)
             {
-                // LADOWANIE PIERWSZEFGO LEPSZEGO
-                var userProjects = projects.Where(p => p.ProjectUsers.Any(pu => pu.UserId == currentUser?.Id)).ToList();
-                projectId = userProjects.FirstOrDefault()?.Id ?? -1;
+                var projects = await _projectService.GetAllProjectsWithProjectUsersAsync();
+                var currentUser = App.CurrentUser;
 
-                if (projectId < 0)
+                var userProjects = projects.Where(p => p.ProjectUsers.Any(pu => pu.UserId == currentUser?.Id)).ToList();
+                _projectId = userProjects.FirstOrDefault()?.Id ?? -1;
+
+                if (_projectId < 0)
                 {
                     MessageBox.Show("TEMP nie ma przypisanych projektów.", "Brak projektu", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
 
-            var (project, sprints) = await _projectService.GetSprintsByProjectIdAsync(projectId);
+            await LoadSprintsAsync();
+        }
+
+        public async System.Threading.Tasks.Task LoadSprintsAsync()
+        {
+            var (project, sprints) = await _projectService.GetSprintsByProjectIdAsync(_projectId);
 
             if (project == null) return;
 
@@ -118,13 +124,21 @@ namespace TeamTaskManager.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
-        private void OpenSprintRaport(SprintItem sprintItem)
+        private void OpenSprintReport(SprintItem? sprintItem)
         {
             if (sprintItem == null) return;
 
-            var reportView = new SprintReportView(sprintItem.Id);
-
+            var reportView = new SprintReportView(sprintItem.Id, _projectId);
             WeakReferenceMessenger.Default.Send(new NavigationMessage(reportView));
+        }
+
+        private void CreateSprint()
+        {
+            var createTaskWindow = new CreateSprintWindow(_projectId);
+            if (createTaskWindow.ShowDialog() == true)
+            {
+                _ = LoadSprintsAsync();
+            }
         }
     }
 }

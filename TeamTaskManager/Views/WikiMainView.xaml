@@ -59,16 +59,9 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-
-                <Button Grid.Row="4" Content="+ Nowa strona" Command="{Binding CreateNewArticleCommand}" Height="40" Background="{StaticResource DefaultButtonBackground}" Foreground="White" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand" Margin="0,10,0,0">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+              
+                <Button Grid.Row="4" Style="{StaticResource PrimaryButtonStyle}" Content="+ Nowa strona"
+                        Command="{Binding CreateNewArticleCommand}" Height="40" FontWeight="SemiBold" Margin="0,10,0,0"/>
             </Grid>
         </Border>
 
@@ -89,25 +82,10 @@
 
                     <TextBlock Grid.Column="0" Text="{Binding SelectedArticle.Title}" FontSize="28" FontWeight="Medium" Foreground="#1F2937" TextWrapping="Wrap"/>
 
-                    <Button Grid.Column="1" Content="Edytuj" Command="{Binding EditArticleCommand}" Width="80" Height="35" Background="#E5E7EB" Foreground="#1F2937" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="6">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-
-                    <Button Grid.Column="2" Content="Usuń" Command="{Binding DeleteArticleCommand}" Width="80" Height="35" Background="#FEE2E2" Foreground="#DC2626" BorderThickness="0" Cursor="Hand">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="6">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
+                    <Button Grid.Column="1" Style="{StaticResource ActionButtonStyle}" Command="{Binding EditArticleCommand}" 
+                            Content="Edytuj" Width="80" Height="35" Background="#E5E7EB" FontSize="12" Margin="0,0,10,0"/>
+                    <Button Grid.Column="2" Style="{StaticResource ActionButtonStyle}" Command="{Binding DeleteArticleCommand}" 
+                            Content="Usuń" Width="80" Height="35" Background="#FEE2E2" Foreground="#DC2626" FontSize="12"/>
                 </Grid>
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,25">

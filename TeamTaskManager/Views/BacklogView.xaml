@@ -6,41 +6,9 @@
              mc:Ignorable="d"
         Background="#F3F4F6">
 
-    <UserControl.Resources>
-        <local:IntToStarGridLengthConverter x:Key="StarConverter" />
-        
-        <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="16"/>
-        </Style>
-
-        <Style x:Key="SectionTitle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
-
-        <Style x:Key="MetricValue" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="26"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Foreground" Value="#1F2937"/>
-        </Style>
-
-        <Style x:Key="MetricLabel" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="Margin" Value="0,2,0,0"/>
-        </Style>
-    </UserControl.Resources>
-
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Orientation="Vertical" Margin="0 0 8 0">
-            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding SprintVisibility}">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
@@ -48,22 +16,28 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="{Binding SprintName, StringFormat='Sprint: {0}'}" 
-                                   FontFamily="Segoe UI" FontSize="16" FontWeight="SemiBold" 
-                                   Foreground="#1F2937" Cursor="Hand" VerticalAlignment="Center">
-                            <TextBlock.InputBindings>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Cursor="Hand">
+                            <TextBlock Text="{Binding SprintName, FallbackValue='Sprint'}"
+                                       FontFamily="Segoe UI" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                            <Border Background="#D1FAE5" CornerRadius="12" Padding="10,3" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding StatusText, FallbackValue='W toku'}" FontFamily="Segoe UI" FontSize="12"
+                                            FontWeight="Medium" Foreground="#065F46"/>
+                            </Border>
+                            <StackPanel.InputBindings>
                                 <MouseBinding Gesture="LeftClick" Command="{Binding OpenSprintReportCommand}" />
-                            </TextBlock.InputBindings>
-                        </TextBlock>
+                            </StackPanel.InputBindings>
+                        </StackPanel>
                     </Grid>
 
                     <ItemsControl x:Name="SprintTasksControl" ItemsSource="{Binding SprintTasks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ClickableListItemStyle}">
-                                    <Border.InputBindings>
-                                        <MouseBinding Gesture="LeftClick" Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                    </Border.InputBindings>
+                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                        Command="{Binding DataContext.OpenTaskCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -72,7 +46,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
 
                                         <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
@@ -81,11 +55,11 @@
                                         <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
                                         <Button Grid.Column="3" Content="-"
-                                                Style="{StaticResource ActionButtonStyle}"
-                                                Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                CommandParameter="{Binding}"/>
+                                                    Style="{StaticResource ActionButtonStyle}"
+                                                    Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                    CommandParameter="{Binding}"/>
                                     </Grid>
-                                </Border>
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -102,10 +76,10 @@
                     <ItemsControl x:Name="BacklogTasksControl" ItemsSource="{Binding BacklogTasks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ClickableListItemStyle}">
-                                    <Border.InputBindings>
-                                        <MouseBinding Gesture="LeftClick" Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                    </Border.InputBindings>
+                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                        Command="{Binding DataContext.OpenTaskCommand,
+                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -114,7 +88,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
 
                                         <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
@@ -123,11 +97,11 @@
                                         <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
                                         <Button Grid.Column="3" Content="+"
-                                                Style="{StaticResource ActionButtonStyle}"
-                                                Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                CommandParameter="{Binding}"/>
+                                                        Style="{StaticResource ActionButtonStyle}"
+                                                        Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                        CommandParameter="{Binding}" Visibility="{Binding DataContext.SprintVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                                     </Grid>
-                                </Border>
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

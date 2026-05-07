@@ -352,10 +352,14 @@ namespace TeamTaskManager.Helpers
                 var pDescription = LoremIpsum.Substring(0, Random.Shared.Next(50, LoremIpsum.Length));
                 var pOwner = projectOwners[Random.Shared.Next(projectOwners.Count)];
                 var pCreatedAt = DateTime.UtcNow.AddDays(-Random.Shared.Next(40, 50));
+                var pNounNoDiacritics = pNoun.RemoveDiacritics();
+                var pAdjectiveNoDiacritics = pAdjective.RemoveDiacritics();
+                var pKey = $"{pNounNoDiacritics[0..1]}{pAdjectiveNoDiacritics[0..1]}{Random.Shared.Next(100, 999)}".ToUpper();
                 var project = new Project
                 {
                     Name = pName,
                     Description = pDescription,
+                    Key = pKey,
                     Owner = pOwner,
                     CreatedAt = pCreatedAt
                 };
@@ -392,7 +396,6 @@ namespace TeamTaskManager.Helpers
                 }
                 context.ProjectUsers.AddRange(projectUsers);
 
-
                 // taski
 
                 var tasks = new List<Task>();
@@ -412,11 +415,13 @@ namespace TeamTaskManager.Helpers
                     var tCreatedAt = pCreatedAt.AddDays(Random.Shared.Next(1, 3)).AddHours(Random.Shared.Next(1, 24));
                     var tUpdatedAt = (Random.Shared.NextDouble() < 0.8) ? tCreatedAt : tCreatedAt.AddDays(Random.Shared.Next(1, 10));   // 20% ze bedzie edytowany
                     var tReporter = managersForProject[Random.Shared.Next(managersForProject.Count)];
+                    var tPerProjectId = j;
 
-                    tasks.Add(new Task
+                    var task = new Task
                     {
                         Title = tTitle,
                         Description = tDescription,
+                        PerProjectId = tPerProjectId,
                         Type = tType,
                         Status = tStatus,
                         Priority = tPriority,
@@ -424,10 +429,33 @@ namespace TeamTaskManager.Helpers
                         UpdatedAt = tUpdatedAt,
                         Reporter = tReporter,
                         Project = project
-                    });
+                    };
+
+                    tasks.Add(task);
+                    context.Tasks.Add(task);
+
+
+                    // komentarze
+                    var comments = new List<Comment>();
+                    var numOfComments = Random.Shared.Next(0, 5);
+
+                    for (int k = 0; k < numOfComments; k++)
+                    {
+                        var cText = LoremIpsum.Substring(0, Random.Shared.Next(20, LoremIpsum.Length));
+                        var cCommenter = projectUsers[Random.Shared.Next(projectUsers.Count)].User;
+                        var cCreatedAt = tCreatedAt.AddDays(Random.Shared.Next(0, 10)).AddHours(Random.Shared.Next(1, 24));
+
+                        comments.Add(new Comment
+                        {
+                            Task = task,
+                            Commenter = cCommenter,
+                            Text = cText,
+                            CreatedAt = cCreatedAt
+                        });
+                    }
+                    context.Comments.AddRange(comments);
                 }
-                context.Tasks.AddRange(tasks);
-                
+
 
                 // worklogi init
                 

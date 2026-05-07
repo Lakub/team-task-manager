@@ -5,48 +5,46 @@
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
         Background="White">
 
-        <StackPanel VerticalAlignment="Center" Margin="48 0">
+    <StackPanel VerticalAlignment="Center" Margin="48 0">
 
-                <Border Width="56" Height="56" CornerRadius="14" Background="#4B5563"
-                        HorizontalAlignment="Center" Margin="0 0 0 10">
-                        <TextBlock Text="TT" FontSize="22" FontWeight="Bold" Foreground="White"
-                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <TextBlock Text="TeamTaskManager" FontSize="20" FontWeight="Bold"
-                        Foreground="#1F2937" HorizontalAlignment="Center"/>
-                <TextBlock Text="Utwórz nowe konto" FontSize="12"
-                        Foreground="#9CA3AF" HorizontalAlignment="Center" Margin="0 4 0 20"/>
+        <Border Width="56" Height="56" CornerRadius="14" Background="#4B5563"
+                HorizontalAlignment="Center" Margin="0 0 0 10">
+            <TextBlock Text="TT" FontSize="22" FontWeight="Bold" Foreground="White"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+        <TextBlock Text="TeamTaskManager" FontSize="20" FontWeight="Bold"
+                   Foreground="#1F2937" HorizontalAlignment="Center"/>
+        <TextBlock Text="Utwórz nowe konto" FontSize="12"
+                   Foreground="#9CA3AF" HorizontalAlignment="Center" Margin="0 4 0 20"/>
 
-                <TextBlock Text="Nazwa użytkownika" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
-                <TextBox Height="44" Margin="0 0 0 10"
-                        Background="White" Foreground="#1F2937"
-                        BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
+        <TextBlock Text="Nazwa użytkownika" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
+        <TextBox Height="44" Margin="0 0 0 10"
+                 Background="White" Foreground="#1F2937"
+                 BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
 
-                <TextBlock Text="Email" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
-                <TextBox Height="44" Margin="0 0 0 10"
-                        Background="White" Foreground="#1F2937"
-                        BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
+        <TextBlock Text="Email" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
+        <TextBox Height="44" Margin="0 0 0 10"
+                 Background="White" Foreground="#1F2937"
+                 BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
 
-                <TextBlock Text="Hasło" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
-                <PasswordBox Height="44" Margin="0 0 0 10"
-                        Background="White" Foreground="#1F2937"
-                        BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
+        <TextBlock Text="Hasło" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
+        <PasswordBox Height="44" Margin="0 0 0 10"
+                     Background="White" Foreground="#1F2937"
+                     BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
 
-                <TextBlock Text="Potwierdź hasło" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
-                <PasswordBox Height="44" Margin="0 0 0 16"
-                        Background="White" Foreground="#1F2937"
-                        BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
+        <TextBlock Text="Potwierdź hasło" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
+        <PasswordBox Height="44" Margin="0 0 0 16"
+                     Background="White" Foreground="#1F2937"
+                     BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"/>
 
-                <Button Content="ZAREJESTRUJ SIĘ" Height="46" Margin="0 0 0 14"
-                        Background="{StaticResource DefaultButtonBackground}" Foreground="White"
-                        FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"/>
+        <Button Content="ZAREJESTRUJ SIĘ" Height="46" Margin="0 0 0 14"
+                Style="{StaticResource PrimaryButtonStyle}" FontWeight="SemiBold"/>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="Masz już konto? " Foreground="#9CA3AF" FontSize="13" VerticalAlignment="Center"/>
-                        <Button Content="Zaloguj się" Background="Transparent"
-                                Foreground="#4B5563" BorderThickness="0"
-                                FontSize="13" Cursor="Hand"/>
-                </StackPanel>
-
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Text="Masz już konto? " Foreground="#9CA3AF" FontSize="13" VerticalAlignment="Center"/>
+            <Button Style="{StaticResource ActionButtonStyle}" Content="Zaloguj się"
+            Foreground="#4B5563" FontSize="13" Padding="0"/>
         </StackPanel>
+
+    </StackPanel>
 </Window>

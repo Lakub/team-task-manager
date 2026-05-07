@@ -25,6 +25,15 @@ namespace TeamTaskManager.Views
         {
             if (DataContext is BacklogViewModel vm)
             {
+                vm.OnTaskSelected = item =>
+                {
+                    if (item != null)
+                    {
+                        var taskDetailWindow = new TaskDetailsWindow(item.TaskId);
+                        taskDetailWindow.ShowDialog();
+                    }
+                };
+
                 await vm.InitializeAsync();
             }
         }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
+using TeamTaskManager.Models.Enums;
 
 namespace TeamTaskManager.Services
 {
@@ -13,6 +14,8 @@ namespace TeamTaskManager.Services
     {
         Task<(Sprint Sprint, List<SprintTask> Tasks)> GetSprintReportDataAsync(int sprintId);
         Task<List<Sprint>> GetAllSprintsAsync();
+        Task<List<Sprint>> GetAllSprintsByProjectIdAsync(int projectId);
+        Task<Sprint> CreateSprintAsync(string name, DateTime startDate, DateTime endDate, int projectId, int creatorId);
     }
 
     public class SprintService : ISprintService
@@ -39,12 +42,48 @@ namespace TeamTaskManager.Services
                 .Where(st => st.SprintId == sprintId)
                 .ToListAsync();
 
-            return (sprint!, sprintTasks);
+            var deduplicated = sprintTasks
+                .GroupBy(st => st.TaskId)
+                .Select(g => g.OrderByDescending(st => st.AddedAt).First())
+                .ToList();
+
+            return (sprint!, deduplicated);
         }
 
         public async Task<List<Sprint>> GetAllSprintsAsync()
         {
             return await _context.Sprints.ToListAsync();
+        }
+
+        public async Task<List<Sprint>> GetAllSprintsByProjectIdAsync(int projectId)
+        {
+            return await _context.Sprints
+                .Where(s => s.ProjectId == projectId)
+                .ToListAsync();
+        }
+
+        public async Task<Sprint> CreateSprintAsync(
+            string name, DateTime startDate, DateTime endDate,
+            int projectId, int creatorId)
+        {
+            var creator = await _context.Users.FindAsync(creatorId);
+            var project = await _context.Projects.FindAsync(projectId);
+
+            var sprint = new Sprint
+            {
+                Name = name,
+                StartDate = startDate,
+                EndDate = endDate,
+                Status = SprintStatus.Planned,
+                Creator = creator!,
+                Project = project!,
+                CreatedAt = DateTime.UtcNow,
+                IsDeleted = false
+            };
+
+            _context.Sprints.Add(sprint);
+            await _context.SaveChangesAsync();
+            return sprint;
         }
     }
 }

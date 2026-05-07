@@ -29,10 +29,8 @@
                         BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"
                         x:Name="PasswordBox"/>
 
-                <Button Content="ZALOGUJ" Height="46" Margin="0 0 0 20"
-                        Background="{StaticResource DefaultButtonBackground}" Foreground="White"
-                        FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"
-                        x:Name="LoginButton" Click="LoginButton_Click"/>
+                <Button Style="{StaticResource PrimaryButtonStyle}" Content="ZALOGUJ" Height="46" Margin="0 0 0 20"
+                        FontWeight="SemiBold" x:Name="LoginButton" Click="LoginButton_Click" IsDefault="True"/>
 
         <TextBlock Text="TEMP" Foreground="#6B7280" FontSize="12" HorizontalAlignment="Center"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

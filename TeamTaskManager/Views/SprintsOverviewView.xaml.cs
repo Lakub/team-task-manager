@@ -15,7 +15,6 @@ namespace TeamTaskManager.Views
             var dbContext = new AppDbContext();
             DataContext = new SprintsOverviewViewModel(
                 new ProjectService(dbContext),
-                new SprintService(dbContext),
                 projectId);
 
             Loaded += SprintsOverviewView_Loaded;

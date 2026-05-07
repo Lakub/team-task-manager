@@ -79,6 +79,7 @@ namespace TeamTaskManager.Services
                 SprintId = sprint.Id,
                 TaskId = task.Id,
                 AddedAt = DateTime.UtcNow,
+                AssigneeId = task.Assignee?.Id,
                 Status = task.Status,
                 AddedById = addedBy.Id
             };

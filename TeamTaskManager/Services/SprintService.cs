@@ -42,7 +42,12 @@ namespace TeamTaskManager.Services
                 .Where(st => st.SprintId == sprintId)
                 .ToListAsync();
 
-            return (sprint!, sprintTasks);
+            var deduplicated = sprintTasks
+                .GroupBy(st => st.TaskId)
+                .Select(g => g.OrderByDescending(st => st.AddedAt).First())
+                .ToList();
+
+            return (sprint!, deduplicated);
         }
 
         public async Task<List<Sprint>> GetAllSprintsAsync()

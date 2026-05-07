@@ -396,7 +396,6 @@ namespace TeamTaskManager.Helpers
                 }
                 context.ProjectUsers.AddRange(projectUsers);
 
-
                 // taski
 
                 var tasks = new List<Task>();
@@ -418,7 +417,7 @@ namespace TeamTaskManager.Helpers
                     var tReporter = managersForProject[Random.Shared.Next(managersForProject.Count)];
                     var tPerProjectId = j;
 
-                    tasks.Add(new Task
+                    var task = new Task
                     {
                         Title = tTitle,
                         Description = tDescription,
@@ -430,10 +429,33 @@ namespace TeamTaskManager.Helpers
                         UpdatedAt = tUpdatedAt,
                         Reporter = tReporter,
                         Project = project
-                    });
+                    };
+
+                    tasks.Add(task);
+                    context.Tasks.Add(task);
+
+
+                    // komentarze
+                    var comments = new List<Comment>();
+                    var numOfComments = Random.Shared.Next(0, 5);
+
+                    for (int k = 0; k < numOfComments; k++)
+                    {
+                        var cText = LoremIpsum.Substring(0, Random.Shared.Next(20, LoremIpsum.Length));
+                        var cCommenter = projectUsers[Random.Shared.Next(projectUsers.Count)].User;
+                        var cCreatedAt = tCreatedAt.AddDays(Random.Shared.Next(0, 10)).AddHours(Random.Shared.Next(1, 24));
+
+                        comments.Add(new Comment
+                        {
+                            Task = task,
+                            Commenter = cCommenter,
+                            Text = cText,
+                            CreatedAt = cCreatedAt
+                        });
+                    }
+                    context.Comments.AddRange(comments);
                 }
-                context.Tasks.AddRange(tasks);
-                
+
 
                 // worklogi init
                 

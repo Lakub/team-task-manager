@@ -6,265 +6,98 @@ using User = TeamTaskManager.Models.Entities.User;
 using Task = TeamTaskManager.Models.Entities.Task;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
 using TeamTaskManager.Services;
+using System.Windows;
 
 namespace TeamTaskManager.Helpers
 {
     public static class SeedData
     {
+        static readonly List<string> FirstNameOptions = new List<string>
+        {
+            "Aldona", "Teodor", "Rudolf", "Róża", "Hanna", "Zbigniew", "Bożena", "Barbara", "Władysława", "Filip", "Eryk", "Leon", "Mikołaj", "Dominik", "Bartosz", "Stefan", "Alicja", "Fryderyk", "Borys", "Lena", "Milena", "Róża", "Eugenia", "Wiesław", "Daria", "Wiktoria", "Irena", "Tomasz", "Romuald", "Aleksander", "Zuzanna", "Daria", "Dominika", "Róża", "Klara", "Małgorzata", "Nataliia", "Genowefa", "Bernard", "Sylwester"
+        };
+
+        static readonly List<string> LastNameOptions = new List<string>
+        {
+            "Rudowicz", "Stępak", "Łoziński", "Włodarz", "Frelek", "Zavhorodnia", "Prokopchuk", "Radwański", "Środa", "Zając", "Małkiewicz", "Zębik", "Przerwa", "Olko", "Lemieszek", "Bronikowska", "Motyka", "Borcz", "Kubina", "Żuczek", "Ciochoń", "Powązka", "Dudczak", "Myszka", "Galas", "Kęska", "Talarowska", "Biegała", "Mytnik", "Chwalisz", "Hydzik", "Prądziński", "Tarnowska", "Szwejkowska", "Gaweł", "Pokojski", "Płoszaj", "Kruszczyński", "Poterek", "Kopel"
+        };
+
+        static readonly List<string> EmailDomainOptions = new List<string>
+        {
+            "gmail.com", "outlook.com", "proton.me", "hotmail.com", "wp.pl", "onet.pl", "interia.pl", "yahoo.com"
+        };
+
+        static readonly List<string> Adjectives = new List<string>
+        {
+            "przykładny", "roztoczowy", "kosmaty", "cętkowany", "marudny", "doroczny", "szefowski", "bilateralny", "niestanowczy", "hagiograficzny", "ważny", "stacyjny", "bezskuteczny", "areligijny", "cieniutki", "achromatyczny", "zasiadający", "lichwiarski", "postawny", "dzielnicowy", "fatalistyczny", "donośny", "buchasty", "starowierczy", "radioliniowy", "naftowy", "metrowy", "łukowy", "generacyjny", "szalbierczy", "żywy", "stalisty", "inżynieryjny", "klęskowy", "nieukojony", "wędrujący", "rozmoczony", "fonetyczny", "węglonośny", "kontuszowy", "uparty", "nieciągły", "piskliwy", "gruziński", "przepadły", "korbowy", "nieszczelny", "peremptoryczny", "dojrzały", "niegospodarny", "szosowy", "bezideowy", "zadziorny", "uliczny", "potajemny", "bombonierkowy", "mierzalny", "rajski", "letargiczny", "wpółprzytomny", "stanisławowski", "wielokształtny", "rdzeniowy", "elektrolityczny", "płochliwy", "leżący", "cyfrowy", "pełnomocny", "rozlewny", "piracki", "spirytusowy", "niezasadny", "członowy", "nienaruszalny", "niebujny", "niepohamowany", "przedmiejski", "rzeczownikowy", "efektowny", "miedziowy", "okazjonalny", "radiacyjny", "niepilny", "niepalny", "pokazowy", "prawoskrętny", "zabłąkany", "wyboisty", "lwi", "niesamodzielny", "cielesny", "ósmy", "łapczywy", "sekretny", "składkowy", "niestateczny", "wątpiący", "pulchny", "rytmiczny", "dodatkowy"
+        };
+
+        static readonly List<string> Nouns = new List<string>
+        {
+            "tytuł", "dźwięk", "szybkość", "chrząszcz", "okładka", "opieka", "kawałek", "kurczak", "małpa", "pociąg", "mgła", "szansa", "ciągnięcie", "wiadro", "nożyczki", "włosy", "ślimak", "wiara", "paczka", "deszcz ze śniegiem", "brama", "pchnięcie", "cent", "głos", "robak", "kopia", "ptak", "błąd", "dostosowanie", "porozumienie", "niemowlę", "powietrze", "kabel", "korzeń", "piątka", "wujek", "sztuczka", "meduza", "zupa", "zwierzę domowe", "palec", "strach", "bicz", "oszust", "ciecz", "moc", "rzeka", "narodziny", "igła", "park", "przyjaciel", "banan", "przyjemność", "śmiech", "religia", "broda", "piasek", "torba", "koszykówka", "impuls", "wzgórze", "człowiek", "pomiar", "jednostka", "humor", "koralik", "mycie", "dach", "kieszeń", "dziura", "zoo", "papier", "chłopak", "budynek", "pszczoła", "baza", "ignam", "deska", "firma", "cynk", "miedź", "ślimak", "pocałunek", "palenie", "użycie", "liść", "dzwon", "ból", "sałata", "łyżwa", "ciało", "próba", "zebra", "jedwab", "marnotrawstwo", "prześcieradło", "zespół", "urodziny", "zamówienie", "przestępstwo"
+        };
+
+        static readonly List<string> Verbs = new List<string>
+        {
+            "bredzić", "wzmagać", "czepiać", "budżetować", "dręczyć", "fiksować", "meblować", "honorować", "chromować", "stawać", "skaleczyć", "hołdować", "aportować", "salwować", "czytać", "bzykać", "konfigurować", "teleportować", "dumać", "kosztować", "ubolewać", "barwić", "dorwać", "demoralizować", "chlubić", "cmokać", "alokować", "degustować", "dziadować", "bajdurzyć", "bryknąć", "chałturzyć", "biwakować", "akompaniować", "dryfować", "dopompować", "grodzić", "kochać", "obalać", "dokrajać", "doprowadzić", "stykać", "zwiedzać", "balować", "definiować", "dybać", "dodrukować", "badać", "zwilżać", "obfotografować", "cedzić", "harować", "bełkotać", "zeswatać", "boleć", "golnąć", "bąblować", "obadać", "ignorować", "dopowiadać", "restaurować", "pisać", "mówić", "robić", "jeść", "pić", "spać", "biegać", "chodzić", "myśleć", "widzieć", "słyszeć", "czuć", "tworzyć", "niszczyć", "kupować", "sprzedawać", "otwierać", "zamykać", "zaczynać", "kończyć", "uczyć", "zapominać", "pamiętać", "szukać", "znajdować", "tracić", "zyskiwać", "budować", "burzyć", "prowadzić", "zatrzymywać", "wysyłać", "odbierać", "tłumaczyć", "sprawdzać", "liczyć", "mierzyć", "ważyć", "drukować"
+        };
+
+        static readonly string LoremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+
         public static bool IsSeeded(AppDbContext context)
         {
             return context.UserAuths.Any();
         }
 
-        // DEPRECATED
-        public static void Seed(AppDbContext context)
-        {
-            context.Database.EnsureCreated();
+        public static void RandomSeed(
+            AppDbContext context,
+            IAuthService authService,
 
-            var authService = new AuthService(context);
+            // uzytkownicy
+            int numUsers = 20,
+            int numProjectOwners = 2,
+            int minNumUsersPerProject = 5,
+            int maxNumUsersPerProject = 9,                  
 
-            if (IsSeeded(context))
-            {
-                return;
-            }
+            // projekty
+            int numProjects = 3,
+            int minNumManagersPerProject = 1,
+            int maxNumManagersPerProject = 2,
 
-            var user1 = new User { FullName = "Jan Kowalski", Email = "j.kowalski@email.com" };
-            var user2 = new User { FullName = "Kamil Slimak", Email = "k.slimak@email.com" };
-            var user3 = new User { FullName = "Joe Mama", Email = "j.mama@email.com" };
-            context.Users.AddRange(user1, user2, user3);
-            context.SaveChanges();
+            // sprinty
+            int minNumSprintsPerProject = 3,
+            int maxNumSprintsPerProject = 7,
+            int sprintLengthInDays = 14,
 
-            var user1Salt = authService.GenerateSalt();
-            context.UserAuths.Add(new UserAuth
-            {
-                UserId = user1.Id,
-                PasswordSalt = user1Salt,
-                Password = authService.HashPassword("password", user1Salt)
-            });
-            context.SaveChanges();
-
-            var project = new Project
-            {
-                Name = "Projekt 1",
-                Description = "Projekt z seeda",
-                Owner = user1
-            };
-            context.Projects.Add(project);
-
-            context.ProjectUsers.Add(new ProjectUser { Project = project, User = user1, Role = UserRole.Manager });
-            context.ProjectUsers.Add(new ProjectUser { Project = project, User = user2, Role = UserRole.Developer });
-            context.ProjectUsers.Add(new ProjectUser { Project = project, User = user3, Role = UserRole.Developer });
-
-            var taskCreationDate = DateTime.UtcNow.AddDays(-15);
-            var sprintCreationDate = DateTime.UtcNow.AddDays(-10);
-            var sprintStartDate = DateTime.UtcNow.AddDays(-7);
-            var sprintEndDate = DateTime.UtcNow.AddDays(7);
-
-            var sprint = new Sprint
-            {
-                Name = "Sprint 1",
-                StartDate = sprintStartDate,
-                EndDate = sprintEndDate,
-                Status = SprintStatus.Active,
-                Project = project,
-                Creator = user1
-            };
-            context.Sprints.Add(sprint);
-
-            var task1 = new Task
-            {
-                Title = "zrobeinie klonu Jira",
-                Description = "zrobienie zarzadzania projektami, sprintami i zadaniami",
-                Reporter = user1,
-                Assignee = user3,
-                Status = Models.Enums.TaskStatus.InProgress,
-                Priority = TaskPriority.High,
-                Project = project,
-                CreatedAt = taskCreationDate
-                // Sprint = sprint
-            };
-            var task2 = new Task
-            {
-                Title = "seedowanie db",
-                Description = "klasa SeedData z .Clear i .Seed",
-                Reporter = user2,
-                Assignee = user2,
-                Status = Models.Enums.TaskStatus.Closed,
-                Priority = TaskPriority.Low,
-                Project = project,
-                CreatedAt = taskCreationDate
-                // Sprint = sprint
-            };
-            var task3 = new Task
-            {
-                Title = "zaktualizowac diagramy uml",
-                Reporter = user1,
-                Project = project,
-                CreatedAt = taskCreationDate
-            };
-            var task4 = new Task
-            {
-                Title = "naprawic merge #21",
-                Description = "bo kamil znowu cos zepsul",
-                Reporter = user1,
-                Assignee = user1,
-                Type = TaskType.Bug,
-                Project = project,
-                CreatedAt = taskCreationDate
-                // Sprint = sprint
-            };
-            var task5 = new Task
-            {
-                Title = "zrobienie podstawowego navbara",
-                Description = "logowanko itp",
-                Reporter = user3,
-                Assignee = user3,
-                Project = project,
-                CreatedAt = taskCreationDate,
-                // Sprint = sprint,
-                ParentTask = task1
-            };
-            context.Tasks.AddRange(task1, task2, task3, task4, task5);
-
-            var sprintTask1 = new SprintTask
-            {
-                Sprint = sprint,
-                Task = task1,
-                AddedAt = sprintCreationDate,
-                AddedBy = user1,
-                Status = task1.Status,      // InProgress
-                Assignee = task1.Assignee,  // user3
-            };
-            var sprintTask2 = new SprintTask
-            {
-                Sprint = sprint,
-                Task = task2,
-                AddedAt = sprintCreationDate,
-                AddedBy = user1,
-                Status = task2.Status,      // Closed
-                Assignee = task2.Assignee   // user2
-            };
-            var sprintTask3 = new SprintTask
-            {
-                Sprint = sprint,
-                Task = task3,
-                AddedAt = sprintCreationDate,
-                AddedBy = user1,
-                Status = task3.Status,              // Open
-                Assignee = user2,
-                RemovedAt = sprintStartDate.AddDays(4), // deprecated
-                RemovedBy = user1               
-            };
-            var sprintTask4 = new SprintTask
-            {
-                Sprint = sprint,
-                Task = task4,
-                AddedAt = sprintCreationDate,
-                AddedBy = user1,
-                Status = task4.Status,      // Open
-                Assignee = task4.Assignee   // user1
-            };
-            var sprintTask5 = new SprintTask
-            {
-                Sprint = sprint,
-                Task = task5,
-                AddedAt = sprintStartDate.AddDays(1),    // dodane pozniej
-                AddedBy = user1,
-                Status = task5.Status,                  // Open
-                Assignee = task5.Assignee               // user3
-            };
-            context.SprintTasks.AddRange(sprintTask1, sprintTask2, sprintTask3, sprintTask4, sprintTask5);
-
-            var worklog1 = new Worklog
-            {
-                Task = task2,
-                User = user2,
-                Description = "zrobiono basic funkcje Seed",
-                StartTime = sprintStartDate.AddDays(2).AddHours(-2),
-                TimeSpent = TimeSpan.FromHours(2),
-                LoggedAt = sprintStartDate.AddDays(2),
-            };
-            var worklog2 = new Worklog
-            {
-                Task = task1,
-                User = user3,
-                Description = "dodano klasy modeli",
-                StartTime = sprintStartDate.AddDays(3).AddHours(-2),
-                TimeSpent = TimeSpan.FromHours(2),
-                LoggedAt = sprintStartDate.AddDays(3),
-            };
-            var worklog3 = new Worklog
-            {
-                Task = task2,
-                User = user2,
-                Description = "zrobiono basic funkcje Clear",
-                StartTime = sprintStartDate.AddDays(5).AddHours(-1),
-                TimeSpent = TimeSpan.FromHours(1),
-                LoggedAt = sprintStartDate.AddDays(5),
-            };
-            context.Worklogs.AddRange(worklog1, worklog2, worklog3);
-
-            var comment1 = new Comment
-            {
-                Task = task1,
-                Commenter = user3,
-                Text = "literowka w nazwie jest"
-            };
-
-            var comment2 = new Comment
-            {
-                Task = task1,
-                Commenter = user2,
-                Text = "oops faktycznie mb",
-                ParentComment = comment1
-            };
-
+            // taski
+            int minNumTasksPerSprint = 5,
+            int maxNumTasksPerSprint = 10,
+            float taskEditProbability = 0.2f,
+            float taskScopeCreepProbability = 0.2f,
+            float taskDeprecationProbability = 0.1f,
             
-            if (!context.WikiArticles.Any())
-            {
-                var article = new WikiArticle
-                {
-                    Title = "Architektura Systemu",
-                    Content = "System opiera się na wzorcu MVVM z wykorzystaniem Entity Framework Core i SQLite. Dokumentacja jest dynamicznie ładowana z bazy danych.",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                var tag = new Tag { Name = "Dokumentacja" };
-                article.Tags.Add(tag);
-                context.WikiArticles.Add(article);
-            }
+            // komentarze
+            int minNumCommentsPerTask = 0,
+            int maxNumCommentsPerTask = 4,
+            int maxNumRepliesPerComment = 3,
+            int maxCommentDepth = 3,
+            float commentReplyProbability = 0.5f,
 
-            
-            context.SaveChanges();
-        }
-
-        public static void RandomSeed(AppDbContext context, IAuthService authService, int numUsers = 20, int numProjects = 3, int minNumUsersPerProject = 5, int maxNumUsersPerProject = 9, int minNumSprintsPerProject = 3, int maxNumSprintsPerProject = 7, int minNumTasksPerProject = 20, int maxNumTasksPerProject = 30, int numProjectOwners = 2, int minNumManagersPerProject = 1, int maxNumManagersPerProject = 2, int sprintLength = 14)
+            // worklogi
+            float worklogByManagerProbability = 0.2f)
         {
             context.Database.EnsureCreated();
 
             if (IsSeeded(context))
             {
+                MessageBox.Show("Baza danych jest juz zainicjalizowana. Jesli chcesz zainicjowac od nowa, zrob najpierw cleardb.", "Inicjalizacja bazy danych", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             // uzytkownicy
 
             var users = new List<User>();
-
-            List<string> FirstNameOptions = new List<string>
-            {
-                "Aldona", "Teodor", "Rudolf", "Róża", "Hanna", "Zbigniew", "Bożena", "Barbara", "Władysława", "Filip", "Eryk", "Leon", "Mikołaj", "Dominik", "Bartosz", "Stefan", "Alicja", "Fryderyk", "Borys", "Lena", "Milena", "Róża", "Eugenia", "Wiesław", "Daria", "Wiktoria", "Irena", "Tomasz", "Romuald", "Aleksander", "Zuzanna", "Daria", "Dominika", "Róża", "Klara", "Małgorzata", "Nataliia", "Genowefa", "Bernard", "Sylwester"
-            };
-
-            List<string> LastNameOptions = new List<string>
-            {
-                "Rudowicz", "Stępak", "Łoziński", "Włodarz", "Frelek", "Zavhorodnia", "Prokopchuk", "Radwański", "Środa", "Zając", "Małkiewicz", "Zębik", "Przerwa", "Olko", "Lemieszek", "Bronikowska", "Motyka", "Borcz", "Kubina", "Żuczek", "Ciochoń", "Powązka", "Dudczak", "Myszka", "Galas", "Kęska", "Talarowska", "Biegała", "Mytnik", "Chwalisz", "Hydzik", "Prądziński", "Tarnowska", "Szwejkowska", "Gaweł", "Pokojski", "Płoszaj", "Kruszczyński", "Poterek", "Kopel"
-            };
-
-            List<string> EmailDomainOptions = new List<string>
-            {
-                "gmail.com", "outlook.com", "proton.me", "hotmail.com", "wp.pl", "onet.pl", "interia.pl", "yahoo.com"
-            };
 
             // nie chcemy by sie nazwiska powtarzaly bo zagmatwane bedzie robienie e-maili
             var LastNames = LastNameOptions.OrderBy(x => Guid.NewGuid()).Take(numUsers).ToList();
@@ -323,23 +156,6 @@ namespace TeamTaskManager.Helpers
 
             var projects = new List<Project>();
 
-            var Adjectives = new List<string>
-            {
-                "przykładny", "roztoczowy", "kosmaty", "cętkowany", "marudny", "doroczny", "szefowski", "bilateralny", "niestanowczy", "hagiograficzny", "ważny", "stacyjny", "bezskuteczny", "areligijny", "cieniutki", "achromatyczny", "zasiadający", "lichwiarski", "postawny", "dzielnicowy", "fatalistyczny", "donośny", "buchasty", "starowierczy", "radioliniowy", "naftowy", "metrowy", "łukowy", "generacyjny", "szalbierczy", "żywy", "stalisty", "inżynieryjny", "klęskowy", "nieukojony", "wędrujący", "rozmoczony", "fonetyczny", "węglonośny", "kontuszowy", "uparty", "nieciągły", "piskliwy", "gruziński", "przepadły", "korbowy", "nieszczelny", "peremptoryczny", "dojrzały", "niegospodarny", "szosowy", "bezideowy", "zadziorny", "uliczny", "potajemny", "bombonierkowy", "mierzalny", "rajski", "letargiczny", "wpółprzytomny", "stanisławowski", "wielokształtny", "rdzeniowy", "elektrolityczny", "płochliwy", "leżący", "cyfrowy", "pełnomocny", "rozlewny", "piracki", "spirytusowy", "niezasadny", "członowy", "nienaruszalny", "niebujny", "niepohamowany", "przedmiejski", "rzeczownikowy", "efektowny", "miedziowy", "okazjonalny", "radiacyjny", "niepilny", "niepalny", "pokazowy", "prawoskrętny", "zabłąkany", "wyboisty", "lwi", "niesamodzielny", "cielesny", "ósmy", "łapczywy", "sekretny", "składkowy", "niestateczny", "wątpiący", "pulchny", "rytmiczny", "dodatkowy"
-            };
-
-            var Nouns = new List<string>
-            {
-                "tytuł", "dźwięk", "szybkość", "chrząszcz", "okładka", "opieka", "kawałek", "kurczak", "małpa", "pociąg", "mgła", "szansa", "ciągnięcie", "wiadro", "nożyczki", "włosy", "ślimak", "wiara", "paczka", "deszcz ze śniegiem", "brama", "pchnięcie", "cent", "głos", "robak", "kopia", "ptak", "błąd", "dostosowanie", "porozumienie", "niemowlę", "powietrze", "kabel", "korzeń", "piątka", "wujek", "sztuczka", "meduza", "zupa", "zwierzę domowe", "palec", "strach", "bicz", "oszust", "ciecz", "moc", "rzeka", "narodziny", "igła", "park", "przyjaciel", "banan", "przyjemność", "śmiech", "religia", "broda", "piasek", "torba", "koszykówka", "impuls", "wzgórze", "człowiek", "pomiar", "jednostka", "humor", "koralik", "mycie", "dach", "kieszeń", "dziura", "zoo", "papier", "chłopak", "budynek", "pszczoła", "baza", "ignam", "deska", "firma", "cynk", "miedź", "ślimak", "pocałunek", "palenie", "użycie", "liść", "dzwon", "ból", "sałata", "łyżwa", "ciało", "próba", "zebra", "jedwab", "marnotrawstwo", "prześcieradło", "zespół", "urodziny", "zamówienie", "przestępstwo"
-            };
-
-            var Verbs = new List<string>
-            {
-                "bredzić", "wzmagać", "czepiać", "budżetować", "dręczyć", "fiksować", "meblować", "honorować", "chromować", "stawać", "skaleczyć", "hołdować", "aportować", "salwować", "czytać", "bzykać", "konfigurować", "teleportować", "dumać", "kosztować", "ubolewać", "barwić", "dorwać", "demoralizować", "chlubić", "cmokać", "alokować", "degustować", "dziadować", "bajdurzyć", "bryknąć", "chałturzyć", "biwakować", "akompaniować", "dryfować", "dopompować", "grodzić", "kochać", "obalać", "dokrajać", "doprowadzić", "stykać", "zwiedzać", "balować", "definiować", "dybać", "dodrukować", "badać", "zwilżać", "obfotografować", "cedzić", "harować", "bełkotać", "zeswatać", "boleć", "golnąć", "bąblować", "obadać", "ignorować", "dopowiadać", "restaurować", "pisać", "mówić", "robić", "jeść", "pić", "spać", "biegać", "chodzić", "myśleć", "widzieć", "słyszeć", "czuć", "tworzyć", "niszczyć", "kupować", "sprzedawać", "otwierać", "zamykać", "zaczynać", "kończyć", "uczyć", "zapominać", "pamiętać", "szukać", "znajdować", "tracić", "zyskiwać", "budować", "burzyć", "prowadzić", "zatrzymywać", "wysyłać", "odbierać", "tłumaczyć", "sprawdzać", "liczyć", "mierzyć", "ważyć", "drukować"
-            };
-
-            var LoremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
             // kilka userow aby bylo wlascicielami projektow
             var projectOwners = users.Take(numProjectOwners).ToList();
 
@@ -396,10 +212,21 @@ namespace TeamTaskManager.Helpers
                 }
                 context.ProjectUsers.AddRange(projectUsers);
 
+                // sprint count tutaj aby dalo sie obliczyc laczna ilosc taskow
+                var numOfSprints = Random.Shared.Next(minNumSprintsPerProject, maxNumSprintsPerProject + 1);
+                var sprintTaskCounts = new List<int>();
+                var numOfTasks = 0;
+                for (int j = 0; j < numOfSprints; j++)
+                {
+                    var tasksForSprint = Random.Shared.Next(minNumTasksPerSprint, maxNumTasksPerSprint + 1);
+                    sprintTaskCounts.Add(tasksForSprint);
+                    numOfTasks += tasksForSprint;
+                }
+
+
                 // taski
 
                 var tasks = new List<Task>();
-                var numOfTasks = Random.Shared.Next(minNumTasksPerProject, maxNumTasksPerProject + 1);
 
                 for (int j = 0; j < numOfTasks; j++)
                 {
@@ -413,7 +240,8 @@ namespace TeamTaskManager.Helpers
                     var tStatus = TaskStatus.Open;
                     var tPriority = (TaskPriority)Random.Shared.Next(Enum.GetValues(typeof(TaskPriority)).Length);
                     var tCreatedAt = pCreatedAt.AddDays(Random.Shared.Next(1, 3)).AddHours(Random.Shared.Next(1, 24));
-                    var tUpdatedAt = (Random.Shared.NextDouble() < 0.8) ? tCreatedAt : tCreatedAt.AddDays(Random.Shared.Next(1, 10));   // 20% ze bedzie edytowany
+                    var tWasEdited = Random.Shared.NextDouble() < taskEditProbability;
+                    var tUpdatedAt = tWasEdited ? tCreatedAt.AddDays(Random.Shared.Next(1, 10)) : tCreatedAt;
                     var tReporter = managersForProject[Random.Shared.Next(managersForProject.Count)];
                     var tPerProjectId = j;
 
@@ -437,7 +265,7 @@ namespace TeamTaskManager.Helpers
 
                     // komentarze
                     var comments = new List<Comment>();
-                    var numOfComments = Random.Shared.Next(0, 5);
+                    var numOfComments = Random.Shared.Next(minNumCommentsPerTask, maxNumCommentsPerTask + 1);
 
                     for (int k = 0; k < numOfComments; k++)
                     {
@@ -445,13 +273,19 @@ namespace TeamTaskManager.Helpers
                         var cCommenter = projectUsers[Random.Shared.Next(projectUsers.Count)].User;
                         var cCreatedAt = tCreatedAt.AddDays(Random.Shared.Next(0, 10)).AddHours(Random.Shared.Next(1, 24));
 
-                        comments.Add(new Comment
+                        var parentComment = new Comment
                         {
                             Task = task,
                             Commenter = cCommenter,
                             Text = cText,
                             CreatedAt = cCreatedAt
-                        });
+                        };
+
+                        comments.Add(parentComment);
+
+                        var replies = new List<Comment>();
+
+                        replies.AddRange(GenerateReplies(task, parentComment, projectUsers, maxNumRepliesPerComment, commentReplyProbability, 0, maxCommentDepth));
                     }
                     context.Comments.AddRange(comments);
                 }
@@ -465,9 +299,7 @@ namespace TeamTaskManager.Helpers
                 // sprinty
 
                 var sprints = new List<Sprint>();
-                var numOfSprints = Random.Shared.Next(minNumSprintsPerProject, maxNumSprintsPerProject + 1);
 
-                var tasksPerSprint = numOfTasks / numOfSprints;
                 var remainingTasks = new List<Task>(tasks);
 
                 var firstSprintCreationDate = pCreatedAt.AddDays(Random.Shared.Next(3, 5));
@@ -479,10 +311,12 @@ namespace TeamTaskManager.Helpers
                     var sNoun = Nouns[Random.Shared.Next(Nouns.Count)];
                     sAdjective = sAdjective.OdmienPrzymiotnik(sNoun);
                     var sName = $"Sprint {j + 1}: {sAdjective} {sNoun}";
-                    var sCreatedAt = firstSprintCreationDate.AddDays(j * sprintLength);
-                    var sStartDate = firstSprintStartDate.AddDays(j * sprintLength);
-                    var sEndDate = sStartDate.AddDays(sprintLength);
-                    var sStatus = (sStartDate > DateTime.UtcNow) ? SprintStatus.Planned : ((sEndDate < DateTime.UtcNow) ? SprintStatus.Completed : SprintStatus.Active);
+                    var sCreatedAt = firstSprintCreationDate.AddDays(j * sprintLengthInDays);
+                    var sStartDate = firstSprintStartDate.AddDays(j * sprintLengthInDays);
+                    var sEndDate = sStartDate.AddDays(sprintLengthInDays);
+                    var sStatus = (sStartDate > DateTime.UtcNow)
+                                  ? SprintStatus.Planned : ((sEndDate < DateTime.UtcNow)
+                                  ? SprintStatus.Completed : SprintStatus.Active);
                     var sCreator = managersForProject[Random.Shared.Next(managersForProject.Count)];
                     var sprint = new Sprint
                     {
@@ -500,20 +334,21 @@ namespace TeamTaskManager.Helpers
 
                     // sprint tasks
 
+                    var sTaskCount = sprintTaskCounts[j];
                     var sprintTasks = new List<SprintTask>();
                     var devUsers = projectUsers.Where(pu => pu.Role == UserRole.Developer).Select(pu => pu.User).ToList();
 
-                    for (int k = 0; k < tasksPerSprint && remainingTasks.Count > 0; k++)
+                    for (int k = 0; k < sTaskCount; k++)
                     {
                         var stTask = remainingTasks[0];
                         var stStatus = stTask.Status;
                         var stAssignee = devUsers[Random.Shared.Next(devUsers.Count)];
 
-                        var stAddedLate = (Random.Shared.NextDouble() < 0.2); // 20% ze scope creep
+                        var stAddedLate = sStatus != SprintStatus.Planned && (Random.Shared.NextDouble() < taskScopeCreepProbability);
                         var stAddedAt = stAddedLate ? sStartDate.AddDays(Random.Shared.Next(1, 3)) : sCreatedAt;
                         var stAddedBy = managersForProject[Random.Shared.Next(managersForProject.Count)];
 
-                        var stIsRemoved = (Random.Shared.NextDouble() < 0.1); // 10% szans ze deprecated
+                        var stIsRemoved = sStatus != SprintStatus.Planned && (Random.Shared.NextDouble() < taskDeprecationProbability);
                         var stRemovedAt = stIsRemoved ? stAddedAt.AddDays(Random.Shared.Next(1, 3)) : (DateTime?)null;
                         var stRemovedBy = stIsRemoved ? managersForProject[Random.Shared.Next(managersForProject.Count)] : null;
 
@@ -542,7 +377,8 @@ namespace TeamTaskManager.Helpers
 
                             for (int l = 0; l < workLogsPerTask; l++)
                             {
-                                var wlUser = Random.Shared.NextDouble() < 0.8 ? stAssignee: managersForProject[Random.Shared.Next(managersForProject.Count)]; // 20% ze manager ktorys
+                                var wlByManager = Random.Shared.NextDouble() < worklogByManagerProbability;
+                                var wlUser = wlByManager ? managersForProject[Random.Shared.Next(managersForProject.Count)] : stAssignee;
                                 var wlDescription = LoremIpsum.Substring(0, Random.Shared.Next(20, LoremIpsum.Length));
                                 var wlStartTime = sCreatedAt.AddDays(Random.Shared.Next(1, 12)).AddHours(Random.Shared.Next(1, 24));
                                 var wlTimeSpent = TimeSpan.FromHours(Random.Shared.Next(1, 8));
@@ -574,6 +410,7 @@ namespace TeamTaskManager.Helpers
                         });
 
                         stTask.Status = stStatus;
+                        stTask.Assignee = stAssignee;
                     }
                     context.SprintTasks.AddRange(sprintTasks);
                 }
@@ -608,6 +445,47 @@ namespace TeamTaskManager.Helpers
                 : adjective;
 
             return endsWithY ? stem + "e" : adjective + "e";
+        }
+
+        static private List<Comment> GenerateReplies(
+            Task task, Comment parentComment, List<ProjectUser> projectUsers,
+            int maxNumOfReplies = 3, float replyProbability = 0.5f,
+            int currentDepth = 0, int maxDepth = 3)
+        {
+            var comments = new List<Comment>();
+
+            if (currentDepth >= maxDepth)
+                return comments;
+
+            var hasReplies = Random.Shared.NextDouble() < replyProbability;
+            if (!hasReplies)
+                return comments;
+
+            var numOfReplies = Random.Shared.Next(1, maxNumOfReplies + 1);
+
+            for (int i = 0; i < numOfReplies; i++)
+            {
+                var rText = LoremIpsum.Substring(0, Random.Shared.Next(20, LoremIpsum.Length));
+
+                var rCommenter = projectUsers[Random.Shared.Next(projectUsers.Count)].User;
+
+                var rCreatedAt = parentComment.CreatedAt.AddHours(Random.Shared.Next(1, 24));
+
+                var reply = new Comment
+                {
+                    Task = task,
+                    Commenter = rCommenter,
+                    Text = rText,
+                    CreatedAt = rCreatedAt,
+                    ParentComment = parentComment
+                };
+
+                comments.Add(reply);
+
+                comments.AddRange(GenerateReplies(task, reply, projectUsers, maxNumOfReplies, replyProbability, currentDepth + 1, maxDepth));
+            }
+
+            return comments;
         }
     }
 }

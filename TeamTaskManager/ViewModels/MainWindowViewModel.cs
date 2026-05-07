@@ -142,13 +142,6 @@ namespace TeamTaskManager.ViewModels
                 CurrentView = new HeadAdminPanelView();
             });
 
-            SeedDbCommand = new RelayCommand(() =>
-            {
-                using var context = new AppDbContext();
-                SeedData.Seed(context);
-                System.Windows.MessageBox.Show("Sukces", "Sukces", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
-            });
-
             RandomSeedDbCommand = new RelayCommand(() =>
             {
                 using var context = new AppDbContext();

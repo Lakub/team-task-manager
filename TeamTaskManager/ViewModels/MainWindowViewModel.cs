@@ -37,6 +37,7 @@ namespace TeamTaskManager.ViewModels
                     SprintsOverviewView => new SprintsOverviewView(SelectedProject?.Id ?? -1),
                     SprintReportView => SelectedProject != null ? new SprintReportView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
                     BacklogView => SelectedProject != null ? new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
+                    WikiMainView => SelectedProject != null ? new WikiMainView(SelectedProject.Id) : CurrentView,
                     _ => CurrentView
                 };
             }
@@ -58,7 +59,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand ClearDbCommand { get; }
         public ICommand ShowWikiCommand { get; }
         public ICommand EditProjectCommand { get; }
-
+        public ICommand LogoutCommand { get;  }
         public bool IsHeadAdmin => string.Equals(App.CurrentUser?.Email, "j.kowalski@email.com", System.StringComparison.OrdinalIgnoreCase);
 
         public ICommand CreateNewProjectCommand { get;  }
@@ -100,7 +101,14 @@ namespace TeamTaskManager.ViewModels
                 System.Windows.MessageBox.Show("not implemented", "not implemented", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning));
 
             ShowWikiCommand = new RelayCommand(() =>
-                CurrentView = new WikiMainView());
+            {
+                if (SelectedProject == null)
+                {
+                    System.Windows.MessageBox.Show("Najpierw wybierz projekt z listy po lewej stronie.", "Brak projektu", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+                CurrentView = new WikiMainView(SelectedProject.Id);
+            });
 
             ShowBacklogCommand = new RelayCommand(() =>
             {
@@ -170,12 +178,33 @@ namespace TeamTaskManager.ViewModels
                     LoadProjects(editProjectWindow.editedProject.Id);
                 }
             });
+            LogoutCommand = new RelayCommand(() =>
+            {
+                App.IsLoggingOut = true;
+                App.CurrentUser = null;
+
+                System.Windows.Application.Current.MainWindow.Close();
+
+                var login = new LoginWindow();
+                if (login.ShowDialog() == true)
+                {
+                    App.CurrentUser = login.LoggedInUser;
+                    App.IsLoggingOut = false;
+                    var main = new MainWindow();
+                    main.Closed += (s, args) => { if (!App.IsLoggingOut) System.Windows.Application.Current.Shutdown(); };
+                    main.Show();
+                }
+                else
+                {
+                    System.Windows.Application.Current.Shutdown();
+                }
+            });
 
             WeakReferenceMessenger.Default.Register<NavigationMessage>(this, (recipient, message) =>
             {
                 CurrentView = message.TargetView;
             });
-
+            
             LoadProjects();
 
             OnPropertyChanged(nameof(IsHeadAdmin));

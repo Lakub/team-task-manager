@@ -100,6 +100,9 @@
                     <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
                     <TextBlock Text="{Binding CurrentUserName}" Foreground="#1F2937"
                             FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
+                    <Button Content="X" Command="{Binding LogoutCommand}"
+                            Background="Transparent" BorderThickness="0"
+                            Foreground="#1F2937" Cursor="Hand" Margin="8 0 0 0"/>
                 </StackPanel>
             </Border>
 

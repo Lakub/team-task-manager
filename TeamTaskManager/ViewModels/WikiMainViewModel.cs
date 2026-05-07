@@ -1,8 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
@@ -12,7 +14,8 @@ namespace TeamTaskManager.ViewModels
 {
     public partial class WikiMainViewModel : ObservableObject
     {
- 
+        private readonly int _projectId;
+
         private string _searchQuery = string.Empty;
         public string SearchQuery
         {
@@ -29,6 +32,11 @@ namespace TeamTaskManager.ViewModels
         [ObservableProperty]
         private ObservableCollection<WikiArticle> articles = new();
 
+        // NOWE: Kolekcja dostępnych tagów w projekcie
+        [ObservableProperty]
+        private ObservableCollection<string> availableTags = new();
+
+
         private WikiArticle? _selectedArticle;
         public WikiArticle? SelectedArticle
         {
@@ -37,9 +45,8 @@ namespace TeamTaskManager.ViewModels
             {
                 if (SetProperty(ref _selectedArticle, value))
                 {
-
-                    ((RelayCommand)EditArticleCommand).NotifyCanExecuteChanged();
-
+                    ((RelayCommand?)EditArticleCommand)?.NotifyCanExecuteChanged();
+                    ((RelayCommand?)DeleteArticleCommand)?.NotifyCanExecuteChanged();
                     OnPropertyChanged(nameof(SelectedArticleTags));
                 }
             }
@@ -51,39 +58,74 @@ namespace TeamTaskManager.ViewModels
 
         public ICommand CreateNewArticleCommand { get; }
         public ICommand EditArticleCommand { get; }
+        public ICommand DeleteArticleCommand { get; }
 
-        public WikiMainViewModel()
+        // NOWE: Komenda do filtrowania po tagu
+        public ICommand FilterByTagCommand { get; }
+
+        public WikiMainViewModel(int projectId)
         {
-            LoadArticles();
+            _projectId = projectId;
 
             CreateNewArticleCommand = new RelayCommand(CreateNewArticle);
             EditArticleCommand = new RelayCommand(EditArticle, () => SelectedArticle != null);
+            DeleteArticleCommand = new RelayCommand(DeleteArticle, () => SelectedArticle != null);
+
+            // Po kliknięciu w tag, wpisujemy go w pasek wyszukiwania (co automatycznie filtruje listę)
+            FilterByTagCommand = new RelayCommand<string>(tag =>
+            {
+                if (tag != null) SearchQuery = tag;
+            });
+
+            LoadArticles();
         }
 
         public void LoadArticles()
         {
-            using var context = new AppDbContext();
-            var query = context.WikiArticles.Include(a => a.Tags).AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(SearchQuery))
+            try
             {
-                var lowerQuery = SearchQuery.ToLower();
-                query = query.Where(a => a.Title.ToLower().Contains(lowerQuery) ||
-                                         a.Content.ToLower().Contains(lowerQuery) ||
-                                         a.Tags.Any(t => t.Name.ToLower().Contains(lowerQuery)));
+                using var context = new AppDbContext();
+                context.Database.EnsureCreated();
+
+                var baseQuery = context.WikiArticles
+                    .Include(a => a.Tags)
+                    .Where(a => a.ProjectId == _projectId);
+
+                // NOWE: Pobieranie wszystkich unikalnych tagów użytych w artykułach dla tego projektu
+                var uniqueTags = baseQuery
+                    .SelectMany(a => a.Tags)
+                    .Select(t => t.Name)
+                    .Distinct()
+                    .ToList();
+
+                AvailableTags = new ObservableCollection<string>(uniqueTags);
+
+                var query = baseQuery.AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(SearchQuery))
+                {
+                    var lowerQuery = SearchQuery.ToLower();
+                    query = query.Where(a => a.Title.ToLower().Contains(lowerQuery) ||
+                                             a.Content.ToLower().Contains(lowerQuery) ||
+                                             a.Tags.Any(t => t.Name.ToLower().Contains(lowerQuery)));
+                }
+
+                Articles = new ObservableCollection<WikiArticle>(query.ToList());
+
+                if (SelectedArticle == null && Articles.Any())
+                {
+                    SelectedArticle = Articles.First();
+                }
             }
-
-            Articles = new ObservableCollection<WikiArticle>(query.ToList());
-
-            if (SelectedArticle == null && Articles.Any())
+            catch (Exception ex)
             {
-                SelectedArticle = Articles.First();
+                MessageBox.Show($"Błąd odczytu bazy dokumentacji: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void CreateNewArticle()
         {
-            var editWindow = new ArticleEditWindow(null); 
+            var editWindow = new ArticleEditWindow(null, _projectId);
             if (editWindow.ShowDialog() == true)
             {
                 LoadArticles();
@@ -94,10 +136,32 @@ namespace TeamTaskManager.ViewModels
         {
             if (SelectedArticle == null) return;
 
-            var editWindow = new ArticleEditWindow(SelectedArticle.Id);
+            var editWindow = new ArticleEditWindow(SelectedArticle.Id, _projectId);
             if (editWindow.ShowDialog() == true)
             {
                 LoadArticles();
+            }
+        }
+
+        private void DeleteArticle()
+        {
+            if (SelectedArticle == null) return;
+
+            var result = MessageBox.Show($"Czy na pewno chcesz usunąć artykuł '{SelectedArticle.Title}'?", "Potwierdzenie usunięcia", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using var context = new AppDbContext();
+                    context.WikiArticles.Remove(SelectedArticle);
+                    context.SaveChanges();
+                    SelectedArticle = null;
+                    LoadArticles();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Nie udało się usunąć artykułu: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

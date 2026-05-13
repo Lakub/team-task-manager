@@ -282,10 +282,7 @@ namespace TeamTaskManager.Helpers
                         };
 
                         comments.Add(parentComment);
-
-                        var replies = new List<Comment>();
-
-                        replies.AddRange(GenerateReplies(task, parentComment, projectUsers, maxNumRepliesPerComment, commentReplyProbability, 0, maxCommentDepth));
+                        comments.AddRange(GenerateReplies(task, parentComment, projectUsers, maxNumRepliesPerComment, commentReplyProbability, 0, maxCommentDepth));
                     }
                     context.Comments.AddRange(comments);
                 }
@@ -465,7 +462,7 @@ namespace TeamTaskManager.Helpers
 
             for (int i = 0; i < numOfReplies; i++)
             {
-                var rText = LoremIpsum.Substring(0, Random.Shared.Next(20, LoremIpsum.Length));
+                var rText = $"@{parentComment.Commenter.FullName} {LoremIpsum.Substring(0, Random.Shared.Next(20, LoremIpsum.Length))}";
 
                 var rCommenter = projectUsers[Random.Shared.Next(projectUsers.Count)].User;
 

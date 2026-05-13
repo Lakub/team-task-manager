@@ -13,7 +13,7 @@ namespace TeamTaskManager.Services
     {
         System.Threading.Tasks.Task<Task?> GetTaskByIdAsync(int taskId);
         System.Threading.Tasks.Task<List<Worklog>> GetWorklogsByTaskIdAsync(int taskId);
-        System.Threading.Tasks.Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId);
+        System.Threading.Tasks.Task<List<Comment>> GetNonReplyCommentsByTaskIdAsync(int taskId);
         System.Threading.Tasks.Task<Task> CreateTaskAsync(
             string title, string description,
             TaskType type, TaskPriority priority,
@@ -81,11 +81,13 @@ namespace TeamTaskManager.Services
                 .ToListAsync();
         }
 
-        public async System.Threading.Tasks.Task<List<Comment>> GetCommentsByTaskIdAsync(int taskId)
+        public async System.Threading.Tasks.Task<List<Comment>> GetNonReplyCommentsByTaskIdAsync(int taskId)
         {
             return await _context.Comments
-                .Where(c => c.TaskId == taskId && !c.IsDeleted)
+                .Where(c => c.TaskId == taskId && c.ParentCommentId == null)
                 .Include(c => c.Commenter)
+                .Include(c => c.Replies)
+                    .ThenInclude(r => r.Commenter)
                 .ToListAsync();
         }
     }

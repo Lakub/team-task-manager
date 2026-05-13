@@ -15,6 +15,7 @@ using TeamTaskManager.Views;
 using System.Diagnostics;
 using Task = TeamTaskManager.Models.Entities.Task;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
+using System.ComponentModel;
 
 namespace TeamTaskManager.ViewModels
 {
@@ -30,10 +31,10 @@ namespace TeamTaskManager.ViewModels
             _taskId = taskId;
 
             AddCommentCommand = new RelayCommand(AddComment);
+            AddReplyCommand = new RelayCommand<CommentItem>(AddReply);
             LogWorkCommand = new RelayCommand(LogWork);
             OpenWorklogCommand = new RelayCommand<WorklogItem>(OpenWorklog);
             ToggleDescriptionCommand = new RelayCommand(() => IsDescriptionExpanded = !IsDescriptionExpanded);
-
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
@@ -54,14 +55,18 @@ namespace TeamTaskManager.ViewModels
 
         private async System.Threading.Tasks.Task LoadCommentsAsync()
         {
-            var comments = await _taskService.GetCommentsByTaskIdAsync(_taskId);
+            var comments = await _taskService.GetNonReplyCommentsByTaskIdAsync(_taskId);
             Comments.Clear();
             foreach (var comment in comments.OrderByDescending(c => c.CreatedAt))
             {
-                Comments.Add(new CommentItem(comment));
+                // agregujemy wszystkie odpowiedzi odpowiedzi itp do jednego threada bo inaczej by szybko sie miejsce skonczylo
+                var commentItem = new CommentItem(comment);
+                AggregateReplies(comment, commentItem.Replies);
+                commentItem.Replies = new ObservableCollection<CommentItem>(commentItem.Replies.OrderBy(c => c.CreatedAt));
+                Comments.Add(commentItem);
             }
 
-            OnPropertyChanged(nameof(HasNoComments));
+            OnPropertyChanged(string.Empty);
         }
 
         private async System.Threading.Tasks.Task LoadWorklogsAsync()
@@ -79,6 +84,7 @@ namespace TeamTaskManager.ViewModels
 
         public ICommand LogWorkCommand { get; }
         public ICommand AddCommentCommand { get; }
+        public ICommand AddReplyCommand { get; }
         public ICommand OpenWorklogCommand { get; }
         public ICommand ToggleDescriptionCommand { get; }
 
@@ -191,6 +197,8 @@ namespace TeamTaskManager.ViewModels
         // komentarze
         public ObservableCollection<CommentItem> Comments { get; } = new();
         public bool HasNoComments => !Comments.Any();
+        public string NewCommentContent { get; set; } = string.Empty;
+        public string NewReplyContent { get; set; } = string.Empty;
 
         // worklogi
         public ObservableCollection<WorklogItem> Worklogs { get; } = new();
@@ -201,39 +209,98 @@ namespace TeamTaskManager.ViewModels
             MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        private void AddReply(CommentItem commentItem)
+        {
+            if (commentItem == null) return;
+
+            if (commentItem.IsBeingRepliedTo)
+            {
+                MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                commentItem.IsBeingRepliedTo = false;
+                NewReplyContent = string.Empty;
+                return;
+            }
+
+            NewCommentContent = string.Empty;
+
+            foreach (var item in Comments)
+            {
+                item.IsBeingRepliedTo = false;
+                foreach (var reply in item.Replies)
+                {
+                    reply.IsBeingRepliedTo = false;
+                }
+            }
+
+            if (commentItem != null)
+            {
+                commentItem.IsBeingRepliedTo = true;
+                NewReplyContent = $"@{commentItem.Name} ";
+            }
+
+            OnPropertyChanged(nameof(NewReplyContent));
+        }
+
         private void AddComment()
         {
             MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
+            NewCommentContent = string.Empty;
+        } 
 
         private void OpenWorklog(WorklogItem? item)
         {
             MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+
+        private void AggregateReplies(Comment comment, ObservableCollection<CommentItem> collection)
+        {
+            foreach (var reply in comment.Replies)
+            {
+                var replyItem = new CommentItem(reply);
+                collection.Add(replyItem);
+                AggregateReplies(reply, collection);
+            }
+        }
     }
 
-    public class CommentItem
+    public class CommentItem : INotifyPropertyChanged
     {
         private readonly Comment _model;
         public CommentItem(Comment model) { _model = model; }
 
         public string Content => _model.Text;
-        public string Name => _model.Commenter.FullName;
+        public string Name => _model.Commenter?.FullName ?? "Unknown";
+        public DateTime CreatedAt => _model.CreatedAt;
         public string CreatedAtStr => _model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
+
+        // odpowiedzi
+        public ObservableCollection<CommentItem> Replies { get; set; } = new();
+        public bool HasNoReplies => !Replies.Any();
+        private bool _isBeingRepliedTo;
+        public bool IsBeingRepliedTo
+        {
+            get => _isBeingRepliedTo;
+            set { if (_isBeingRepliedTo != value) { _isBeingRepliedTo = value; OnPropertyChanged(); } }
+        }
 
         // te kolorki to przydaloby sie na przyszlosc od usera uzaleznic aby bylo troche radosci i stymulacji w szarym zyciu programisty
         public string Initials => string.Concat(Name.Split(' ').Select(n => n[0])).ToUpper();
         public Brush AvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush AvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 
     public class WorklogItem
     {
         private readonly Worklog _model;
         public WorklogItem(Worklog model) { _model = model; }
+
         public string Name => _model.User.FullName;
         public string CreatedAtStr => _model.LoggedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
         public string TimeSpentStr => $"{_model.TimeSpent.TotalHours:0.#}h";
+
         public string Initials => string.Concat(Name.Split(' ').Select(n => n[0])).ToUpper();
         public Brush AvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush AvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));

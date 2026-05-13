@@ -102,6 +102,20 @@
                         <StackPanel>
                             <TextBlock Text="KOMENTARZE" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
 
+                            <Grid Margin="0,15,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10">
+                                    <TextBox Text="{Binding NewCommentContent, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0"
+                                             FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                </Border>
+
+                                <Button Grid.Row="1" Content="+ Dodaj komentarz" Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Right"
+                                        Command="{Binding AddCommentCommand}" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                            </Grid>
+                            
                             <ItemsControl ItemsSource="{Binding Comments}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -118,6 +132,58 @@
                                                     <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
                                                 </StackPanel>
                                                 <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"/>
+                                                <Grid Margin="0,15,0,0">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Border Grid.Row="0" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10"
+                                                            Visibility="{Binding IsBeingRepliedTo, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <TextBox Text="{Binding DataContext.NewReplyContent, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
+                                                                 VerticalScrollBarVisibility="Auto"/>
+                                                    </Border>
+
+                                                    <Button Grid.Row="1" Content="+ Dodaj odpowiedż" Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Right"
+                                                            VerticalAlignment="Center" Margin="0,10,0,0" CommandParameter="{Binding}"
+                                                            Command="{Binding DataContext.AddReplyCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                </Grid>
+
+                                                <ItemsControl ItemsSource="{Binding Replies}" Margin="30,0,0,0">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Margin="0,8,0,0">
+                                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                                    <Border Background="{Binding AvatarBg}" CornerRadius="9"
+                                                                            Width="18" Height="18" Margin="0,0,5,0">
+                                                                        <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="8"
+                                                                                   FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
+                                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
+                                                                    <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
+                                                                </StackPanel>
+                                                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"/>
+                                                                <Grid Margin="0,15,0,0">
+                                                                    <Grid.RowDefinitions>
+                                                                        <RowDefinition Height="*"/>
+                                                                        <RowDefinition Height="Auto"/>
+                                                                    </Grid.RowDefinitions>
+                                                                    <Border Grid.Row="0" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10"
+                                                                            Visibility="{Binding IsBeingRepliedTo, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                        <TextBox Text="{Binding DataContext.NewReplyContent, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
+                                                                                 Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
+                                                                                 VerticalScrollBarVisibility="Auto"/>
+                                                                    </Border>
+
+                                                                    <Button Grid.Row="1" Content="+ Dodaj odpowiedż" Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Right"
+                                                                            VerticalAlignment="Center" Margin="0,10,0,0" CommandParameter="{Binding}"
+                                                                            Command="{Binding DataContext.AddReplyCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                </Grid>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
@@ -126,20 +192,6 @@
 
                             <TextBlock Text="Brak komentarzy." FontStyle="Italic" Foreground="#9CA3AF" Margin="0,10,0,0"
                                        Visibility="{Binding HasNoComments, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                            <Grid Margin="0,15,0,0">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Border Grid.Row="0" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10">
-                                    <TextBox Text="{Binding NewCommentContent, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0"
-                                             FontSize="14" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
-                                </Border>
-
-                                <Button Grid.Row="1" Content="+ Dodaj komentarz" Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Right"
-                                        Command="{Binding AddCommentCommand}" VerticalAlignment="Center" Margin="0,10,0,0"/>
-                            </Grid>
                         </StackPanel>
                     </Border>
                 </StackPanel>

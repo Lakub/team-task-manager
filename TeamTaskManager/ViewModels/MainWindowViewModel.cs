@@ -54,7 +54,6 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowBacklogCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
         public ICommand ShowHeadAdminPanelCommand { get; }
-        public ICommand SeedDbCommand { get; }
         public ICommand RandomSeedDbCommand { get; }
         public ICommand ClearDbCommand { get; }
         public ICommand ShowWikiCommand { get; }

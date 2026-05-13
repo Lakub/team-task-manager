@@ -125,7 +125,8 @@
 
                 <Button Content="+ Utwórz nowy sprint" Margin="0,4,0,0"
                     Style="{StaticResource PrimaryButtonStyle}"
-                    Command="{Binding CreateSprintCommand}"/>
+                    Command="{Binding CreateSprintCommand}"
+                        Visibility="{Binding CanManageProject, Converter={StaticResource BoolToVisibilityConverter}}"/>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

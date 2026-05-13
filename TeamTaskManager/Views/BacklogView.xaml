@@ -8,7 +8,7 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Orientation="Vertical" Margin="0 0 8 0">
-            <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding SprintVisibility}">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding HasSprint, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
@@ -56,8 +56,8 @@
 
                                         <Button Grid.Column="3" Content="-"
                                                     Style="{StaticResource ActionButtonStyle}"
-                                                    Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                    CommandParameter="{Binding}"/>
+                                                    Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                                                    Visibility="{Binding DataContext.CanEditSprint, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </Grid>
                                 </Button>
                             </DataTemplate>
@@ -97,18 +97,22 @@
                                         <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
                                         <Button Grid.Column="3" Content="+"
-                                                        Style="{StaticResource ActionButtonStyle}"
-                                                        Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                        CommandParameter="{Binding}" Visibility="{Binding DataContext.SprintVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                Style="{StaticResource ActionButtonStyle}"
+                                                Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                                                Visibility="{Binding DataContext.CanEditSprint, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </Grid>
                                 </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    
+                    <TextBlock Text="Brak zadań w backlogu." Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="13" Margin="0 8 0 0"
+                               Visibility="{Binding BacklogTasks.Count, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <Button Content="+ Utwórz nowe zadanie" Margin="0,4,0,0"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Command="{Binding CreateTaskCommand}"/>
+                            Command="{Binding CreateTaskCommand}"
+                            Visibility="{Binding CanManageProject, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 </StackPanel>
             </Border>
         </StackPanel>

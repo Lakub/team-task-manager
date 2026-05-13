@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -42,7 +43,7 @@ namespace TeamTaskManager.ViewModels
             : new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8));
     }
 
-    public partial class BacklogViewModel : ObservableObject
+    public partial class BacklogViewModel : INotifyPropertyChanged
     {
         private readonly IBacklogService _backlogService;
         private readonly int _sprintId;
@@ -56,15 +57,15 @@ namespace TeamTaskManager.ViewModels
         public ICommand OpenSprintReportCommand { get; }
         public ICommand CreateTaskCommand { get; }
 
-        [ObservableProperty]
-        private string sprintName = string.Empty;
+        public string SprintName { get; set; }  = string.Empty;
+        public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
 
         public bool IsActive { get; set; }
         public bool IsPlanned { get; set; }
-        public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
+        public bool HasSprint { get; set; } = false;
+        public bool CanManageProject { get; set; } = false;
 
-        public bool IsBacklogOnly => _sprintId <= 0;
-        public Visibility SprintVisibility => IsBacklogOnly ? Visibility.Collapsed : Visibility.Visible;
+        public bool CanEditSprint => HasSprint && (IsPlanned || IsActive) && CanManageProject;
 
         public ObservableCollection<BacklogTaskItem> SprintTasks { get; } = new();
         public ObservableCollection<BacklogTaskItem> BacklogTasks { get; } = new();
@@ -90,18 +91,19 @@ namespace TeamTaskManager.ViewModels
                 SprintName = sprint.Name;
                 IsActive = sprint.Status == SprintStatus.Active;
                 IsPlanned = sprint.Status == SprintStatus.Planned;
-                OnPropertyChanged(nameof(StatusText));
-                OnPropertyChanged(nameof(SprintVisibility));
+                HasSprint = true;
             }
 
             var project = await _backlogService.GetProjectAsync(_projectId);
             if (project != null)
             {
                 ProjectKey = project.Key;
+                CanManageProject = UserHelper.HasAdminPowers() ||
+                                  project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
+                                                              && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
             }
 
             OnPropertyChanged(string.Empty);
-
             await LoadTasksAsync();
         }
 
@@ -134,16 +136,29 @@ namespace TeamTaskManager.ViewModels
                     Priority = t.Priority
                 });
             }
+
+            OnPropertyChanged(string.Empty);
         }
 
         private async System.Threading.Tasks.Task MoveToSprint(BacklogTaskItem item)
         {
+            if (!CanEditSprint)
+            {
+                MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             await _backlogService.AddTaskToSprintAsync(_sprintId, item.TaskId);
             await LoadTasksAsync();
         }
 
         private async System.Threading.Tasks.Task RemoveFromSprint(BacklogTaskItem item)
         {
+            if (!CanEditSprint)
+            {
+                MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             await _backlogService.RemoveTaskFromSprintAsync(_sprintId, item.TaskId);
             await LoadTasksAsync();
         }
@@ -156,6 +171,12 @@ namespace TeamTaskManager.ViewModels
 
         private void CreateTask()
         {
+            if (!CanEditSprint)
+            {
+                MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var createTaskWindow = new CreateTaskWindow(_projectId);
             if (createTaskWindow.ShowDialog() == true)
             {
@@ -167,5 +188,8 @@ namespace TeamTaskManager.ViewModels
         {
             if (item != null) OnTaskSelected?.Invoke(item);
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 }

@@ -163,6 +163,9 @@ namespace TeamTaskManager.ViewModels
         public ICommand OpenUserProfileCommand { get; }
         public ICommand OpenSprintBacklogCommand { get; }
 
+        public bool CanManageProject { get; set; }
+        public bool CanEditSprint => (IsPlanned || IsActive) && CanManageProject;
+
         public string SprintName { get; set; }
         public string ProjectName { get; set; }
         public string CreatorName { get; set; }
@@ -174,28 +177,9 @@ namespace TeamTaskManager.ViewModels
         public bool IsActive { get; set; }
         public bool IsPlanned { get; set; }
         public Visibility DaysRemainingVisibility => IsActive ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility TaskListEditVisibility => IsActive || IsPlanned ? Visibility.Visible : Visibility.Collapsed;
-
-        private string _avgTaskTime = "-";
-        public string AvgTaskTime
-        {
-            get => _avgTaskTime;
-            set { if (_avgTaskTime != value) { _avgTaskTime = value; OnPropertyChanged(nameof(AvgTaskTime)); } }
-        }
-
-        private string _longestTaskTime = "-";
-        public string LongestTaskTime
-        {
-            get => _longestTaskTime;
-            set { if (_longestTaskTime != value) { _longestTaskTime = value; OnPropertyChanged(nameof(LongestTaskTime)); } }
-        }
-
-        private string _longestTaskKey = "-";
-        public string LongestTaskKey
-        {
-            get => _longestTaskKey;
-            set { if (_longestTaskKey != value) { _longestTaskKey = value; OnPropertyChanged(nameof(LongestTaskKey)); } }
-        }
+        public string LongestTaskTime { get; set; } = "-";
+        public string LongestTaskKey { get; set; } = "";
+        public string AvgTaskTime { get; set; } = "-";
 
         public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
         public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
@@ -294,6 +278,10 @@ namespace TeamTaskManager.ViewModels
             IsActive = sprint.Status == SprintStatus.Active;
             IsPlanned = sprint.Status == SprintStatus.Planned;
 
+            CanManageProject = UserHelper.HasAdminPowers() ||
+                               sprint.Project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
+                                                           && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
+
             _allTaskItems.Clear();
             foreach (var st in sprintTasks)
             {
@@ -366,6 +354,8 @@ namespace TeamTaskManager.ViewModels
 
                 TeamMembers.Add(member);
             }
+
+            OnPropertyChanged(string.Empty);
         }
 
         public void ApplyFilter(string? filter)

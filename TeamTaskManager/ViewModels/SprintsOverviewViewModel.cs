@@ -55,6 +55,8 @@ namespace TeamTaskManager.ViewModels
 
         private int _projectId;
 
+        public bool CanManageProject { get; set; }
+
         public string ProjectName { get; set; }
 
         private ObservableCollection<SprintItem> _sprints = new();
@@ -99,6 +101,10 @@ namespace TeamTaskManager.ViewModels
 
             if (project == null) return;
 
+            CanManageProject = UserHelper.HasAdminPowers() ||
+                               project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
+                                                           && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
+
             ProjectName = project.Name;
 
             _sprints.Clear();
@@ -134,6 +140,12 @@ namespace TeamTaskManager.ViewModels
 
         private void CreateSprint()
         {
+            if (!CanManageProject)
+            {
+                MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var createTaskWindow = new CreateSprintWindow(_projectId);
             if (createTaskWindow.ShowDialog() == true)
             {

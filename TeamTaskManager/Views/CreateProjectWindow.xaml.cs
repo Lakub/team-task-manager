@@ -71,9 +71,9 @@ namespace TeamTaskManager.Views
         readonly ObservableCollection<User> assignedUsers = new();
         readonly Collection<User> assignedProjectManagers = new();
         readonly ObservableCollection<User> allUsers;
+        readonly ObservableCollection<User> comboboxUsers;
         public Project editedProject;
         bool editing;
-        ICollectionView view;
         private ListCollectionView View
         {
             get
@@ -83,14 +83,22 @@ namespace TeamTaskManager.Views
         {
             InitializeComponent();
             var context = new AppDbContext();
-            allUsers = new ObservableCollection<User>(context.Users.Where(u => !u.IsDeleted && u.Id != App.CurrentUser!.Id).ToList());
+            allUsers = new ObservableCollection<User>(context.Users.Where(u => !u.IsDeleted && u.OrgRole!=OrgRole.HeadAdmin && u.Id != App.CurrentUser!.Id));
             this.editing=editing;
             if (editing)
             {
+                comboboxUsers = new ObservableCollection<User>(allUsers);
+                editedProject = project;
+                ProjectOwnerAssignRow.DataContext = editedProject;
+                var projectOwners = editedProject.ProjectUsers.Where(e => e.Role == UserRole.Owner).Select(e=>e.UserId);
+                User? editedProjectsOwner = allUsers.FirstOrDefault(e => projectOwners.Contains(e.Id));
+                if(editedProjectsOwner != null)
+                    allUsers.Remove(editedProjectsOwner);
+                AllUsersComboBox.ItemsSource = comboboxUsers;
+                AllUsersComboBox.SelectedItem= editedProjectsOwner;
                 Title = "Edytowanie projektu";
                 FormTitle.Text = "Edytuj projekt";
                 CreateButton.Content = "Zapisz";
-                editedProject = project;
                 TitleTextBox.Text = project.Name;
                 var assignedUsersIds = project.ProjectUsers.Where(e => e.Role == UserRole.Developer).Select(e => e.UserId);
                 foreach (var userId in assignedUsersIds)
@@ -181,7 +189,17 @@ namespace TeamTaskManager.Views
             if (!editing)
                 await projectService.CreateProjectAsync(name, description, App.CurrentUser!, members);
             else
+            {
+                var owner = (User)AllUsersComboBox.SelectedItem;
+                if (owner==null)
+                {
+                    MessageBox.Show("Projekt musi mieć właściciela.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                editedProject.Owner = owner;
+                editedProject.OwnerId = owner.Id;
                 await projectService.EditProjectAsync(name, description, editedProject, members);
+            }
             DialogResult = true;
         }
      

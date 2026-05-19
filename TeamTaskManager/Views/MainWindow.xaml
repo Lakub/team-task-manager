@@ -35,8 +35,8 @@
                     <StackPanel>
                         <TextBlock Text="Projekt" Foreground="#9CA3AF" FontSize="10" FontFamily="Segoe UI" Margin="0 0 0 4"/>
                         <DockPanel>
-                            <Button Command="{Binding EditProjectCommand}" Style="{StaticResource PrimaryButtonStyle}" Visibility="{Binding Path=SelectedProject, Converter={StaticResource ProjectOwnerVisConverter}}" DockPanel.Dock="Right" Height="30" Margin="0" >
-                                <Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <Button Command="{Binding EditProjectCommand}" Style="{StaticResource PrimaryButtonStyle}" Visibility="{Binding Path=SelectedProject, Converter={StaticResource ProjectOwnerVisConverter}}" DockPanel.Dock="Right" Width="30" Height="30" Padding="0" Margin="0" >
+                                <Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="UniformToFill" VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Canvas Name="svg10" Width="24" Height="24">
                                         <Canvas.RenderTransform>
                                             <TranslateTransform X="1" Y="0"/>

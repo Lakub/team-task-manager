@@ -15,6 +15,7 @@
         <SolidColorBrush x:Key="projectMemberNameColor" Color="#263313" />
         <SolidColorBrush x:Key="uselectedBorderColor" Color="#CCC" />
         <SolidColorBrush x:Key="uselectedNameColor" Color="#1F2937" />
+        <local:RoleVisibilityConverter x:Key="HeadAdminVisibility" VisibilityLevel="10"/>
         <local:CheckedToColorConverter
             x:Key="CheckedToColorConverter" x:Name="CheckedToColorConv"
             unselectedUserBorderBrush="{StaticResource uselectedBorderColor}"
@@ -41,6 +42,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -66,9 +68,9 @@
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Dodaj użytkownika"
             FontSize="14" Foreground="Gray" Margin="0,0,15,5"/>
             <DockPanel Grid.Row="1" Grid.Column="0">
-                    <Label DockPanel.Dock="Left"  FontSize="13">Filtruj po imieniu:</Label>
-                    <TextBox VerticalAlignment="Center" Background="WhiteSmoke" DockPanel.Dock="Right" FontSize="13" x:Name="UserNameFilterBox" TextChanged="Filter"></TextBox>
-                </DockPanel>
+                <Label DockPanel.Dock="Left"  FontSize="13">Filtruj po imieniu:</Label>
+                <TextBox VerticalAlignment="Center" Background="WhiteSmoke" DockPanel.Dock="Right" FontSize="13" x:Name="UserNameFilterBox" TextChanged="Filter"></TextBox>
+            </DockPanel>
             <ListBox Grid.Row="2" Grid.Column="0" x:Name="usersList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Multiple" SelectionChanged="SelectUser" ItemTemplate="{StaticResource UserTemplate}" >
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -96,19 +98,31 @@
                 </Border>
             </StackPanel>
         </Grid>
-        
-        <Grid Grid.Row="3" Margin="0,0,0,10">
+
+        <Grid Grid.Row="3" x:Name="ProjectOwnerAssignRow" Visibility="{Binding Converter={StaticResource HeadAdminVisibility}}">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Left" Text="Właściciel projektu" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
+                <ComboBox DockPanel.Dock="Left" Name="AllUsersComboBox"></ComboBox>
+            </DockPanel>
+        </Grid>
+
+        <Grid Grid.Row="4" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="84*"/>
+                <ColumnDefinition Width="25*"/>
+                <ColumnDefinition Width="651*"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="Opis projektu" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
-            <Border Grid.Row="1" BorderBrush="#CCC" BorderThickness="1" CornerRadius="8">
+            <TextBlock Grid.Row="0" Text="Opis projektu" FontSize="14" Foreground="Gray" Margin="0,0,0,5" Grid.ColumnSpan="3"/>
+            <Border Grid.Row="1" BorderBrush="#CCC" BorderThickness="1" CornerRadius="8" Grid.ColumnSpan="3">
                 <TextBox x:Name="DescriptionTextBox" Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" Padding="10" FontSize="14" VerticalScrollBarVisibility="Auto"/>
             </Border>
         </Grid>
 
-        <Grid Grid.Row="4">
+        <Grid Grid.Row="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="*"/>

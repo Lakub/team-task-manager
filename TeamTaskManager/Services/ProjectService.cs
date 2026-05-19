@@ -65,10 +65,12 @@ namespace TeamTaskManager.Services
 
         public async Task<List<Project>> GetNonDeletedProjectsWithSprintsByUserIdAsync(int userId)
         {
+            bool isHeadAdmin = _context.Users.FirstOrDefault(u => u.Id == userId && !u.IsDeleted).OrgRole==OrgRole.HeadAdmin;
+                
             var projects = await _context.Projects
                 .Include(p => p.Sprints)
                 .Include(p => p.ProjectUsers)
-                .Where(p => !p.IsDeleted && p.ProjectUsers.Any(pu => pu.UserId == userId))
+                .Where(p => isHeadAdmin || (!p.IsDeleted && p.ProjectUsers.Any(pu => pu.UserId == userId)))
                 .ToListAsync();
 
             return projects;

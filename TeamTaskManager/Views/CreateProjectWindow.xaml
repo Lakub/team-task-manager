@@ -7,21 +7,24 @@
         mc:Ignorable="d"
         Title="Tworzenie projektu" Height="500" Width="800">
     <Window.Resources>
+        <SolidColorBrush x:Key="projectManagerBackgroundColor" Color="#e6f7f6" />
+        <SolidColorBrush x:Key="projectManagerBorderColor" Color="#7bada9" />
+        <SolidColorBrush x:Key="projectManagerNameColor" Color="#003825" />
+        <SolidColorBrush x:Key="projectMemberBackgroundColor" Color="#ebfce8" />
+        <SolidColorBrush x:Key="projectMemberBorderColor" Color="#8c9c76" />
+        <SolidColorBrush x:Key="projectMemberNameColor" Color="#263313" />
+        <SolidColorBrush x:Key="uselectedBorderColor" Color="#CCC" />
+        <SolidColorBrush x:Key="uselectedNameColor" Color="#1F2937" />
         <local:CheckedToColorConverter
-            x:Key="CheckedToColorConverter" x:Name="BorderConverter"
-            unselectedUserBorderBrush="#CCC"
-            selectedUserBackgroundBrush="#b1d184"
-            selectedUserBorderBrush="#8bb84d" 
-            selectedUserNameBrush="#263313" 
-            unselectedUserNameBrush="#1F2937"
-            />
-        <local:CheckedToColorConverter
-            x:Key="CheckedToColorProjectConverter" x:Name="ProjectUsersBorderConverter"
-            unselectedUserBorderBrush="#CCC"
-            selectedUserBackgroundBrush="#b0e8e4"
-            selectedUserBorderBrush="#1aeddc" 
-            selectedUserNameBrush="#003825" 
-            unselectedUserNameBrush="#1F2937"
+            x:Key="CheckedToColorConverter" x:Name="CheckedToColorConv"
+            unselectedUserBorderBrush="{StaticResource uselectedBorderColor}"
+            unselectedUserNameBrush="{StaticResource uselectedNameColor}"
+            selectedMemberBackgroundBrush ="{StaticResource projectMemberBackgroundColor}"
+            selectedMemberBorderBrush ="{StaticResource projectMemberBorderColor}"
+            selectedMemberNameBrush = "{StaticResource projectMemberNameColor}"
+            selectedManagerBackgroundBrush ="{StaticResource projectManagerBackgroundColor}"
+            selectedManagerBorderBrush ="{StaticResource projectManagerBorderColor}"
+            selectedManagerNameBrush = "{StaticResource projectManagerNameColor}"
             />
         <DataTemplate x:Key="UserTemplate">
             <Border BorderBrush="{Binding Path=Id, Converter={StaticResource CheckedToColorConverter},ConverterParameter=border}" Background="{Binding Path=Id, Converter={StaticResource CheckedToColorConverter},ConverterParameter=background}" BorderThickness="1" CornerRadius="8" Padding="3,0,3,0" Height="40">
@@ -29,15 +32,6 @@
                     <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
                     <TextBlock Text="{Binding Path=FullName}" Foreground="{Binding Path=Id, Converter={StaticResource CheckedToColorConverter}}"
                     FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="ProjectUserTemplate">
-            <Border BorderBrush="{Binding Path=Id, Converter={StaticResource CheckedToColorProjectConverter},ConverterParameter=border}" Background="{Binding Path=Id, Converter={StaticResource CheckedToColorProjectConverter},ConverterParameter=background}" BorderThickness="1" CornerRadius="8" Padding="3,0,3,0" Height="40">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Ellipse Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
-                    <TextBlock Text="{Binding Path=FullName}" Foreground="{Binding Path=Id, Converter={StaticResource CheckedToColorProjectConverter}}"
-            FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
         </DataTemplate>
@@ -62,30 +56,45 @@
         <Grid Grid.Row="2" Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Dodaj użytkownika"
             FontSize="14" Foreground="Gray" Margin="0,0,15,5"/>
-            <ListBox Grid.Row="1" Grid.Column="0" x:Name="usersList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Single" SelectionChanged="SelectUser" ItemTemplate="{StaticResource UserTemplate}" >
+            <DockPanel Grid.Row="1" Grid.Column="0">
+                    <Label DockPanel.Dock="Left"  FontSize="13">Filtruj po imieniu:</Label>
+                    <TextBox VerticalAlignment="Center" Background="WhiteSmoke" DockPanel.Dock="Right" FontSize="13" x:Name="UserNameFilterBox" TextChanged="Filter"></TextBox>
+                </DockPanel>
+            <ListBox Grid.Row="2" Grid.Column="0" x:Name="usersList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Multiple" SelectionChanged="SelectUser" ItemTemplate="{StaticResource UserTemplate}" >
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel></WrapPanel>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </ListBox>
-            <TextBlock Grid.Row="0" Grid.Column="1" Text="Przypisz kierowników projektu"
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Przypisania"
                 FontSize="14" Foreground="Gray" Margin="0,0,15,5"/>
-            <ListBox Grid.Row="1" Grid.Column="1" x:Name="projectManagerList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionMode="Single" SelectionChanged="SelectUser" ItemTemplate="{StaticResource ProjectUserTemplate}" >
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel></WrapPanel>
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-            </ListBox>
+            <StackPanel Grid.RowSpan="2" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
+                <Border Background="{StaticResource projectManagerBackgroundColor}" BorderBrush="{StaticResource projectManagerBorderColor}" BorderThickness="1" CornerRadius="3">
+                    <TextBlock Padding="2"  Foreground="{StaticResource projectManagerNameColor}"> 
+                             Kierownicy projektu
+                    </TextBlock>
+                </Border>
+                <Border Background="{StaticResource projectMemberBackgroundColor}" BorderBrush="{StaticResource projectMemberBorderColor}" BorderThickness="1" CornerRadius="3" Margin="0,15">
+                    <TextBlock Padding="2"  Foreground="{StaticResource projectMemberNameColor}"> 
+                        Członkowie projektu
+                    </TextBlock>
+                </Border>
+                <Border BorderBrush="{StaticResource uselectedBorderColor}" BorderThickness="1" CornerRadius="3">
+                    <TextBlock Padding="2" Foreground="{StaticResource uselectedNameColor}"> 
+                        Wszyscy pracownicy
+                    </TextBlock>
+                </Border>
+            </StackPanel>
         </Grid>
         
         <Grid Grid.Row="3" Margin="0,0,0,10">

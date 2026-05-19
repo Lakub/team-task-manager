@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -13,40 +14,52 @@ using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace TeamTaskManager.Views
 {
     public class CheckedToColorConverter : IValueConverter
     {
         public Brush unselectedUserBorderBrush { get; set; }
-        public Brush selectedUserBorderBrush { get; set; }
-        public Brush selectedUserBackgroundBrush { get; set; }
-        public Brush selectedUserNameBrush { get; set; }
         public Brush unselectedUserNameBrush { get; set; }
+        public Brush selectedMemberBackgroundBrush { get; set; }
+        public Brush selectedMemberBorderBrush { get; set; }
+        public Brush selectedMemberNameBrush { get; set; }
+        public Brush selectedManagerBackgroundBrush { get; set; }
+        public Brush selectedManagerBorderBrush { get; set; }
+        public Brush selectedManagerNameBrush { get; set; }
+
         public Collection<User> assignedUsers { get; set; }
+        public Collection<User> assignedPMs { get; set; }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            Brush pmB = null;
+            Brush memberB = null;
+            Brush userB = null;
             if ((string)parameter == "border")
             {
-                if (assignedUsers == null) return unselectedUserBorderBrush;
-                if (assignedUsers.Any(e => e.Id == (int)value))
-                    return selectedUserBorderBrush;
-                return unselectedUserBorderBrush;
+                pmB = selectedManagerBorderBrush;
+                memberB = selectedMemberBorderBrush;
+                userB = unselectedUserBorderBrush;
             }
             else if((string)parameter == "background")
             {
-                if (assignedUsers == null) return null;
-                if (assignedUsers.Any(e => e.Id == (int)value))
-                    return selectedUserBackgroundBrush;
-                return null;
+                pmB = selectedManagerBackgroundBrush;
+                memberB = selectedMemberBackgroundBrush;
+                userB = Brushes.Transparent;
             }
             else
             {
-                if (assignedUsers == null) return unselectedUserNameBrush;
-                if (assignedUsers.Any(e => e.Id == (int)value))
-                    return selectedUserNameBrush;
-                return unselectedUserNameBrush;
+                pmB = selectedManagerNameBrush;
+                memberB = selectedMemberNameBrush;
+                userB = unselectedUserNameBrush;
             }
+            if (assignedUsers == null || assignedPMs == null) return userB;
+            if (assignedPMs.Any(e => e.Id == (int)value))
+                    return pmB;
+            if (assignedUsers.Any(e => e.Id == (int)value))
+                return memberB;
+            return userB;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -60,6 +73,12 @@ namespace TeamTaskManager.Views
         readonly ObservableCollection<User> allUsers;
         public Project editedProject;
         bool editing;
+        ICollectionView view;
+        private ListCollectionView View
+        {
+            get
+            { return (ListCollectionView)CollectionViewSource.GetDefaultView(allUsers); }
+        }
         public CreateProjectWindow(bool editing=false, Project? project=null)
         {
             InitializeComponent();
@@ -95,43 +114,46 @@ namespace TeamTaskManager.Views
                 }
             }
             (Resources["CheckedToColorConverter"] as CheckedToColorConverter).assignedUsers = assignedUsers;
-            (Resources["CheckedToColorProjectConverter"] as CheckedToColorConverter).assignedUsers = assignedProjectManagers;
-            
+            (Resources["CheckedToColorConverter"] as CheckedToColorConverter).assignedPMs = assignedProjectManagers;
+
             usersList.ItemsSource = allUsers;
-            projectManagerList.ItemsSource = assignedUsers;
+        }
+        private void Filter(object sender, RoutedEventArgs e)
+        {
+            View.Filter = delegate (object item)
+            {
+                User user = item as User;
+                if (user != null)
+                {
+                    return user.FullName.ToLower().Contains(UserNameFilterBox.Text.ToLower());
+                }
+                return false;
+            };
         }
 
         void SelectUser(object sender, RoutedEventArgs e)
         {
-            Collection<User> higherCol;
-            Collection<User> lowerCol;
             User user;
-            if (((ListBox)sender).Name=="usersList"){
-                user = usersList.SelectedItem as User;
-                    usersList.SelectedItem = null;
-                higherCol = allUsers;
-                lowerCol = assignedUsers;
-            }
-            else
-            {
-                user = projectManagerList.SelectedItem as User;
-                projectManagerList.SelectedItem = null;
-                higherCol = assignedUsers;
-                lowerCol = assignedProjectManagers;
-            }
+            user = usersList.SelectedItem as User;
+                usersList.SelectedItem = null;
+            
             if (user == null) return;
-            higherCol.Remove(user);
-            if (lowerCol.Contains(user))
+            allUsers.Remove(user);
+            if (assignedProjectManagers.Contains(user))
             {
-                lowerCol.Remove(user);
-                if(lowerCol!=assignedProjectManagers)
-                    assignedProjectManagers.Remove(user);
-                higherCol.Insert(lowerCol.Count,user);
+                assignedProjectManagers.Remove(user);
+                assignedUsers.Remove(user);
+                allUsers.Insert(assignedUsers.Count, user);
+            }
+            else if (assignedUsers.Contains(user))
+            {
+                assignedProjectManagers.Add(user);
+                allUsers.Insert(0, user);
             }
             else
             {
-                lowerCol.Add(user);
-                higherCol.Insert(0, user);
+                assignedUsers.Add(user);
+                allUsers.Insert(assignedProjectManagers.Count, user);
             }
         }
 

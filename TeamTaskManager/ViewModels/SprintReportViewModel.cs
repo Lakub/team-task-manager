@@ -102,7 +102,7 @@ namespace TeamTaskManager.ViewModels
 
         };
 
-        public Visibility ScopeBadgeVisibility => Scope == ScopeChange.None ? Visibility.Collapsed : Visibility.Visible;                                                        // nie pokazujemy badge jesli nie bylo zmiany
+        public Visibility ScopeBadgeVisibility => Scope == ScopeChange.None ? Visibility.Collapsed : Visibility.Visible;    // nie pokazujemy badge jesli nie bylo zmiany
         public string ScopeBadgeText => Scope switch
         {
             ScopeChange.Added => "+dodane",

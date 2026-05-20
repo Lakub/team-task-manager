@@ -102,7 +102,7 @@
         <Grid Grid.Row="3" x:Name="ProjectOwnerAssignRow" Visibility="{Binding Converter={StaticResource HeadAdminVisibility}}">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Left" Text="Właściciel projektu" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
-                <ComboBox DockPanel.Dock="Left" Name="AllUsersComboBox"></ComboBox>
+                <ComboBox SelectionChanged="AllUsersComboBox_SelectionChanged" DockPanel.Dock="Left" Name="AllUsersComboBox"></ComboBox>
             </DockPanel>
         </Grid>
 

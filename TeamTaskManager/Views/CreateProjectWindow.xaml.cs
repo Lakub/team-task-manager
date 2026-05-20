@@ -73,6 +73,7 @@ namespace TeamTaskManager.Views
         readonly ObservableCollection<User> allUsers;
         readonly ObservableCollection<User> comboboxUsers;
         public Project editedProject;
+        User? editedProjectsOwner;
         bool editing;
         private ListCollectionView View
         {
@@ -91,7 +92,7 @@ namespace TeamTaskManager.Views
                 editedProject = project;
                 ProjectOwnerAssignRow.DataContext = editedProject;
                 var projectOwners = editedProject.ProjectUsers.Where(e => e.Role == UserRole.Owner).Select(e=>e.UserId);
-                User? editedProjectsOwner = allUsers.FirstOrDefault(e => projectOwners.Contains(e.Id));
+                editedProjectsOwner = allUsers.FirstOrDefault(e => projectOwners.Contains(e.Id));
                 if(editedProjectsOwner != null)
                     allUsers.Remove(editedProjectsOwner);
                 AllUsersComboBox.ItemsSource = comboboxUsers;
@@ -190,14 +191,13 @@ namespace TeamTaskManager.Views
                 await projectService.CreateProjectAsync(name, description, App.CurrentUser!, members);
             else
             {
-                var owner = (User)AllUsersComboBox.SelectedItem;
-                if (owner==null)
+                if (editedProjectsOwner == null)
                 {
                     MessageBox.Show("Projekt musi mieć właściciela.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                editedProject.Owner = owner;
-                editedProject.OwnerId = owner.Id;
+                editedProject.Owner = editedProjectsOwner;
+                editedProject.OwnerId = editedProjectsOwner.Id;
                 await projectService.EditProjectAsync(name, description, editedProject, members);
             }
             DialogResult = true;
@@ -206,6 +206,15 @@ namespace TeamTaskManager.Views
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
+        }
+
+        private void AllUsersComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            allUsers.Insert(assignedUsers.Count, editedProjectsOwner);
+            editedProjectsOwner = AllUsersComboBox.SelectedItem as User;
+            assignedUsers.Remove(editedProjectsOwner);
+            assignedProjectManagers.Remove(editedProjectsOwner);
+            allUsers.Remove(editedProjectsOwner);
         }
     }
 }

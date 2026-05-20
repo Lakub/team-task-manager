@@ -33,9 +33,33 @@ namespace TeamTaskManager.Views
 
         private void CheckDescriptionOverflow(TaskDetailsViewModel vm)
         {
-            // jesli wiecej niz 4 linijki tesku to 'pokaz wiecej'
+            // jesli wiecej niz 4 linijki po 22 lineheight
             DescriptionText.Measure(new Size(DescriptionText.ActualWidth, double.PositiveInfinity));
-            vm.DescriptionOverflows = DescriptionText.DesiredSize.Height > 88;
+            vm.TextOverflows = DescriptionText.DesiredSize.Height > 22 * 4;
+        }
+
+        private void ItemText_Loaded(object sender, RoutedEventArgs e)
+        {
+            CheckItemTextOverflow(sender as TextBlock);
+        }
+
+        private void ItemText_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            CheckItemTextOverflow(sender as TextBlock);
+        }
+
+        private void CheckItemTextOverflow(TextBlock? textBlock)
+        {
+            if (textBlock == null) return;
+
+            // jesli wiecej niz 3 linijki po 20 lineheight
+            textBlock.Measure(new Size(textBlock.ActualWidth, double.PositiveInfinity));
+            bool overflows = textBlock.DesiredSize.Height > 20 * 3;
+
+            if (textBlock.DataContext is CommentItem comment)
+                comment.TextOverflows = overflows;
+            else if (textBlock.DataContext is WorklogItem worklog)
+                worklog.TextOverflows = overflows;
         }
     }
 }

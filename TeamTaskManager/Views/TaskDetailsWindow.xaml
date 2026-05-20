@@ -39,14 +39,13 @@
                         <StackPanel>
                             <TextBlock Text="OPIS" Style="{StaticResource SectionTitle}" Margin="0,0,0,10"/>
                             <StackPanel Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ScrollViewer MaxHeight="{Binding DescriptionMaxHeight}" VerticalScrollBarVisibility="Disabled"
-                                              HorizontalScrollBarVisibility="Disabled">
+                                <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
                                     <TextBlock x:Name="DescriptionText" Text="{Binding Description}" FontFamily="Segoe UI" FontSize="14"
                                                Foreground="#374151" TextWrapping="Wrap" LineHeight="22"/>
-                                </ScrollViewer>
-                                <Button Style="{StaticResource ActionButtonStyle}" Content="{Binding ShowMoreLabel}"
-                                        Visibility="{Binding DescriptionOverflows, Converter={StaticResource BoolToVisibilityConverter}}"
-                                        Command="{Binding ToggleDescriptionCommand}" HorizontalAlignment="Right" Margin="0,6,0,0"/>
+                                </Border>
+                                <Button Style="{StaticResource InlineSeeMoreButtonStyle}" Content="{Binding ToggleTextLabel}"
+                                        Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right" FontSize="13"
+                                        Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
                             <TextBlock Text="Brak opisu." FontStyle="Italic" Foreground="#9CA3AF" 
                                        Visibility="{Binding HasNoDescription, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -64,31 +63,36 @@
                             <ItemsControl ItemsSource="{Binding Worklogs}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Style="{StaticResource AltListItemButtonStyle}" Padding="0,10"
-                                                Command="{Binding DataContext.OpenWorklogCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                CommandParameter="{Binding}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel Grid.Column="0">
-                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                                        <Border Background="{Binding AvatarBg}" CornerRadius="9"
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                    <Border Background="{Binding AvatarBg}" CornerRadius="9"
                                                                 Width="18" Height="18" Margin="0,0,5,0">
-                                                            <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="8"
+                                                        <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="8"
                                                                        FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
                                                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        </Border>
-                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
-                                                    </StackPanel>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
                                                     <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
                                                 </StackPanel>
-                                                <Border Grid.Column="1" Background="#F3F4F6" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding TimeSpentStr}" Foreground="#374151" FontWeight="SemiBold" FontSize="13"/>
-                                                </Border>
-                                            </Grid>
-                                        </Button>
+                                                <StackPanel Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
+                                                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"
+                                                                       Loaded="ItemText_Loaded" SizeChanged="ItemText_SizeChanged"/>
+                                                    </Border>
+                                                    <Button Style="{StaticResource InlineSeeMoreButtonStyle}" Content="{Binding ToggleTextLabel}"
+                                                                Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right" FontSize="11"
+                                                                Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                            <Border Grid.Column="1" Background="#F3F4F6" CornerRadius="6" Margin="10,0,0,0" Padding="8,4" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding TimeSpentStr}" Foreground="#374151" FontWeight="SemiBold" FontSize="13"/>
+                                            </Border>
+                                        </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -134,7 +138,15 @@
                                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
                                                     <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
                                                 </StackPanel>
-                                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"/>
+                                                <StackPanel>
+                                                    <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
+                                                        <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"
+                                                                   Loaded="ItemText_Loaded" SizeChanged="ItemText_SizeChanged"/>
+                                                    </Border>
+                                                    <Button Style="{StaticResource InlineSeeMoreButtonStyle}" Content="{Binding ToggleTextLabel}"
+                                                            Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right" FontSize="11"
+                                                            Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                </StackPanel>
                                                 <Grid Margin="0,5,0,0">
                                                     <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,55,10"
                                                             Visibility="{Binding IsBeingRepliedTo, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -172,7 +184,15 @@
                                                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
                                                                         <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
                                                                     </StackPanel>
-                                                                    <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"/>
+                                                                    <StackPanel>
+                                                                        <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
+                                                                            <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"
+                                                                                       Loaded="ItemText_Loaded" SizeChanged="ItemText_SizeChanged"/>
+                                                                        </Border>
+                                                                        <Button Style="{StaticResource InlineSeeMoreButtonStyle}" Content="{Binding ToggleTextLabel}"
+                                                                                Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right"
+                                                                                Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                                    </StackPanel>
                                                                     <Grid Margin="0,5,0,0">
                                                                         <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,55,10"
                                                                             Visibility="{Binding IsBeingRepliedTo, Converter={StaticResource BoolToVisibilityConverter}}">

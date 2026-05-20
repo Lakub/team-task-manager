@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
@@ -126,7 +127,7 @@ namespace TeamTaskManager.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 
-    public class TeamMemberItem : INotifyPropertyChanged
+    public class TeamMemberItem : ObservableObject
     {
         public int Id { get; set; }
         public string FullName { get; set; } = string.Empty;
@@ -140,11 +141,9 @@ namespace TeamTaskManager.ViewModels
         public string Initials => string.Concat(FullName.Split(' ').Select(n => n[0])).ToUpper();
         public Brush AvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush AvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 
-    public partial class SprintReportViewModel : INotifyPropertyChanged
+    public partial class SprintReportViewModel : ObservableObject
     {
         private readonly ISprintService _sprintService;
         private readonly IUserService _userService;
@@ -152,7 +151,7 @@ namespace TeamTaskManager.ViewModels
 
         private int _sprintId;
         private int _projectId;
-        private string ProjectKey;
+        private string ProjectKey { get; set; } = "";
 
         private readonly List<SprintTaskItem> _allTaskItems = new();
 
@@ -166,9 +165,9 @@ namespace TeamTaskManager.ViewModels
         public bool CanManageProject { get; set; }
         public bool CanEditSprint => (IsPlanned || IsActive) && CanManageProject;
 
-        public string SprintName { get; set; }
-        public string ProjectName { get; set; }
-        public string CreatorName { get; set; }
+        public string SprintName { get; set; } = "";
+        public string ProjectName { get; set; } = "";
+        public string CreatorName { get; set; } = "";
         public string CreatorInitials => string.IsNullOrWhiteSpace(CreatorName) ? "?" : string.Concat(CreatorName.Split(' ').Select(n => n[0])).ToUpper();
         public Brush CreatorAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush CreatorAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
@@ -385,8 +384,5 @@ namespace TeamTaskManager.ViewModels
         {
             if (item != null) OnTeamMemberSelected?.Invoke(item);
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 }

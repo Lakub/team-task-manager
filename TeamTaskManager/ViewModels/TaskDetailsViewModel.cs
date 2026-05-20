@@ -30,9 +30,10 @@ namespace TeamTaskManager.ViewModels
             _taskService = taskService;
             _taskId = taskId;
 
-            AddCommentCommand = new RelayCommand(AddComment);
-            AddReplyCommand = new RelayCommand<CommentItem>(AddReply);
-            LogWorkCommand = new RelayCommand(LogWork);
+            AddCommentCommand = new AsyncRelayCommand(AddCommentAsync);
+            AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
+            CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
+            LogWorkCommand = new AsyncRelayCommand(LogWorkAsync);
             OpenWorklogCommand = new RelayCommand<WorklogItem>(OpenWorklog);
             ToggleDescriptionCommand = new RelayCommand(() => IsDescriptionExpanded = !IsDescriptionExpanded);
         }
@@ -85,6 +86,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand LogWorkCommand { get; }
         public ICommand AddCommentCommand { get; }
         public ICommand AddReplyCommand { get; }
+        public ICommand CancelReplyCommand { get; }
         public ICommand OpenWorklogCommand { get; }
         public ICommand ToggleDescriptionCommand { get; }
 
@@ -198,30 +200,40 @@ namespace TeamTaskManager.ViewModels
         public ObservableCollection<CommentItem> Comments { get; } = new();
         public bool HasNoComments => !Comments.Any();
         public string NewCommentContent { get; set; } = string.Empty;
+        public bool ShowAddComment => !string.IsNullOrWhiteSpace(NewCommentContent);
         public string NewReplyContent { get; set; } = string.Empty;
 
         // worklogi
         public ObservableCollection<WorklogItem> Worklogs { get; } = new();
         public bool HasNoWorklogs => !Worklogs.Any();
 
-        private void LogWork()
+        private async System.Threading.Tasks.Task LogWorkAsync()
         {
             MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void AddReply(CommentItem commentItem)
+        private async System.Threading.Tasks.Task AddReplyAsync(CommentItem? commentItem)
         {
             if (commentItem == null) return;
 
             if (commentItem.IsBeingRepliedTo)
             {
-                MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (string.IsNullOrWhiteSpace(NewReplyContent))
+                {
+                    MessageBox.Show("Treść odpowiedzi nie może być pusta.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                NewReplyContent = NewReplyContent.Trim();
+                await _taskService.CreateTaskCommentAsync(NewReplyContent, _taskId, App.CurrentUser!.Id, commentItem.Id);
+
                 commentItem.IsBeingRepliedTo = false;
                 NewReplyContent = string.Empty;
+                OnPropertyChanged(nameof(NewReplyContent));
+
+                await LoadCommentsAsync();
                 return;
             }
-
-            NewCommentContent = string.Empty;
 
             foreach (var item in Comments)
             {
@@ -241,11 +253,32 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(nameof(NewReplyContent));
         }
 
-        private void AddComment()
+        private void CancelReply(CommentItem? commentItem)
         {
-            MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (commentItem == null) return;
+
+            commentItem.IsBeingRepliedTo = false;
+
+            NewReplyContent = string.Empty;
+            OnPropertyChanged(nameof(NewReplyContent));
+        }
+
+        private async System.Threading.Tasks.Task AddCommentAsync()
+        {
+            if (string.IsNullOrWhiteSpace(NewCommentContent))
+            {
+                MessageBox.Show("Treść komentarza nie może być pusta.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            NewCommentContent = NewCommentContent.Trim();
+            await _taskService.CreateTaskCommentAsync(NewCommentContent, _taskId, App.CurrentUser!.Id, null);
+
             NewCommentContent = string.Empty;
-        } 
+            OnPropertyChanged(nameof(NewCommentContent));
+
+            await LoadCommentsAsync();
+        }
 
         private void OpenWorklog(WorklogItem? item)
         {
@@ -270,6 +303,7 @@ namespace TeamTaskManager.ViewModels
 
         public string Content => _model.Text;
         public string Name => _model.Commenter?.FullName ?? "Unknown";
+        public int Id => _model.Id;
         public DateTime CreatedAt => _model.CreatedAt;
         public string CreatedAtStr => _model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
 

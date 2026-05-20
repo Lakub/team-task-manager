@@ -54,7 +54,7 @@
 
                     <Border Style="{StaticResource Card}" Margin="0,0,0,15">
                         <StackPanel>
-                            <Grid Margin="0,0,0,10">
+                            <Grid>
                                 <TextBlock Text="DZIENNIK PRACY" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
                                 <Button Content="+ Zaloguj pracę" Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Right"
                                         Command="{Binding LogWorkCommand}" VerticalAlignment="Center"/>
@@ -63,7 +63,7 @@
                             <ItemsControl ItemsSource="{Binding Worklogs}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid>
+                                        <Grid Margin="0,10,0,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>

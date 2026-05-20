@@ -183,7 +183,11 @@ namespace TeamTaskManager.ViewModels
 
         private void LogWork()
         {
-            MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            var createWorklogWindow = new CreateWorklogWindow(_taskId);
+            if (createWorklogWindow.ShowDialog() == true)
+            {
+                _ = LoadWorklogsAsync();
+            }
         }
 
         private async System.Threading.Tasks.Task AddReplyAsync(CommentItem? commentItem)

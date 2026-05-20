@@ -20,8 +20,6 @@ namespace TeamTaskManager.Services
             int projectId, int reporterId, int? assigneeId);
         System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
             string text, int taskId, int commenterId, int? parentCommentId);
-        System.Threading.Tasks.Task<Worklog> CreateTaskWorklogAsync(
-            string description, DateTime startTime, TimeSpan timeSpent, int taskId, int userId);
     }
 
     public class TaskService : ITaskService
@@ -115,28 +113,6 @@ namespace TeamTaskManager.Services
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
             return comment;
-        }
-
-        public async System.Threading.Tasks.Task<Worklog> CreateTaskWorklogAsync(
-            string description, DateTime startTime, TimeSpan timeSpent, int taskId, int userId)
-        {
-            var user = await _context.Users.FindAsync(userId);
-            var task = await _context.Tasks.FindAsync(taskId);
-
-            var worklog = new Worklog
-            {
-                Description = description,
-                StartTime = startTime,
-                TimeSpent = timeSpent,
-                Task = task!,
-                User = user!,
-                LoggedAt = DateTime.UtcNow,
-                IsDeleted = false
-            };
-
-            _context.Worklogs.Add(worklog);
-            await _context.SaveChangesAsync();
-            return worklog;
         }
     }
 }

@@ -312,6 +312,8 @@ namespace TeamTaskManager.ViewModels
         public string Description => _model.Description;
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public string CreatedAtStr => _model.LoggedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
+        public string CreatedAtFullStr => "Created: " + CreatedAtStr;
+        public string StartedAtStr => _model.StartTime.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
         public string TimeSpentStr => $"{_model.TimeSpent.TotalHours:0.#}h";
 
         // avatar

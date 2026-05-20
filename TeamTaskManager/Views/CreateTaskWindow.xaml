@@ -56,7 +56,7 @@
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Text="Opis zadania" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
             <Border Grid.Row="1" BorderBrush="#CCC" BorderThickness="1" CornerRadius="8">
-                <TextBox x:Name="DescriptionTextBox" Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" Padding="10" FontSize="14"
+                <TextBox Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" Padding="10" FontSize="14"
                          VerticalScrollBarVisibility="Auto" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"/>
             </Border>
         </Grid>

@@ -77,7 +77,7 @@
                                                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
-                                                    <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
+                                                    <TextBlock Text="{Binding StartedAtStr}" Foreground="#9CA3AF" FontSize="12" ToolTip="{Binding CreatedAtFullStr}"/>
                                                 </StackPanel>
                                                 <StackPanel Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">

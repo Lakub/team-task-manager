@@ -278,7 +278,8 @@ namespace TeamTaskManager.Helpers
                             Task = task,
                             Commenter = cCommenter,
                             Text = cText,
-                            CreatedAt = cCreatedAt
+                            CreatedAt = cCreatedAt,
+                            UpdatedAt = cCreatedAt
                         };
 
                         comments.Add(parentComment);
@@ -474,6 +475,7 @@ namespace TeamTaskManager.Helpers
                     Commenter = rCommenter,
                     Text = rText,
                     CreatedAt = rCreatedAt,
+                    UpdatedAt = rCreatedAt,
                     ParentComment = parentComment
                 };
 

@@ -19,7 +19,7 @@ namespace TeamTaskManager.ViewModels
         private readonly IProjectService _projectService;
 
         [ObservableProperty]
-        public object currentView;
+        public object currentView = new CurrentSprintView();
 
         public ObservableCollection<Project> Projects { get; } = new();
         

@@ -150,6 +150,20 @@
             </Style.Triggers>
         </Style>
 
+        <!-- "zobacz więcej" do wykorzystania wraz z klasą ExpandableTextItem -->
+        <Style x:Key="InlineSeeMoreButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+
+            <Setter Property="Margin" Value="0,4,0,0"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsTextExpanded}" Value="False">
+                    <Setter Property="Margin" Value="0,-25,0,0"/>
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Padding" Value="8,0,0,0"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- tytuly sekcji -->
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI"/>

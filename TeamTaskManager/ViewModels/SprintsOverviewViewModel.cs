@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
@@ -20,11 +21,11 @@ using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
 
 namespace TeamTaskManager.ViewModels
 {
-    public class SprintItem : INotifyPropertyChanged
+    public class SprintItem : ObservableObject
     {
         public int Id { get; set;  }
-        public string SprintName { get; set; }
-        public string CreatorName { get; set; }
+        public string SprintName { get; set; } = "";
+        public string CreatorName { get; set; } = "";
         public string CreatorInitials => string.Join("", CreatorName.Split(' ').Select(n => n[0])).ToUpper();
         public Brush CreatorAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush CreatorAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
@@ -42,12 +43,9 @@ namespace TeamTaskManager.ViewModels
         public int RemainingTasks => Math.Max(0, TotalTasks - DoneTasks);
         public double ProgressPercent => TotalTasks == 0 ? 0 : (double)DoneTasks / TotalTasks * 100;
         public string ProgressText => $"{DoneTasks} / {TotalTasks} zadań ukończonych ({ProgressPercent:0}%)";
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 
-    public partial class SprintsOverviewViewModel : INotifyPropertyChanged
+    public partial class SprintsOverviewViewModel : ObservableObject
     {
         private readonly IProjectService _projectService;
         public ICommand OpenSprintReportCommand { get; }
@@ -57,7 +55,7 @@ namespace TeamTaskManager.ViewModels
 
         public bool CanManageProject { get; set; }
 
-        public string ProjectName { get; set; }
+        public string ProjectName { get; set; } = "";
 
         private ObservableCollection<SprintItem> _sprints = new();
         public ObservableCollection<SprintItem> Sprints {
@@ -126,9 +124,6 @@ namespace TeamTaskManager.ViewModels
 
             OnPropertyChanged(string.Empty);
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
         private void OpenSprintReport(SprintItem? sprintItem)
         {

@@ -18,8 +18,8 @@ namespace TeamTaskManager.ViewModels
     public class BacklogTaskItem
     {
         public int TaskId { get; set; }
-        public string Title { get; set; }
-        public string Key { get; set; }
+        public string Title { get; set; } = "";
+        public string Key { get; set; } = "";
         public string KeyAndTitle => $"{Key} - {Title}";
         public TaskType Type { get; set; }
         public TaskPriority Priority { get; set; }
@@ -48,7 +48,6 @@ namespace TeamTaskManager.ViewModels
         private readonly IBacklogService _backlogService;
         private readonly int _sprintId;
         private readonly int _projectId;
-        private string ProjectKey;
 
         public Action<BacklogTaskItem>? OnTaskSelected { get; set; }
         public ICommand MoveToSprintCommand { get; }
@@ -57,6 +56,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand OpenSprintReportCommand { get; }
         public ICommand CreateTaskCommand { get; }
 
+        private string ProjectKey { get; set; } = string.Empty;
         public string SprintName { get; set; }  = string.Empty;
         public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
 
@@ -140,25 +140,30 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
         }
 
-        private async System.Threading.Tasks.Task MoveToSprint(BacklogTaskItem item)
+        private async System.Threading.Tasks.Task MoveToSprint(BacklogTaskItem? item)
         {
             if (!CanEditSprint)
             {
                 MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            if (item == null) return;
 
             await _backlogService.AddTaskToSprintAsync(_sprintId, item.TaskId);
             await LoadTasksAsync();
         }
 
-        private async System.Threading.Tasks.Task RemoveFromSprint(BacklogTaskItem item)
+        private async System.Threading.Tasks.Task RemoveFromSprint(BacklogTaskItem? item)
         {
             if (!CanEditSprint)
             {
                 MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            if (item == null) return;
+
             await _backlogService.RemoveTaskFromSprintAsync(_sprintId, item.TaskId);
             await LoadTasksAsync();
         }

@@ -1,7 +1,9 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using TeamTaskManager.Helpers;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Enums;
 using TeamTaskManager.ViewModels;
@@ -11,7 +13,8 @@ namespace TeamTaskManager.Views
 {
     public partial class CurrentSprintView : UserControl
     {
-        private Point _dragStartPoint;
+        private Point _dragStart;
+        private Point _clickOffset;
 
         public CurrentSprintView(int sprintId = -1)
         {
@@ -36,7 +39,9 @@ namespace TeamTaskManager.Views
 
         private void TaskCard_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            _dragStartPoint = e.GetPosition(null);
+            _dragStart = e.GetPosition(null);
+            if (sender is Button btn)
+                _clickOffset = e.GetPosition(btn);
         }
 
         private void TaskCard_PreviewMouseMove(object sender, MouseEventArgs e)
@@ -44,13 +49,33 @@ namespace TeamTaskManager.Views
             if (e.LeftButton != MouseButtonState.Pressed) return;
 
             var pos = e.GetPosition(null);
-            var diff = _dragStartPoint - pos;
-            if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
-                Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+            var diff = _dragStart - pos;
+            if (Math.Abs(diff.X) <= SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(diff.Y) <= SystemParameters.MinimumVerticalDragDistance) return;
+
+            if (sender is not Button button || button.DataContext is not KanbanTaskItem item) return;
+
+            var root = Application.Current.MainWindow.Content as UIElement;
+            var layer = AdornerLayer.GetAdornerLayer(root);
+            var ghost = new DragGhost(root, button, _clickOffset);
+            layer.Add(ghost);
+            ghost.Follow();
+
+            button.Opacity = 0.3;
+
+            GiveFeedbackEventHandler onFeedback = (_, args) =>
             {
-                if (sender is Button button && button.DataContext is KanbanTaskItem item)
-                    DragDrop.DoDragDrop(button, item, DragDropEffects.Move);
-            }
+                ghost.Follow();
+                args.UseDefaultCursors = false;
+                args.Handled = true;
+            };
+
+            button.GiveFeedback += onFeedback;
+            DragDrop.DoDragDrop(button, item, DragDropEffects.Move);
+            button.GiveFeedback -= onFeedback;
+
+            button.Opacity = 1;
+            layer.Remove(ghost);
         }
 
         private void Column_DragOver(object sender, DragEventArgs e)

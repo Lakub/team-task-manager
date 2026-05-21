@@ -33,7 +33,7 @@ namespace TeamTaskManager.ViewModels
                 ActiveSprint = value?.Sprints.FirstOrDefault(s => s.Status == SprintStatus.Active);
                 CurrentView = CurrentView switch
                 {
-                    CurrentSprintView => new CurrentSprintView(),
+                    CurrentSprintView => new CurrentSprintView(ActiveSprint?.Id ?? -1),
                     SprintsOverviewView => new SprintsOverviewView(SelectedProject?.Id ?? -1),
                     SprintReportView => SelectedProject != null ? new SprintReportView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
                     BacklogView => SelectedProject != null ? new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
@@ -84,7 +84,7 @@ namespace TeamTaskManager.ViewModels
             CurrentView = new CurrentSprintView();
 
             ShowCurrentSprintCommand = new RelayCommand(() =>
-                CurrentView = new CurrentSprintView());
+                CurrentView = new CurrentSprintView(ActiveSprint?.Id ?? -1));
 
             ShowAllSprintsCommand = new RelayCommand(() =>
             {

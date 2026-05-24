@@ -3,7 +3,25 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:TeamTaskManager.Views.Controls"
              mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <!-- Badge style for task status -->
+        <Style x:Key="StatusBadgeBorder" TargetType="Border">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="8 0"/>
+            <Setter Property="Padding" Value="8 3"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="#F3F4F6"/>
+        </Style>
+        <Style x:Key="BadgeText" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+        </Style>
+    </UserControl.Resources>
 
     <Grid Background="#F3F4F6">
         <Grid.RowDefinitions>
@@ -11,19 +29,22 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Nagłówek -->
-        <Border Background="White" CornerRadius="8" Padding="20" Margin="0 0 0 12">
-            <StackPanel>
-                <TextBlock Text="Panel HeadAdmin" FontSize="24" FontWeight="Bold" Foreground="#1F2937"/>
-                <TextBlock Text="Globalny podgląd danych systemowych i przygotowanie pod funkcje administracyjne."
-                           Margin="0 8 0 0" Foreground="#6B7280" TextWrapping="Wrap"/>
+        <!-- ── Nagłówek ── -->
+        <Border Grid.Row="0" Background="White" CornerRadius="10" Padding="18 14" Margin="0 0 0 10">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="5" CornerRadius="3" Background="#4B5563" Margin="0 0 14 0"/>
+                <StackPanel>
+                    <TextBlock Text="Panel HeadAdmin" FontFamily="Segoe UI" FontSize="18" FontWeight="Bold" Foreground="#1F2937"/>
+                    <TextBlock Text="Przegląd statystyk systemu i zarządzanie użytkownikami"
+                               FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0 3 0 0"/>
+                </StackPanel>
             </StackPanel>
         </Border>
 
         <Grid Grid.Row="1">
 
             <!-- Brak dostępu -->
-            <Border Background="#FEE2E2" CornerRadius="8" Padding="20"
+            <Border Background="#FEE2E2" CornerRadius="10" Padding="20"
                     Visibility="{Binding AccessDenied, Converter={StaticResource BoolToVisibilityConverter}}">
                 <TextBlock Text="{Binding AccessMessage}" Foreground="#991B1B" FontWeight="SemiBold" TextWrapping="Wrap"/>
             </Border>
@@ -32,126 +53,775 @@
                           Visibility="{Binding HasAccess, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
 
+                    <!-- ════════════════════════════════════════════════════════════ -->
+                    <!-- WIDOK: STATYSTYKI                                           -->
+                    <!-- ════════════════════════════════════════════════════════════ -->
                     <StackPanel Visibility="{Binding ShowStats, Converter={StaticResource BoolToVisibilityConverter}}">
 
-                        <TextBlock Text="Statystyki systemu" FontSize="16" FontWeight="SemiBold"
-                                   Foreground="#1F2937" Margin="0 0 0 10"/>
+                        <!-- ── Wiersz 1: główne karty ── -->
+                        <Grid Margin="0 0 0 8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                        <UniformGrid Columns="2" Rows="4">
-                            <Button Command="{Binding ShowUsersCommand}" Cursor="Hand"
-                                    Margin="0 0 12 12" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                            <!-- Użytkownicy -->
+                            <Button Grid.Column="0" Command="{Binding ShowUsersCommand}" Cursor="Hand"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
-                                        <Border Background="White" CornerRadius="8" Padding="18">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                                            <Setter Property="Background" Value="#EFF6FF"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                            <StackPanel>
-                                                <TextBlock Text="Użytkownicy" Foreground="#6B7280" FontSize="12"/>
-                                                <TextBlock Text="{Binding UsersCount}" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/>
-                                                <TextBlock Text="Zarządzaj rolami" FontSize="10" Foreground="#3B82F6" Margin="0 6 0 0"/>
-                                            </StackPanel>
+                                        <Border x:Name="c" Background="White" CornerRadius="10" ClipToBounds="True" MinHeight="90">
+                                            <Grid><Border Width="5" HorizontalAlignment="Left" Background="#3B82F6"/>
+                                                <StackPanel Margin="18 14 12 14">
+                                                    <TextBlock Text="{Binding UsersCount}" FontFamily="Segoe UI" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/>
+                                                    <TextBlock Text="Użytkownicy" FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0 3 0 0"/>
+                                                    <TextBlock Text="Zarządzaj →" FontFamily="Segoe UI" FontSize="10" Foreground="#3B82F6" Margin="0 5 0 0"/>
+                                                </StackPanel>
+                                            </Grid>
                                         </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="c" Property="Background" Value="#EFF6FF"/></Trigger>
+                                        </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </Button.Template>
                             </Button>
 
-                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Projekty"      Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding ProjectsCount}"      FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Taski"         Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding TasksCount}"         FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Sprinty"        Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding SprintsCount}"        FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Komentarze"    Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding CommentsCount}"    FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Worklogi"       Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding WorklogsCount}"       FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 12 12"><StackPanel><TextBlock Text="Załączniki"    Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding AttachmentsCount}"    FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                            <Border Background="White" CornerRadius="8" Padding="18" Margin="0 0 0 12"><StackPanel><TextBlock Text="Dokumentacja"  Foreground="#6B7280" FontSize="12"/><TextBlock Text="{Binding DocumentationCount}"  FontSize="28" FontWeight="Bold" Foreground="#1F2937"/></StackPanel></Border>
-                        </UniformGrid>
+                            <!-- Projekty -->
+                            <Button Grid.Column="2" Command="{Binding ShowProjectsCommand}" Cursor="Hand"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="c" Background="White" CornerRadius="10" ClipToBounds="True" MinHeight="90">
+                                            <Grid><Border Width="5" HorizontalAlignment="Left" Background="#8B5CF6"/>
+                                                <StackPanel Margin="18 14 12 14">
+                                                    <TextBlock Text="{Binding ProjectsCount}" FontFamily="Segoe UI" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/>
+                                                    <TextBlock Text="Projekty" FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0 3 0 0"/>
+                                                    <TextBlock Text="Podgląd →" FontFamily="Segoe UI" FontSize="10" Foreground="#8B5CF6" Margin="0 5 0 0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="c" Property="Background" Value="#F5F3FF"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- Taski -->
+                            <Button Grid.Column="4" Command="{Binding ShowTasksCommand}" Cursor="Hand"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="c" Background="White" CornerRadius="10" ClipToBounds="True" MinHeight="90">
+                                            <Grid><Border Width="5" HorizontalAlignment="Left" Background="#F59E0B"/>
+                                                <StackPanel Margin="18 14 12 14">
+                                                    <TextBlock Text="{Binding TasksCount}" FontFamily="Segoe UI" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/>
+                                                    <TextBlock Text="Taski" FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0 3 0 0"/>
+                                                    <TextBlock Text="Podgląd →" FontFamily="Segoe UI" FontSize="10" Foreground="#F59E0B" Margin="0 5 0 0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="c" Property="Background" Value="#FFFBEB"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- Sprinty -->
+                            <Button Grid.Column="6" Command="{Binding ShowSprintsCommand}" Cursor="Hand"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="c" Background="White" CornerRadius="10" ClipToBounds="True" MinHeight="90">
+                                            <Grid><Border Width="5" HorizontalAlignment="Left" Background="#10B981"/>
+                                                <StackPanel Margin="18 14 12 14">
+                                                    <TextBlock Text="{Binding SprintsCount}" FontFamily="Segoe UI" FontSize="28" FontWeight="Bold" Foreground="#1F2937"/>
+                                                    <TextBlock Text="Sprinty" FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0 3 0 0"/>
+                                                    <TextBlock Text="Podgląd →" FontFamily="Segoe UI" FontSize="10" Foreground="#10B981" Margin="0 5 0 0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="c" Property="Background" Value="#ECFDF5"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+
+                        <!-- ── Wiersz 2: drugorzędne karty ── -->
+                        <Grid Margin="0 0 0 10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Komentarze -->
+                            <Button Grid.Column="0" Command="{Binding ShowCommentsCommand}" Cursor="Hand"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="c" Background="White" CornerRadius="8" ClipToBounds="True" MinHeight="72">
+                                            <Grid><Border Width="4" HorizontalAlignment="Left" Background="#6B7280"/>
+                                                <StackPanel Margin="14 10 10 10">
+                                                    <TextBlock Text="{Binding CommentsCount}" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="#374151"/>
+                                                    <TextBlock Text="Komentarze" FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0 2 0 0"/>
+                                                    <TextBlock Text="Podgląd →" FontFamily="Segoe UI" FontSize="10" Foreground="#6B7280" Margin="0 4 0 0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="c" Property="Background" Value="#F9FAFB"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- Worklogi -->
+                            <Button Grid.Column="2" Command="{Binding ShowWorklogsCommand}" Cursor="Hand"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="c" Background="White" CornerRadius="8" ClipToBounds="True" MinHeight="72">
+                                            <Grid><Border Width="4" HorizontalAlignment="Left" Background="#14B8A6"/>
+                                                <StackPanel Margin="14 10 10 10">
+                                                    <TextBlock Text="{Binding WorklogsCount}" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="#374151"/>
+                                                    <TextBlock Text="Worklogi" FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0 2 0 0"/>
+                                                    <TextBlock Text="Podgląd →" FontFamily="Segoe UI" FontSize="10" Foreground="#14B8A6" Margin="0 4 0 0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="c" Property="Background" Value="#F0FDFA"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- Załączniki -->
+                            <Button Grid.Column="4" Command="{Binding ShowAttachmentsCommand}" Cursor="Hand"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="c" Background="White" CornerRadius="8" ClipToBounds="True" MinHeight="72">
+                                            <Grid><Border Width="4" HorizontalAlignment="Left" Background="#EC4899"/>
+                                                <StackPanel Margin="14 10 10 10">
+                                                    <TextBlock Text="{Binding AttachmentsCount}" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="#374151"/>
+                                                    <TextBlock Text="Załączniki" FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0 2 0 0"/>
+                                                    <TextBlock Text="Podgląd →" FontFamily="Segoe UI" FontSize="10" Foreground="#EC4899" Margin="0 4 0 0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="c" Property="Background" Value="#FDF2F8"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- Dokumentacja -->
+                            <Button Grid.Column="6" Command="{Binding ShowDocsCommand}" Cursor="Hand"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="c" Background="White" CornerRadius="8" ClipToBounds="True" MinHeight="72">
+                                            <Grid><Border Width="4" HorizontalAlignment="Left" Background="#6366F1"/>
+                                                <StackPanel Margin="14 10 10 10">
+                                                    <TextBlock Text="{Binding DocumentationCount}" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="#374151"/>
+                                                    <TextBlock Text="Dokumentacja" FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0 2 0 0"/>
+                                                    <TextBlock Text="Podgląd →" FontFamily="Segoe UI" FontSize="10" Foreground="#6366F1" Margin="0 4 0 0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="c" Property="Background" Value="#EEF2FF"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+
+                        <!-- ── Wiersz 3: wykresy kołowe ── -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="20 16">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0 0 0 14">
+                                        <Border Width="4" CornerRadius="2" Background="#F59E0B" Margin="0 0 10 0"/>
+                                        <TextBlock Text="Taski wg statusu" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="#374151" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <controls:PieChartControl Slices="{Binding TaskSlices}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="20 16">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0 0 0 14">
+                                        <Border Width="4" CornerRadius="2" Background="#3B82F6" Margin="0 0 10 0"/>
+                                        <TextBlock Text="Sprinty wg statusu" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="#374151" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <controls:PieChartControl Slices="{Binding SprintSlices}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
 
                     </StackPanel>
 
-                    <!-- ══════════════════════════════════════════ -->
-                    <!-- WIDOK: LISTA UŻYTKOWNIKÓW                 -->
-                    <!-- ══════════════════════════════════════════ -->
-                    <StackPanel Visibility="{Binding ShowUserListPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <!-- ════════════════════════════════════════════════════════════ -->
+                    <!-- HELPER: back nav bar (used by all detail panels)           -->
+                    <!-- ════════════════════════════════════════════════════════════ -->
 
-                        <!-- Pasek z przyciskiem powrotu -->
-                        <Border Background="White" CornerRadius="8" Padding="14 10" Margin="0 0 0 12">
+                    <!-- ── PANEL: UŻYTKOWNICY ── -->
+                    <StackPanel Visibility="{Binding ShowUserListPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border Background="White" CornerRadius="10" Padding="14 10" Margin="0 0 0 10">
                             <DockPanel>
-                                <Button Content="← Wróć do statystyk" Command="{Binding BackToStatsCommand}"
-                                        DockPanel.Dock="Left" Cursor="Hand"
-                                        Background="Transparent" BorderThickness="0"
-                                        Foreground="#3B82F6" FontSize="13" Padding="0"/>
-                                <TextBlock Text="Zarządzanie rolami użytkowników"
-                                           FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"
-                                           VerticalAlignment="Center" Margin="16 0 0 0"/>
+                                <Button Content="← Wróć" Command="{Binding BackToStatsCommand}" DockPanel.Dock="Left"
+                                        Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                        Foreground="#3B82F6" FontFamily="Segoe UI" FontSize="13" Padding="0"/>
+                                <Button x:Name="AddUserButton" Content="+ Dodaj użytkownika" DockPanel.Dock="Right"
+                                        Cursor="Hand" Background="#4B5563" Foreground="White"
+                                        BorderThickness="0" Padding="14 6" FontFamily="Segoe UI" FontSize="13"
+                                        Click="AddUserButton_Click">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="btn" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="btn" Property="Background" Value="#374151"/></Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <TextBlock Text="Użytkownicy" FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold"
+                                           Foreground="#1F2937" VerticalAlignment="Center" Margin="16 0 0 0"/>
                             </DockPanel>
                         </Border>
-
-                        <!-- Tabela użytkowników -->
-                        <Border Background="White" CornerRadius="8" Padding="0">
+                        <Border Background="White" CornerRadius="10" ClipToBounds="True">
                             <StackPanel>
-
-                                <!-- Nagłówek kolumn -->
-                                <Border Background="#F3F4F6" CornerRadius="8 8 0 0">
+                                <Border Background="#F9FAFB" CornerRadius="10 10 0 0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="180"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="220"/>
+                                            <ColumnDefinition Width="180"/><ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="110"/><ColumnDefinition Width="200"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Imię i nazwisko" Foreground="#6B7280" FontSize="12" FontWeight="SemiBold" Padding="14 10"/>
-                                        <TextBlock Grid.Column="1" Text="Email"           Foreground="#6B7280" FontSize="12" FontWeight="SemiBold" Padding="10 10"/>
-                                        <TextBlock Grid.Column="2" Text="Rola"            Foreground="#6B7280" FontSize="12" FontWeight="SemiBold" Padding="10 10"/>
-                                        <TextBlock Grid.Column="3" Text="Akcja"           Foreground="#6B7280" FontSize="12" FontWeight="SemiBold" Padding="10 10"/>
+                                        <TextBlock Grid.Column="0" Text="Imię i nazwisko" Padding="16 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="1" Text="Email"            Padding="10 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="2" Text="Rola"             Padding="10 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="3" Text="Akcje"            Padding="10 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
                                     </Grid>
                                 </Border>
-
-                                <!-- Wiersze -->
                                 <ItemsControl ItemsSource="{Binding UserList}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border BorderBrush="#F3F4F6" BorderThickness="0 1 0 0">
-                                                <Grid MinHeight="42">
+                                                <Grid MinHeight="44">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="180"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="100"/>
-                                                        <ColumnDefinition Width="220"/>
+                                                        <ColumnDefinition Width="180"/><ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="110"/><ColumnDefinition Width="200"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding FullName}"  Foreground="#1F2937" FontWeight="SemiBold" VerticalAlignment="Center" Padding="14 0" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Email}"     Foreground="#6B7280" VerticalAlignment="Center" Padding="10 0" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Grid.Column="2" Text="{Binding RoleLabel}" Foreground="#374151" VerticalAlignment="Center" Padding="10 0"/>
-                                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="8 6">
-                                                        <Button Content="Ustaw Admin"
-                                                                Command="{Binding PromoteCommand}"
+                                                    <TextBlock Grid.Column="0" Text="{Binding FullName}" Foreground="#1F2937" FontWeight="SemiBold" FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center" Padding="16 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Email}"    Foreground="#6B7280" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="10 0" TextTrimming="CharacterEllipsis"/>
+                                                    <Border Grid.Column="2" VerticalAlignment="Center" Margin="10 0" Padding="8 3" CornerRadius="12">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="#F3F4F6"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding RoleLabel}" Value="Admin"><Setter Property="Background" Value="#EFF6FF"/></DataTrigger>
+                                                                    <DataTrigger Binding="{Binding RoleLabel}" Value="HeadAdmin"><Setter Property="Background" Value="#F5F3FF"/></DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding RoleLabel}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="#6B7280"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding RoleLabel}" Value="Admin"><Setter Property="Foreground" Value="#3B82F6"/></DataTrigger>
+                                                                        <DataTrigger Binding="{Binding RoleLabel}" Value="HeadAdmin"><Setter Property="Foreground" Value="#7C3AED"/></DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="8 0">
+                                                        <Button Content="Ustaw Admin" Command="{Binding PromoteCommand}"
                                                                 Visibility="{Binding CanPromote, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                                Background="#3B82F6" Foreground="White"
-                                                                BorderThickness="0" Padding="12 5" Cursor="Hand"/>
-                                                        <Button Content="Cofnij do User"
-                                                                Command="{Binding DemoteCommand}"
+                                                                Background="#EFF6FF" Foreground="#3B82F6" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
+                                                                BorderThickness="0" Padding="12 5" Cursor="Hand">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#DBEAFE"/></Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
+                                                        <Button Content="Cofnij do User" Command="{Binding DemoteCommand}"
                                                                 Visibility="{Binding CanDemote, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                                Background="#EF4444" Foreground="White"
-                                                                BorderThickness="0" Padding="12 5" Cursor="Hand"/>
+                                                                Background="#FEF2F2" Foreground="#EF4444" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
+                                                                BorderThickness="0" Padding="12 5" Cursor="Hand" Margin="6 0 0 0">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#FEE2E2"/></Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-
                             </StackPanel>
                         </Border>
+                    </StackPanel>
 
+                    <!-- ── PANEL: PROJEKTY ── -->
+                    <StackPanel Visibility="{Binding ShowProjectsPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border Background="White" CornerRadius="10" Padding="14 10" Margin="0 0 0 10">
+                            <DockPanel>
+                                <Button Content="← Wróć" Command="{Binding BackToStatsCommand}" DockPanel.Dock="Left"
+                                        Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                        Foreground="#3B82F6" FontFamily="Segoe UI" FontSize="13" Padding="0"/>
+                                <TextBlock FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold" Foreground="#1F2937"
+                                           VerticalAlignment="Center" Margin="16 0 0 0">
+                                    <Run Text="Projekty"/><Run Text=" · " Foreground="#9CA3AF"/>
+                                    <Run Text="{Binding ProjectsCount}" Foreground="#9CA3AF" FontSize="13" FontWeight="Normal"/>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                        <Border Background="White" CornerRadius="10" ClipToBounds="True">
+                            <StackPanel>
+                                <Border Background="#F9FAFB" CornerRadius="10 10 0 0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="150"/><ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="70"/><ColumnDefinition Width="110"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Nazwa"      Padding="16 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="1" Text="Klucz"      Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="2" Text="Właściciel" Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="3" Text="Członkowie" Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="4" Text="Taski"      Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="5" Text="Utworzono"  Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl ItemsSource="{Binding ProjectList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F3F4F6" BorderThickness="0 1 0 0">
+                                                <Grid MinHeight="42">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="70"/>
+                                                        <ColumnDefinition Width="150"/><ColumnDefinition Width="90"/>
+                                                        <ColumnDefinition Width="70"/><ColumnDefinition Width="110"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding Name}"         Foreground="#1F2937" FontWeight="SemiBold" FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center" Padding="16 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Key}"          Foreground="#8B5CF6" FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Padding="8 0"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding OwnerName}"    Foreground="#6B7280" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding MembersCount}" Foreground="#374151" FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center" Padding="8 0"/>
+                                                    <TextBlock Grid.Column="4" Text="{Binding TasksCount}"   Foreground="#374151" FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center" Padding="8 0"/>
+                                                    <TextBlock Grid.Column="5" Text="{Binding CreatedAt}"    Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ── PANEL: TASKI ── -->
+                    <StackPanel Visibility="{Binding ShowTasksPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border Background="White" CornerRadius="10" Padding="14 10" Margin="0 0 0 10">
+                            <DockPanel>
+                                <Button Content="← Wróć" Command="{Binding BackToStatsCommand}" DockPanel.Dock="Left"
+                                        Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                        Foreground="#3B82F6" FontFamily="Segoe UI" FontSize="13" Padding="0"/>
+                                <TextBlock FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold" Foreground="#1F2937"
+                                           VerticalAlignment="Center" Margin="16 0 0 0">
+                                    <Run Text="Taski"/><Run Text=" · " Foreground="#9CA3AF"/>
+                                    <Run Text="{Binding TasksCount}" Foreground="#9CA3AF" FontSize="13" FontWeight="Normal"/>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                        <Border Background="White" CornerRadius="10" ClipToBounds="True">
+                            <StackPanel>
+                                <Border Background="#F9FAFB" CornerRadius="10 10 0 0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="95"/><ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="150"/><ColumnDefinition Width="100"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Tytuł"      Padding="16 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="1" Text="Projekt"    Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="2" Text="Status"     Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="3" Text="Priorytet"  Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="4" Text="Zgłaszający" Padding="8 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="5" Text="Utworzono"  Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl ItemsSource="{Binding TaskList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F3F4F6" BorderThickness="0 1 0 0">
+                                                <Grid MinHeight="42">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="130"/>
+                                                        <ColumnDefinition Width="95"/><ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="150"/><ColumnDefinition Width="100"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding Title}"        Foreground="#1F2937" FontWeight="SemiBold" FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center" Padding="16 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding ProjectName}"  Foreground="#6B7280" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <!-- Status badge -->
+                                                    <Border Grid.Column="2" VerticalAlignment="Center" Margin="6 0" Padding="8 3" CornerRadius="12">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="#F3F4F6"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding StatusLabel}" Value="W toku"><Setter Property="Background" Value="#FFFBEB"/></DataTrigger>
+                                                                    <DataTrigger Binding="{Binding StatusLabel}" Value="Zamknięte"><Setter Property="Background" Value="#ECFDF5"/></DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding StatusLabel}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="#6B7280"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding StatusLabel}" Value="W toku"><Setter Property="Foreground" Value="#D97706"/></DataTrigger>
+                                                                        <DataTrigger Binding="{Binding StatusLabel}" Value="Zamknięte"><Setter Property="Foreground" Value="#059669"/></DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <!-- Priority badge -->
+                                                    <Border Grid.Column="3" VerticalAlignment="Center" Margin="4 0" Padding="8 3" CornerRadius="12">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="#FFFBEB"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding PriorityLabel}" Value="Niski"><Setter Property="Background" Value="#ECFDF5"/></DataTrigger>
+                                                                    <DataTrigger Binding="{Binding PriorityLabel}" Value="Wysoki"><Setter Property="Background" Value="#FEF2F2"/></DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding PriorityLabel}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="#D97706"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding PriorityLabel}" Value="Niski"><Setter Property="Foreground" Value="#059669"/></DataTrigger>
+                                                                        <DataTrigger Binding="{Binding PriorityLabel}" Value="Wysoki"><Setter Property="Foreground" Value="#EF4444"/></DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <TextBlock Grid.Column="4" Text="{Binding ReporterName}" Foreground="#6B7280" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="5" Text="{Binding CreatedAt}"    Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ── PANEL: SPRINTY ── -->
+                    <StackPanel Visibility="{Binding ShowSprintsPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border Background="White" CornerRadius="10" Padding="14 10" Margin="0 0 0 10">
+                            <DockPanel>
+                                <Button Content="← Wróć" Command="{Binding BackToStatsCommand}" DockPanel.Dock="Left"
+                                        Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                        Foreground="#3B82F6" FontFamily="Segoe UI" FontSize="13" Padding="0"/>
+                                <TextBlock FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold" Foreground="#1F2937"
+                                           VerticalAlignment="Center" Margin="16 0 0 0">
+                                    <Run Text="Sprinty"/><Run Text=" · " Foreground="#9CA3AF"/>
+                                    <Run Text="{Binding SprintsCount}" Foreground="#9CA3AF" FontSize="13" FontWeight="Normal"/>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                        <Border Background="White" CornerRadius="10" ClipToBounds="True">
+                            <StackPanel>
+                                <Border Background="#F9FAFB" CornerRadius="10 10 0 0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="95"/><ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="110"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Nazwa"       Padding="16 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="1" Text="Projekt"     Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="2" Text="Status"      Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="3" Text="Rozpoczęcie" Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="4" Text="Zakończenie" Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl ItemsSource="{Binding SprintList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F3F4F6" BorderThickness="0 1 0 0">
+                                                <Grid MinHeight="42">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="160"/>
+                                                        <ColumnDefinition Width="95"/><ColumnDefinition Width="110"/>
+                                                        <ColumnDefinition Width="110"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding Name}"        Foreground="#1F2937" FontWeight="SemiBold" FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center" Padding="16 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding ProjectName}" Foreground="#6B7280" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <Border Grid.Column="2" VerticalAlignment="Center" Margin="6 0" Padding="8 3" CornerRadius="12">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="#F3F4F6"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding StatusLabel}" Value="Aktywny"><Setter Property="Background" Value="#EFF6FF"/></DataTrigger>
+                                                                    <DataTrigger Binding="{Binding StatusLabel}" Value="Ukończony"><Setter Property="Background" Value="#ECFDF5"/></DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding StatusLabel}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="#6B7280"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding StatusLabel}" Value="Aktywny"><Setter Property="Foreground" Value="#3B82F6"/></DataTrigger>
+                                                                        <DataTrigger Binding="{Binding StatusLabel}" Value="Ukończony"><Setter Property="Foreground" Value="#059669"/></DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <TextBlock Grid.Column="3" Text="{Binding StartDate}" Foreground="#374151" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0"/>
+                                                    <TextBlock Grid.Column="4" Text="{Binding EndDate}"   Foreground="#374151" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ── PANEL: KOMENTARZE ── -->
+                    <StackPanel Visibility="{Binding ShowCommentsPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border Background="White" CornerRadius="10" Padding="14 10" Margin="0 0 0 10">
+                            <DockPanel>
+                                <Button Content="← Wróć" Command="{Binding BackToStatsCommand}" DockPanel.Dock="Left"
+                                        Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                        Foreground="#3B82F6" FontFamily="Segoe UI" FontSize="13" Padding="0"/>
+                                <TextBlock FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold" Foreground="#1F2937"
+                                           VerticalAlignment="Center" Margin="16 0 0 0">
+                                    <Run Text="Komentarze"/><Run Text=" · " Foreground="#9CA3AF"/>
+                                    <Run Text="{Binding CommentsCount}" Foreground="#9CA3AF" FontSize="13" FontWeight="Normal"/>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                        <Border Background="White" CornerRadius="10" ClipToBounds="True">
+                            <StackPanel>
+                                <Border Background="#F9FAFB" CornerRadius="10 10 0 0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140"/><ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="100"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Autor"  Padding="16 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="1" Text="Task"   Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="2" Text="Treść"  Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="3" Text="Data"   Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl ItemsSource="{Binding CommentList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F3F4F6" BorderThickness="0 1 0 0">
+                                                <Grid MinHeight="42">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="140"/><ColumnDefinition Width="180"/>
+                                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="100"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding AuthorName}"  Foreground="#1F2937" FontWeight="SemiBold" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="16 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding TaskTitle}"   Foreground="#6B7280" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding TextPreview}" Foreground="#374151" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding CreatedAt}"   Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ── PANEL: WORKLOGI ── -->
+                    <StackPanel Visibility="{Binding ShowWorklogsPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border Background="White" CornerRadius="10" Padding="14 10" Margin="0 0 0 10">
+                            <DockPanel>
+                                <Button Content="← Wróć" Command="{Binding BackToStatsCommand}" DockPanel.Dock="Left"
+                                        Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                        Foreground="#3B82F6" FontFamily="Segoe UI" FontSize="13" Padding="0"/>
+                                <TextBlock FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold" Foreground="#1F2937"
+                                           VerticalAlignment="Center" Margin="16 0 0 0">
+                                    <Run Text="Worklogi"/><Run Text=" · " Foreground="#9CA3AF"/>
+                                    <Run Text="{Binding WorklogsCount}" Foreground="#9CA3AF" FontSize="13" FontWeight="Normal"/>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                        <Border Background="White" CornerRadius="10" ClipToBounds="True">
+                            <StackPanel>
+                                <Border Background="#F9FAFB" CornerRadius="10 10 0 0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160"/><ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="120"/><ColumnDefinition Width="110"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Użytkownik"   Padding="16 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="1" Text="Task"          Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="2" Text="Czas spędzony" Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="3" Text="Zalogowano"    Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl ItemsSource="{Binding WorklogList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F3F4F6" BorderThickness="0 1 0 0">
+                                                <Grid MinHeight="42">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="160"/><ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="120"/><ColumnDefinition Width="110"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding UserName}"  Foreground="#1F2937" FontWeight="SemiBold" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="16 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding TaskTitle}" Foreground="#6B7280" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding TimeSpent}" Foreground="#14B8A6" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Padding="8 0"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding LoggedAt}"  Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ── PANEL: ZAŁĄCZNIKI ── -->
+                    <StackPanel Visibility="{Binding ShowAttachmentsPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border Background="White" CornerRadius="10" Padding="14 10" Margin="0 0 0 10">
+                            <DockPanel>
+                                <Button Content="← Wróć" Command="{Binding BackToStatsCommand}" DockPanel.Dock="Left"
+                                        Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                        Foreground="#3B82F6" FontFamily="Segoe UI" FontSize="13" Padding="0"/>
+                                <TextBlock FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold" Foreground="#1F2937"
+                                           VerticalAlignment="Center" Margin="16 0 0 0">
+                                    <Run Text="Załączniki"/><Run Text=" · " Foreground="#9CA3AF"/>
+                                    <Run Text="{Binding AttachmentsCount}" Foreground="#9CA3AF" FontSize="13" FontWeight="Normal"/>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                        <Border Background="White" CornerRadius="10" ClipToBounds="True">
+                            <StackPanel>
+                                <Border Background="#F9FAFB" CornerRadius="10 10 0 0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="200"/>
+                                            <ColumnDefinition Width="150"/><ColumnDefinition Width="110"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Plik"       Padding="16 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="1" Text="Task"       Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="2" Text="Dodał"      Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="3" Text="Data"       Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl ItemsSource="{Binding AttachmentList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F3F4F6" BorderThickness="0 1 0 0">
+                                                <Grid MinHeight="42">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="200"/>
+                                                        <ColumnDefinition Width="150"/><ColumnDefinition Width="110"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding FileName}"     Foreground="#1F2937" FontWeight="SemiBold" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="16 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding TaskTitle}"    Foreground="#6B7280" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding UploaderName}" Foreground="#374151" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding UploadedAt}"   Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- ── PANEL: DOKUMENTACJA ── -->
+                    <StackPanel Visibility="{Binding ShowDocsPanel, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border Background="White" CornerRadius="10" Padding="14 10" Margin="0 0 0 10">
+                            <DockPanel>
+                                <Button Content="← Wróć" Command="{Binding BackToStatsCommand}" DockPanel.Dock="Left"
+                                        Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                        Foreground="#3B82F6" FontFamily="Segoe UI" FontSize="13" Padding="0"/>
+                                <TextBlock FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold" Foreground="#1F2937"
+                                           VerticalAlignment="Center" Margin="16 0 0 0">
+                                    <Run Text="Dokumentacja"/><Run Text=" · " Foreground="#9CA3AF"/>
+                                    <Run Text="{Binding DocumentationCount}" Foreground="#9CA3AF" FontSize="13" FontWeight="Normal"/>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                        <Border Background="White" CornerRadius="10" ClipToBounds="True">
+                            <StackPanel>
+                                <Border Background="#F9FAFB" CornerRadius="10 10 0 0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="200"/>
+                                            <ColumnDefinition Width="130"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Tytuł"       Padding="16 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="1" Text="Projekt"     Padding="8 10"  FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                        <TextBlock Grid.Column="2" Text="Aktualizacja" Padding="8 10" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280"/>
+                                    </Grid>
+                                </Border>
+                                <ItemsControl ItemsSource="{Binding DocList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F3F4F6" BorderThickness="0 1 0 0">
+                                                <Grid MinHeight="42">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="200"/>
+                                                        <ColumnDefinition Width="130"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding Title}"       Foreground="#1F2937" FontWeight="SemiBold" FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center" Padding="16 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding ProjectName}" Foreground="#6B7280" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding UpdatedAt}"   Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="12" VerticalAlignment="Center" Padding="8 0"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
 
                 </StackPanel>
             </ScrollViewer>
-
         </Grid>
     </Grid>
 </UserControl>

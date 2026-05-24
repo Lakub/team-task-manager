@@ -14,7 +14,7 @@
         </Border>
         <TextBlock Text="TeamTaskManager" FontSize="20" FontWeight="Bold"
                    Foreground="#1F2937" HorizontalAlignment="Center"/>
-        <TextBlock Text="Utwórz nowe konto" FontSize="12"
+        <TextBlock Text="Utwórz konto użytkownika" FontSize="12"
                    Foreground="#9CA3AF" HorizontalAlignment="Center" Margin="0 4 0 32"/>
 
         <TextBlock Text="Imię i nazwisko" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
@@ -30,20 +30,29 @@
                  x:Name="EmailBox"/>
 
         <TextBlock Text="Hasło" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
-        <PasswordBox Height="44" Margin="0 0 0 28"
+        <PasswordBox Height="44" Margin="0 0 0 16"
                      Background="White" Foreground="#1F2937"
                      BorderBrush="#D1D5DB" BorderThickness="1" Padding="12 10"
                      x:Name="PasswordBox"/>
 
+        <TextBlock Text="Rola" Foreground="#6B7280" FontSize="12" Margin="0 0 0 6"/>
+        <ComboBox Height="44" Margin="0 0 0 28"
+                  Background="White" Foreground="#1F2937"
+                  BorderBrush="#D1D5DB" BorderThickness="1" Padding="10 0"
+                  x:Name="RoleComboBox" SelectedIndex="0">
+            <ComboBoxItem Content="User"/>
+            <ComboBoxItem Content="Admin"/>
+        </ComboBox>
+
         <TextBlock x:Name="ErrorText" Foreground="#EF4444" FontSize="12"
                    TextWrapping="Wrap" Margin="0 0 0 12" Visibility="Collapsed"/>
 
-        <Button Content="ZAREJESTRUJ" Height="46" Margin="0 0 0 12"
+        <Button Content="UTWÓRZ KONTO" Height="46" Margin="0 0 0 12"
                 Background="{StaticResource DefaultButtonBackground}" Foreground="White"
                 FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"
                 Click="RegisterButton_Click"/>
 
-        <Button Content="Mam już konto — zaloguj się" Height="46"
+        <Button Content="Anuluj" Height="46"
                 Background="White" Foreground="#4B5563"
                 FontWeight="SemiBold" BorderBrush="#D1D5DB" BorderThickness="1" Cursor="Hand"
                 Click="BackToLoginButton_Click"/>

@@ -34,10 +34,6 @@
                         FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"
                         x:Name="LoginButton" Click="LoginButton_Click" IsDefault="True"/>
 
-                <Button Content="Zarejestruj się" Height="46" Margin="0 0 0 20"
-                        Background="White" Foreground="#4B5563"
-                        FontWeight="SemiBold" BorderBrush="#D1D5DB" BorderThickness="1" Cursor="Hand"
-                        Click="RegisterButton_Click"/>
 
         <TextBlock Text="TEMP" Foreground="#6B7280" FontSize="12" HorizontalAlignment="Center"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

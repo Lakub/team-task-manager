@@ -40,13 +40,6 @@ namespace TeamTaskManager.Views
             }
         }
 
-        private void RegisterButton_Click(object sender, RoutedEventArgs e)
-        {
-            var window = new RegisterWindow();
-            window.Owner = this;
-            window.ShowDialog();
-        }
-
         // TEMP
         private void TempRandomSeedDb_Click(object sender, RoutedEventArgs e)
         {

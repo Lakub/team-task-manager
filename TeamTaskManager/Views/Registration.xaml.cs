@@ -1,6 +1,7 @@
 using System.Windows;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
+using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
 
 namespace TeamTaskManager.Views
@@ -36,7 +37,8 @@ namespace TeamTaskManager.Views
             var salt           = authService.GenerateSalt();
             var hashedPassword = authService.HashPassword(password, salt);
 
-            var user = new User { FullName = fullName, Email = email };
+            var selectedRole = RoleComboBox.SelectedIndex == 1 ? OrgRole.Admin : OrgRole.User;
+            var user = new User { FullName = fullName, Email = email, OrgRole = selectedRole };
             context.Users.Add(user);
             context.SaveChanges();
 
@@ -48,8 +50,9 @@ namespace TeamTaskManager.Views
             });
             context.SaveChanges();
 
-            MessageBox.Show("Konto zostało utworzone. Możesz się teraz zalogować.",
-                            "Rejestracja zakończona", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Konto zostało utworzone.",
+                            "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+            DialogResult = true;
             Close();
         }
 

@@ -18,6 +18,8 @@ namespace TeamTaskManager.Services
             string title, string description,
             TaskType type, TaskPriority priority,
             int projectId, int reporterId, int? assigneeId);
+        System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
+            string text, int taskId, int commenterId, int? parentCommentId);
     }
 
     public class TaskService : ITaskService
@@ -89,6 +91,28 @@ namespace TeamTaskManager.Services
                 .Include(c => c.Replies)
                     .ThenInclude(r => r.Commenter)
                 .ToListAsync();
+        }
+
+        public async System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
+            string text, int taskId, int commenterId, int? parentCommentId)
+        {
+            var commenter = await _context.Users.FindAsync(commenterId);
+            var task = await _context.Tasks.FindAsync(taskId);
+
+            var comment = new Comment
+            {
+                Text = text,
+                Task = task!,
+                Commenter = commenter!,
+                ParentCommentId = parentCommentId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsDeleted = false
+            };
+
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+            return comment;
         }
     }
 }

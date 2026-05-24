@@ -19,22 +19,21 @@ using System.ComponentModel;
 
 namespace TeamTaskManager.ViewModels
 {
-    public partial class TaskDetailsViewModel : ObservableObject
+    public partial class TaskDetailsViewModel : ExpandableTextItem
     {
         private readonly ITaskService _taskService;
         private readonly int _taskId;
         private Task? _task;
 
-        public TaskDetailsViewModel(ITaskService taskService, int taskId)
+        public TaskDetailsViewModel(ITaskService taskService, int taskId) : base(lineHeight: 22, maxLines: 4)
         {
             _taskService = taskService;
             _taskId = taskId;
 
-            AddCommentCommand = new RelayCommand(AddComment);
-            AddReplyCommand = new RelayCommand<CommentItem>(AddReply);
+            AddCommentCommand = new AsyncRelayCommand(AddCommentAsync);
+            AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
+            CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
             LogWorkCommand = new RelayCommand(LogWork);
-            OpenWorklogCommand = new RelayCommand<WorklogItem>(OpenWorklog);
-            ToggleDescriptionCommand = new RelayCommand(() => IsDescriptionExpanded = !IsDescriptionExpanded);
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
@@ -85,8 +84,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand LogWorkCommand { get; }
         public ICommand AddCommentCommand { get; }
         public ICommand AddReplyCommand { get; }
-        public ICommand OpenWorklogCommand { get; }
-        public ICommand ToggleDescriptionCommand { get; }
+        public ICommand CancelReplyCommand { get; }
 
         public string WindowTitle => _task != null ? $"Szczegóły zadania {TaskKey}" : "Szczegóły zadania";
 
@@ -97,28 +95,6 @@ namespace TeamTaskManager.ViewModels
         public string Description => _task?.Description ?? string.Empty;
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public bool HasNoDescription => !HasDescription;
-
-        // pokaz wiecej/zwin w opisie
-        private bool _descriptionOverflows;
-        public bool DescriptionOverflows
-        {
-            get => _descriptionOverflows;
-            set => SetProperty(ref _descriptionOverflows, value);
-        }
-        public double DescriptionMaxHeight => IsDescriptionExpanded ? double.PositiveInfinity : 88;
-        public string ShowMoreLabel => IsDescriptionExpanded ? "Zwiń" : "Zobacz więcej";
-
-        private bool _isDescriptionExpanded = false;
-        public bool IsDescriptionExpanded
-        {
-            get => _isDescriptionExpanded;
-            set
-            {
-                SetProperty(ref _isDescriptionExpanded, value);
-                OnPropertyChanged(nameof(DescriptionMaxHeight));
-                OnPropertyChanged(nameof(ShowMoreLabel));
-            }
-        }
 
         // kolorki i tekst dla typu, statusu i priorytetu
         public string TypeDisplay => _task?.Type.ToString() ?? string.Empty;
@@ -198,6 +174,7 @@ namespace TeamTaskManager.ViewModels
         public ObservableCollection<CommentItem> Comments { get; } = new();
         public bool HasNoComments => !Comments.Any();
         public string NewCommentContent { get; set; } = string.Empty;
+        public bool ShowAddComment => !string.IsNullOrWhiteSpace(NewCommentContent);
         public string NewReplyContent { get; set; } = string.Empty;
 
         // worklogi
@@ -206,22 +183,35 @@ namespace TeamTaskManager.ViewModels
 
         private void LogWork()
         {
-            MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            var createWorklogWindow = new CreateWorklogWindow(_taskId);
+            if (createWorklogWindow.ShowDialog() == true)
+            {
+                _ = LoadWorklogsAsync();
+            }
         }
 
-        private void AddReply(CommentItem commentItem)
+        private async System.Threading.Tasks.Task AddReplyAsync(CommentItem? commentItem)
         {
             if (commentItem == null) return;
 
             if (commentItem.IsBeingRepliedTo)
             {
-                MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (string.IsNullOrWhiteSpace(NewReplyContent))
+                {
+                    MessageBox.Show("Treść odpowiedzi nie może być pusta.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                NewReplyContent = NewReplyContent.Trim();
+                await _taskService.CreateTaskCommentAsync(NewReplyContent, _taskId, App.CurrentUser!.Id, commentItem.Id);
+
                 commentItem.IsBeingRepliedTo = false;
                 NewReplyContent = string.Empty;
+                OnPropertyChanged(nameof(NewReplyContent));
+
+                await LoadCommentsAsync();
                 return;
             }
-
-            NewCommentContent = string.Empty;
 
             foreach (var item in Comments)
             {
@@ -241,15 +231,31 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(nameof(NewReplyContent));
         }
 
-        private void AddComment()
+        private void CancelReply(CommentItem? commentItem)
         {
-            MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-            NewCommentContent = string.Empty;
-        } 
+            if (commentItem == null) return;
 
-        private void OpenWorklog(WorklogItem? item)
+            commentItem.IsBeingRepliedTo = false;
+
+            NewReplyContent = string.Empty;
+            OnPropertyChanged(nameof(NewReplyContent));
+        }
+
+        private async System.Threading.Tasks.Task AddCommentAsync()
         {
-            MessageBox.Show("ni ma", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (string.IsNullOrWhiteSpace(NewCommentContent))
+            {
+                MessageBox.Show("Treść komentarza nie może być pusta.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            NewCommentContent = NewCommentContent.Trim();
+            await _taskService.CreateTaskCommentAsync(NewCommentContent, _taskId, App.CurrentUser!.Id, null);
+
+            NewCommentContent = string.Empty;
+            OnPropertyChanged(nameof(NewCommentContent));
+
+            await LoadCommentsAsync();
         }
 
         private void AggregateReplies(Comment comment, ObservableCollection<CommentItem> collection)
@@ -263,13 +269,18 @@ namespace TeamTaskManager.ViewModels
         }
     }
 
-    public class CommentItem : INotifyPropertyChanged
+    public class CommentItem : ExpandableTextItem
     {
         private readonly Comment _model;
-        public CommentItem(Comment model) { _model = model; }
+
+        public CommentItem(Comment model) : base()
+        {
+            _model = model;
+        }
 
         public string Content => _model.Text;
         public string Name => _model.Commenter?.FullName ?? "Unknown";
+        public int Id => _model.Id;
         public DateTime CreatedAt => _model.CreatedAt;
         public string CreatedAtStr => _model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
 
@@ -287,20 +298,25 @@ namespace TeamTaskManager.ViewModels
         public string Initials => string.Concat(Name.Split(' ').Select(n => n[0])).ToUpper();
         public Brush AvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush AvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 
-    public class WorklogItem
+    public class WorklogItem : ExpandableTextItem
     {
         private readonly Worklog _model;
-        public WorklogItem(Worklog model) { _model = model; }
+        public WorklogItem(Worklog model) : base()
+        {
+            _model = model;
+        }
 
         public string Name => _model.User.FullName;
+        public string Description => _model.Description;
+        public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public string CreatedAtStr => _model.LoggedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
+        public string CreatedAtFullStr => "Created: " + CreatedAtStr;
+        public string StartedAtStr => _model.StartTime.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
         public string TimeSpentStr => $"{_model.TimeSpent.TotalHours:0.#}h";
 
+        // avatar
         public string Initials => string.Concat(Name.Split(' ').Select(n => n[0])).ToUpper();
         public Brush AvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush AvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));

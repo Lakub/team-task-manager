@@ -3,32 +3,142 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Background="#F3F4F6">
 
+    <UserControl.Resources>
+        <Style x:Key="KanbanCardButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <Grid Margin="8 0 0 0">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="10" Margin="0 0 8 0">
-            <StackPanel>
-                <TextBlock Text="To Do" Foreground="{StaticResource DefaultButtonBackground}"
-                            FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
-            </StackPanel>
-        </Border>
+        <TextBlock Grid.Row="0" Text="{Binding SprintName}" FontFamily="Segoe UI" FontSize="16"
+                   FontWeight="SemiBold" Foreground="#1F2937" Margin="0 8 0 12"/>
 
-        <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="10" Margin="0 0 8 0">
-            <StackPanel>
-                <TextBlock Text="W trakcie" Foreground="{StaticResource DefaultButtonBackground}"
-                            FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
-            </StackPanel>
-        </Border>
+        <TextBlock Grid.Row="1" Text="Brak aktywnego sprintu w tym projekcie."
+                   FontFamily="Segoe UI" FontSize="13" Foreground="#6B7280"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Visibility="{Binding NoActiveSprint, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-        <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="10">
-            <StackPanel>
-                <TextBlock Text="Zrobione" Foreground="{StaticResource DefaultButtonBackground}"
-                            FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
-            </StackPanel>
-        </Border>
+        <Grid Grid.Row="1" Visibility="{Binding HasActiveSprint, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="10" Margin="0 0 8 0"
+                    AllowDrop="True" Tag="Open" Drop="Column_Drop" DragOver="Column_DragOver">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="To Do" Foreground="{StaticResource DefaultButtonBackground}"
+                               FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding TodoTasks}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
+                                            Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
+                                            PreviewMouseMove="TaskCard_PreviewMouseMove">
+                                        <Border Background="#F9FAFB" CornerRadius="6" Padding="10 8"
+                                                BorderBrush="#E5E7EB" BorderThickness="1">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Key}" FontFamily="Segoe UI" FontSize="11"
+                                                           Foreground="#6B7280" Margin="0 0 0 2"/>
+                                                <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
+                                                           Foreground="#1F2937" TextWrapping="Wrap" Margin="0 0 0 4"/>
+                                                <TextBlock Text="{Binding AssigneeName}" FontFamily="Segoe UI" FontSize="11"
+                                                           Foreground="#9CA3AF"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="10" Margin="0 0 8 0"
+                    AllowDrop="True" Tag="InProgress" Drop="Column_Drop" DragOver="Column_DragOver">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="W trakcie" Foreground="{StaticResource DefaultButtonBackground}"
+                               FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding InProgressTasks}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
+                                            Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
+                                            PreviewMouseMove="TaskCard_PreviewMouseMove">
+                                        <Border Background="#EFF6FF" CornerRadius="6" Padding="10 8"
+                                                BorderBrush="#BFDBFE" BorderThickness="1">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Key}" FontFamily="Segoe UI" FontSize="11"
+                                                           Foreground="#6B7280" Margin="0 0 0 2"/>
+                                                <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
+                                                           Foreground="#1F2937" TextWrapping="Wrap" Margin="0 0 0 4"/>
+                                                <TextBlock Text="{Binding AssigneeName}" FontFamily="Segoe UI" FontSize="11"
+                                                           Foreground="#9CA3AF"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="10"
+                    AllowDrop="True" Tag="Closed" Drop="Column_Drop" DragOver="Column_DragOver">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Zrobione" Foreground="{StaticResource DefaultButtonBackground}"
+                               FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Margin="0 0 0 10"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding DoneTasks}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
+                                            Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
+                                            PreviewMouseMove="TaskCard_PreviewMouseMove">
+                                        <Border Background="#F0FDF4" CornerRadius="6" Padding="10 8"
+                                                BorderBrush="#BBF7D0" BorderThickness="1">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Key}" FontFamily="Segoe UI" FontSize="11"
+                                                           Foreground="#6B7280" Margin="0 0 0 2"/>
+                                                <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
+                                                           Foreground="#1F2937" TextWrapping="Wrap" Margin="0 0 0 4"/>
+                                                <TextBlock Text="{Binding AssigneeName}" FontFamily="Segoe UI" FontSize="11"
+                                                           Foreground="#9CA3AF"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

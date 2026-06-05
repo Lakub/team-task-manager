@@ -11,6 +11,9 @@
     <Compile Update="Views\TaskDetailsWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\TeamMembersWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\WikiMainView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

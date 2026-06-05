@@ -1,0 +1,30 @@
+﻿<Window x:Class="TeamTaskManager.Views.TeamMembersWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TeamTaskManager.Views"
+        mc:Ignorable="d"
+        Title="TeamMembersWindow" Height="450" Width="250">
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <DockPanel>
+                <Label DockPanel.Dock="Left"  FontSize="13">Filtruj po imieniu:</Label>
+                <TextBox VerticalAlignment="Center" Background="WhiteSmoke" DockPanel.Dock="Right" FontSize="13" x:Name="UserNameFilterBox" TextChanged="Filter"></TextBox>
+            </DockPanel>
+            <ItemsControl x:Name="UsersTable">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Style="{StaticResource PrimaryButtonStyle}" Click="CopyEmail" Tag="{Binding}" HorizontalAlignment="Left" Height="50" Margin="0 0 0 5">
+                            <DockPanel HorizontalAlignment="Left">
+                                <Ellipse DockPanel.Dock="Left" VerticalAlignment="Center" Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
+                                <TextBlock DockPanel.Dock="Bottom" VerticalAlignment="Center" Text="Naciśnij, aby skopiować adres email" Foreground="LightBlue" FontSize="10"/>
+                                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="{Binding FullName}" FontSize="13"/>
+                            </DockPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </Grid>
+</Window>

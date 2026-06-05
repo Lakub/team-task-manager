@@ -97,7 +97,9 @@ namespace TeamTaskManager.ViewModels
             });
 
             ShowTeamMembersCommand = new RelayCommand(() =>
-                System.Windows.MessageBox.Show("not implemented", "not implemented", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning));
+                {
+                    new TeamMembersWindow(SelectedProject).ShowDialog();
+                });
 
             ShowWikiCommand = new RelayCommand(() =>
             {

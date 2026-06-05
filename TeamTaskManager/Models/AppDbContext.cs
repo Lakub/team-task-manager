@@ -20,6 +20,7 @@ namespace TeamTaskManager.Models
         public DbSet<UserAuth> UserAuths { get; set; }
         public DbSet<WikiArticle> WikiArticles { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<Score> Scores { get; set; }
         public AppDbContext()
         {
             Database.Migrate();

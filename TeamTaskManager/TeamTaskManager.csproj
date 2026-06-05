@@ -9,6 +9,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\Controls\fonts\terminal-grotesque_open.otf" />
+    <None Remove="Views\Controls\images\background back clouds.png" />
+    <None Remove="Views\Controls\images\background close mountains.png" />
+    <None Remove="Views\Controls\images\background clouds.png" />
+    <None Remove="Views\Controls\images\background mountains.png" />
+    <None Remove="Views\Controls\images\foreground.png" />
+    <None Remove="Views\Controls\images\icon.png" />
+    <None Remove="Views\Controls\images\mutedIcon.png" />
+    <None Remove="Views\Controls\images\pipe.png" />
+    <None Remove="Views\Controls\images\thebird.png" />
+    <None Remove="Views\Controls\images\unmutedIcon.png" />
+    <None Remove="Views\Controls\sounds\hit_pipe.wav" />
+    <None Remove="Views\Controls\sounds\jump_sound.wav" />
+    <None Remove="Views\Controls\sounds\new_point.wav" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="HappyStudio.Mvvm.Input.Wpf" Version="1.0.1" />
     <PackageReference Include="Markdig.Wpf" Version="0.5.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.25" />
@@ -16,6 +33,23 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Views\Controls\fonts\terminal-grotesque_open.otf" />
+    <Resource Include="Views\Controls\images\background back clouds.png" />
+    <Resource Include="Views\Controls\images\background close mountains.png" />
+    <Resource Include="Views\Controls\images\background clouds.png" />
+    <Resource Include="Views\Controls\images\background mountains.png" />
+    <Resource Include="Views\Controls\images\foreground.png" />
+    <Resource Include="Views\Controls\images\icon.png" />
+    <Resource Include="Views\Controls\images\mutedIcon.png" />
+    <Resource Include="Views\Controls\images\pipe.png" />
+    <Resource Include="Views\Controls\images\thebird.png" />
+    <Resource Include="Views\Controls\images\unmutedIcon.png" />
+    <Resource Include="Views\Controls\sounds\hit_pipe.wav" />
+    <Resource Include="Views\Controls\sounds\jump_sound.wav" />
+    <Resource Include="Views\Controls\sounds\new_point.wav" />
   </ItemGroup>
 
   <ItemGroup>

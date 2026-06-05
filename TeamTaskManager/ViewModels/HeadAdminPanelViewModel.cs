@@ -1,11 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Enums;
+using TeamTaskManager.Views;
 
 namespace TeamTaskManager.ViewModels
 {
@@ -59,6 +62,7 @@ namespace TeamTaskManager.ViewModels
     public class ProjectRow
     {
         public string Name { get; set; } = string.Empty;
+        public int Id { get; set; }
         public string Key { get; set; } = string.Empty;
         public string OwnerName { get; set; } = string.Empty;
         public int MembersCount { get; set; }
@@ -194,7 +198,9 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowCommentsCommand    { get; }
         public ICommand ShowWorklogsCommand    { get; }
         public ICommand ShowAttachmentsCommand { get; }
-        public ICommand ShowDocsCommand        { get; }
+        public ICommand ShowDocsCommand  { get; }
+        public ICommand EditProjectCommand { get; }
+        public ICommand RemoveProjectCommand { get; }
 
         public HeadAdminPanelViewModel()
         {
@@ -207,6 +213,33 @@ namespace TeamTaskManager.ViewModels
             ShowWorklogsCommand    = new RelayCommand(() => { LoadWorklogs();    CurrentPanel = AdminPanel.Worklogs; });
             ShowAttachmentsCommand = new RelayCommand(() => { LoadAttachments(); CurrentPanel = AdminPanel.Attachments; });
             ShowDocsCommand        = new RelayCommand(() => { LoadDocs();        CurrentPanel = AdminPanel.Docs; });
+            EditProjectCommand = new RelayCommand<ProjectRow>((row) => {
+                Models.Entities.Project? SelectedProject;
+                using (var ctx = new AppDbContext())
+                {
+                    SelectedProject = ctx.Projects.FirstOrDefault(e => e.Id == row.Id);
+                    if (SelectedProject == null) return;
+                    SelectedProject.ProjectUsers = ctx.ProjectUsers.Where(e => e.ProjectId == SelectedProject.Id).ToList();
+                }
+                var editProjectWindow = new CreateProjectWindow(true, SelectedProject); 
+                if (editProjectWindow.ShowDialog() == true)
+                {
+                    LoadProjects();
+                }
+            });
+            RemoveProjectCommand = new RelayCommand<ProjectRow>(async (row) => {
+                Models.Entities.Project? SelectedProject;
+                var ctx = new AppDbContext();
+                var project = await ctx.Projects.FirstOrDefaultAsync(e => e.Id == row.Id);
+                if(project == null) return;
+                if (MessageBox.Show("Czy napewno usunąć projekt?", "",MessageBoxButton.YesNoCancel) == MessageBoxResult.Yes)
+                {
+                    project.IsDeleted = true;
+                    ctx.Projects.Update(project);
+                    await ctx.SaveChangesAsync();
+                    LoadProjects();
+                }
+            });
             Load();
         }
 
@@ -278,7 +311,7 @@ namespace TeamTaskManager.ViewModels
                 .Where(p => !p.IsDeleted)
                 .Select(p => new
                 {
-                    p.Name, p.Key,
+                    p.Name, p.Key, p.Id,
                     OwnerName    = p.Owner.FullName,
                     MembersCount = p.ProjectUsers.Count,
                     TasksCount   = p.Tasks.Count(t => !t.IsDeleted),
@@ -290,7 +323,7 @@ namespace TeamTaskManager.ViewModels
             foreach (var r in rows)
                 ProjectList.Add(new ProjectRow
                 {
-                    Name = r.Name, Key = r.Key, OwnerName = r.OwnerName,
+                    Name = r.Name, Key = r.Key, OwnerName = r.OwnerName, Id=r.Id,
                     MembersCount = r.MembersCount, TasksCount = r.TasksCount,
                     CreatedAt = r.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
                 });

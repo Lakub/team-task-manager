@@ -18,6 +18,10 @@ namespace TeamTaskManager.Views
         public LoginWindow()
         {
             InitializeComponent();
+            using var context = new AppDbContext();
+            var authService = new AuthService(context);
+            EmailBox.Text = "leon.gawel@onet.pl";
+            PasswordBox.Password = "password";
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)

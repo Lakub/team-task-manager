@@ -82,6 +82,10 @@ namespace TeamTaskManager.Services
             var projectUsers = await _context.ProjectUsers.Where(e => e.ProjectId == trackedProject.Id).ToListAsync();
             var trackedOwner = await _context.Users.FindAsync(baseProject.OwnerId);
             _context.ProjectUsers.RemoveRange(projectUsers);
+            trackedProject.Name= name;
+            trackedProject.Description=description;
+            trackedProject.Owner = trackedOwner;
+            trackedProject.ProjectUsers.Clear();
             trackedProject.ProjectUsers.Add(new ProjectUser
             {
                 User = trackedOwner,
@@ -115,6 +119,7 @@ namespace TeamTaskManager.Services
                 Name = name,
                 Description = description,
                 Owner = trackedOwner!,
+                Key = Guid.NewGuid().ToString(),
                 CreatedAt = DateTime.UtcNow
             };
 

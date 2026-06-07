@@ -176,7 +176,7 @@ namespace TeamTaskManager.ViewModels
 
         private void CreateTask()
         {
-            if (!CanEditSprint)
+            if (!CanManageProject)
             {
                 MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;

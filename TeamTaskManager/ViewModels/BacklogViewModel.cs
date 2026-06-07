@@ -12,6 +12,7 @@ using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
 using TeamTaskManager.Views;
+using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
 
 namespace TeamTaskManager.ViewModels
 {
@@ -23,6 +24,7 @@ namespace TeamTaskManager.ViewModels
         public string KeyAndTitle => $"{Key} - {Title}";
         public TaskType Type { get; set; }
         public TaskPriority Priority { get; set; }
+        public TaskStatus Status { get; set; }
 
         public string TypeDisplay => Type.ToString();
         public string PriorityDisplay => Priority.ToString();
@@ -119,7 +121,8 @@ namespace TeamTaskManager.ViewModels
                     Title = t.Title,
                     Key = $"{ProjectKey}-{t.PerProjectId}",
                     Type = t.Type,
-                    Priority = t.Priority
+                    Priority = t.Priority,
+                    Status = t.Status
                 });
             }
 
@@ -133,7 +136,8 @@ namespace TeamTaskManager.ViewModels
                     Title = t.Title,
                     Key = $"{ProjectKey}-{t.PerProjectId}",
                     Type = t.Type,
-                    Priority = t.Priority
+                    Priority = t.Priority,
+                    Status = t.Status
                 });
             }
 

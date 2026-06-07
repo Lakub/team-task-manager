@@ -2,9 +2,12 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:TeamTaskManager"
+             xmlns:helpers="clr-namespace:TeamTaskManager.Helpers"
              Startup="OnStartup" ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <helpers:IntToStarGridLengthConverter x:Key="StarConverter"/>
         <SolidColorBrush x:Key="DefaultButtonBackground" Color="#4B5563"/>
         <SolidColorBrush x:Key="DefaultButtonBackgroundHover" Color="#8299B8"/>
 

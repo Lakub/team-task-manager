@@ -34,6 +34,11 @@ namespace TeamTaskManager.ViewModels
             AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
             CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
             LogWorkCommand = new RelayCommand(LogWork);
+            PopOutCommand = new RelayCommand(() =>
+            {
+                var window = new TaskDetailsWindow(_taskId);
+                window.Show();
+            });
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
@@ -85,6 +90,9 @@ namespace TeamTaskManager.ViewModels
         public ICommand AddCommentCommand { get; }
         public ICommand AddReplyCommand { get; }
         public ICommand CancelReplyCommand { get; }
+        public ICommand PopOutCommand { get; }
+
+        public bool IsPoppedOut { get; set; } = false;
 
         public string WindowTitle => _task != null ? $"Szczegóły zadania {TaskKey}" : "Szczegóły zadania";
 
@@ -95,6 +103,20 @@ namespace TeamTaskManager.ViewModels
         public string Description => _task?.Description ?? string.Empty;
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public bool HasNoDescription => !HasDescription;
+
+        // ostatni sprint
+        public string SprintName
+        {
+            get
+            {
+                if (_task?.SprintTasks == null || !_task.SprintTasks.Any()) return "Brak";
+                var latest = _task.SprintTasks
+                    .Where(st => st.Sprint != null)
+                    .OrderByDescending(st => st.Sprint!.StartDate)
+                    .FirstOrDefault();
+                return latest?.Sprint?.Name ?? "Brak";
+            }
+        }
 
         // kolorki i tekst dla typu, statusu i priorytetu
         public string TypeDisplay => _task?.Type.ToString() ?? string.Empty;

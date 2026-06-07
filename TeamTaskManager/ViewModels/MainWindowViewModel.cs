@@ -52,6 +52,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowAllSprintsCommand { get; }
         public ICommand ShowTeamMembersCommand { get; }
         public ICommand ShowBacklogCommand { get; }
+        public ICommand ShowAllTasksCommand { get; }
         public ICommand ShowSprintReportCommand { get; }
         public ICommand ShowHeadAdminPanelCommand { get; }
         public ICommand RandomSeedDbCommand { get; }
@@ -120,6 +121,16 @@ namespace TeamTaskManager.ViewModels
                 }
 
                 CurrentView = new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject?.Id ?? -1);
+            });
+
+            ShowAllTasksCommand = new RelayCommand(() =>
+            {
+                if (SelectedProject == null)
+                {
+                    System.Windows.MessageBox.Show("Nie wybrano projektu.", "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+                CurrentView = new AllTasksView(SelectedProject.Id);
             });
 
             ShowSprintReportCommand = new RelayCommand(() =>

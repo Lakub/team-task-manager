@@ -72,6 +72,8 @@ namespace TeamTaskManager.Services
                 .Include(t => t.Reporter)
                 .Include(t => t.Assignee)
                 .Include(t => t.Project)
+                .Include(t => t.SprintTasks)
+                    .ThenInclude(st => st.Sprint)
                 .FirstOrDefaultAsync(t => t.Id == taskId && !t.IsDeleted);
         }
 

@@ -104,6 +104,20 @@ namespace TeamTaskManager.ViewModels
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public bool HasNoDescription => !HasDescription;
 
+        // ostatni sprint
+        public string SprintName
+        {
+            get
+            {
+                if (_task?.SprintTasks == null || !_task.SprintTasks.Any()) return "Brak";
+                var latest = _task.SprintTasks
+                    .Where(st => st.Sprint != null)
+                    .OrderByDescending(st => st.Sprint!.StartDate)
+                    .FirstOrDefault();
+                return latest?.Sprint?.Name ?? "Brak";
+            }
+        }
+
         // kolorki i tekst dla typu, statusu i priorytetu
         public string TypeDisplay => _task?.Type.ToString() ?? string.Empty;
         public Brush TypeBadgeBg => _task?.Type switch

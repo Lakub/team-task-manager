@@ -34,6 +34,11 @@ namespace TeamTaskManager.ViewModels
             AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
             CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
             LogWorkCommand = new RelayCommand(LogWork);
+            PopOutCommand = new RelayCommand(() =>
+            {
+                var window = new TaskDetailsWindow(_taskId);
+                window.Show();
+            });
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
@@ -85,6 +90,9 @@ namespace TeamTaskManager.ViewModels
         public ICommand AddCommentCommand { get; }
         public ICommand AddReplyCommand { get; }
         public ICommand CancelReplyCommand { get; }
+        public ICommand PopOutCommand { get; }
+
+        public bool IsPoppedOut { get; set; } = false;
 
         public string WindowTitle => _task != null ? $"Szczegóły zadania {TaskKey}" : "Szczegóły zadania";
 

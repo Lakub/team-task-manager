@@ -339,6 +339,8 @@ namespace TeamTaskManager.Helpers
                     for (int k = 0; k < sTaskCount; k++)
                     {
                         var stTask = remainingTasks[0];
+                        remainingTasks.RemoveAt(0);
+
                         var stStatus = stTask.Status;
                         var stAssignee = devUsers[Random.Shared.Next(devUsers.Count)];
 
@@ -352,9 +354,9 @@ namespace TeamTaskManager.Helpers
 
                         if (stIsRemoved)
                         {
-                            remainingTasks.Add(stTask);
                             stStatus = TaskStatus.Open;
-                            remainingTasks.RemoveAt(0);
+                            stTask.Assignee = null;
+                            remainingTasks.Add(stTask);
                         }
                         else
                         {
@@ -365,8 +367,10 @@ namespace TeamTaskManager.Helpers
                                 SprintStatus.Completed => TaskStatus.Closed,
                                 _ => stTask.Status
                             };
-                            remainingTasks.RemoveAt(0);
+                            stTask.Assignee = stAssignee;
                         }
+
+                        stTask.Status = stStatus;
 
                         if (sStatus != SprintStatus.Planned)
                         {
@@ -392,7 +396,6 @@ namespace TeamTaskManager.Helpers
                                     LoggedAt = wlLoggedAt
                                 });
                             }
-                            context.Worklogs.AddRange(worklogs);
                         }
 
                         sprintTasks.Add(new SprintTask
@@ -406,12 +409,10 @@ namespace TeamTaskManager.Helpers
                             Status = stStatus,
                             Assignee = stAssignee
                         });
-
-                        stTask.Status = stStatus;
-                        stTask.Assignee = stAssignee;
                     }
                     context.SprintTasks.AddRange(sprintTasks);
                 }
+                context.Worklogs.AddRange(worklogs);
             }
             context.SaveChanges();
         }

@@ -7,6 +7,7 @@
     <Application.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <helpers:EqualityConverter x:Key="EqualityConverter"/>
         <helpers:IntToStarGridLengthConverter x:Key="StarConverter"/>
         <SolidColorBrush x:Key="DefaultButtonBackground" Color="#4B5563"/>
         <SolidColorBrush x:Key="DefaultButtonBackgroundHover" Color="#8299B8"/>
@@ -118,6 +119,33 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="bg" Property="Background" Value="#F9FAFB"/>
                                 <Setter TargetName="bg" Property="BorderBrush" Value="#F0F2F5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- niezaokraglony klikalny w liscie -->
+        <Style x:Key="NonRoundedListItemStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="0,0,0,1"
+                                Padding="12,10">
+                            <ContentPresenter HorizontalAlignment="Stretch"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#EEF1F6"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

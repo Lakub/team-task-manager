@@ -89,17 +89,16 @@ namespace TeamTaskManager.ViewModels
         public Brush TypeBadgeBg => Type switch
         {
             TaskType.Bug => new SolidColorBrush(Color.FromRgb(0xFE, 0xF2, 0xF2)),       // czerwony
-            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0xEF, 0xF6, 0xFF)),   // niebieski
-            TaskType.Task => new SolidColorBrush(Color.FromRgb(0xF3, 0xE8, 0xFF)),      // fioletowy
+            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0xF3, 0xE8, 0xFF)),   // fioletowy
+            TaskType.Task => new SolidColorBrush(Color.FromRgb(0xEF, 0xF6, 0xFF)),      // niebieski
             _ => new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0))                   // szary
         };
         public Brush TypeBadgeFg => Type switch
         {
             TaskType.Bug => new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C)),       // czerwony
-            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8)),   // niebieski
-            TaskType.Task => new SolidColorBrush(Color.FromRgb(0x8B, 0x5C, 0xF6)),      // fioletowy
+            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0x8B, 0x5C, 0xF6)),   // fioletowy
+            TaskType.Task => new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8)),      // niebieski
             _ => new SolidColorBrush(Color.FromRgb(0x2B, 0x2B, 0x2B))                   // szary
-
         };
 
         public Visibility ScopeBadgeVisibility => Scope == ScopeChange.None ? Visibility.Collapsed : Visibility.Visible;    // nie pokazujemy badge jesli nie bylo zmiany
@@ -147,7 +146,6 @@ namespace TeamTaskManager.ViewModels
     {
         private readonly ISprintService _sprintService;
         private readonly IUserService _userService;
-        public ICommand FilterCommand { get; }
 
         private int _sprintId;
         private int _projectId;
@@ -214,11 +212,7 @@ namespace TeamTaskManager.ViewModels
         public int NonLowPrioCount => Math.Max(0, TotalTasks - LowPrioCount);
 
         private ObservableCollection<SprintTaskItem> _tasks = new();
-        public ObservableCollection<SprintTaskItem> Tasks
-        {
-            get => _tasks;
-            set { _tasks = value; OnPropertyChanged(); }
-        }
+        public ObservableCollection<SprintTaskItem> FilteredTasks { get; } = new();
 
         private ObservableCollection<TeamMemberItem> _teamMembers = new();
         public ObservableCollection<TeamMemberItem> TeamMembers
@@ -234,10 +228,10 @@ namespace TeamTaskManager.ViewModels
             _sprintId = sprintId;
             _projectId = projectId;
 
-            FilterCommand = new RelayCommand<string?>(ApplyFilter);
             OpenTaskCommand = new RelayCommand<SprintTaskItem?>(OpenTask);
             OpenUserProfileCommand = new RelayCommand<TeamMemberItem?>(OpenUserProfile);
             OpenSprintBacklogCommand = new RelayCommand(OpenSprintBacklog);
+            ToggleSortCommand = new RelayCommand(() => SortAscending = !SortAscending);
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
@@ -288,7 +282,7 @@ namespace TeamTaskManager.ViewModels
             }
 
             OnPropertyChanged(string.Empty);
-            ApplyFilter(null);
+            ApplyFilterSort();
 
             await LoadTeamStatsAsync(sprintTasks);
         }
@@ -357,16 +351,67 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
         }
 
-        public void ApplyFilter(string? filter)
+        private string _selectedFilter = "All";
+        public string SelectedFilter
         {
-            var filtered = filter switch
+            get => _selectedFilter;
+            set { _selectedFilter = value; OnPropertyChanged(); ApplyFilterSort(); }
+        }
+
+        private bool _sortAscending = true;
+        public bool SortAscending
+        {
+            get => _sortAscending;
+            set { _sortAscending = value; OnPropertyChanged(); OnPropertyChanged(nameof(SortArrow)); ApplyFilterSort(); }
+        }
+
+        public string SortArrow => _sortAscending ? "↑" : "↓";
+
+        public ObservableCollection<FilterOption> FilterOptions { get; } = new()
+        {
+            new() { Label = "Wszystkie", Value = "All" },
+            new() { Label = "Otwarte", Value = "Open" },
+            new() { Label = "W trakcie", Value = "InProgress" },
+            new() { Label = "Zamknięte", Value = "Closed" },
+            new() { Label = "Zmiana scope", Value = "Scope" },
+            new() { Label = "Błędy", Value = "Bug" },
+            new() { Label = "Funkcje", Value = "Feature" },
+            new() { Label = "Zadania", Value = "Task" },
+            new() { Label = "Wysoki priorytet", Value = "High" },
+            new() { Label = "Średni priorytet", Value = "Medium" },
+            new() { Label = "Niski priorytet", Value = "Low" },
+        };
+
+        public ICommand ToggleSortCommand { get; }
+
+        private void ApplyFilterSort()
+        {
+            IEnumerable<SprintTaskItem> result = _allTaskItems;
+
+            result = _selectedFilter switch
             {
-                "done" => _allTaskItems.Where(t => t.Status == TaskStatus.Closed && t.Scope != ScopeChange.Descoped),
-                "inprogress" => _allTaskItems.Where(t => t.Status == TaskStatus.InProgress && t.Scope != ScopeChange.Descoped),
-                "scope" => _allTaskItems.Where(t => t.Scope != ScopeChange.None),
-                _ => _allTaskItems
+                "Open" => result.Where(t => t.Status == TaskStatus.Open),
+                "InProgress" => result.Where(t => t.Status == TaskStatus.InProgress),
+                "Closed" => result.Where(t => t.Status == TaskStatus.Closed),
+                "Scope" => result.Where(t => t.Scope != ScopeChange.None),
+                "Bug" => result.Where(t => t.Type == TaskType.Bug),
+                "Feature" => result.Where(t => t.Type == TaskType.Feature),
+                "Task" => result.Where(t => t.Type == TaskType.Task),
+                "High" => result.Where(t => t.Priority == TaskPriority.High),
+                "Medium" => result.Where(t => t.Priority == TaskPriority.Medium),
+                "Low" => result.Where(t => t.Priority == TaskPriority.Low),
+                _ => result
             };
-            Tasks = new ObservableCollection<SprintTaskItem>(filtered);
+
+            result = _sortAscending
+                ? result.OrderBy(t => t.Key)
+                : result.OrderByDescending(t => t.Key);
+
+            FilteredTasks.Clear();
+            foreach (var t in result)
+                FilteredTasks.Add(t);
+
+            OnPropertyChanged(nameof(FilteredTasks));
         }
 
         public void OpenTask(SprintTaskItem? item)

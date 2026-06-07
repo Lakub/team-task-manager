@@ -36,13 +36,20 @@ namespace TeamTaskManager.ViewModels
             _ => new SolidColorBrush(Color.FromRgb(0x06, 0x5F, 0x46))
         };
 
-        public Brush TypeBadgeBg => Type == TaskType.Bug
-            ? new SolidColorBrush(Color.FromRgb(0xFE, 0xF2, 0xF2))
-            : new SolidColorBrush(Color.FromRgb(0xEF, 0xF6, 0xFF));
-
-        public Brush TypeBadgeFg => Type == TaskType.Bug
-            ? new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C))
-            : new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8));
+        public Brush TypeBadgeBg => Type switch
+        {
+            TaskType.Bug => new SolidColorBrush(Color.FromRgb(0xFE, 0xF2, 0xF2)),       // czerwony
+            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0xF3, 0xE8, 0xFF)),   // fioletowy
+            TaskType.Task => new SolidColorBrush(Color.FromRgb(0xEF, 0xF6, 0xFF)),      // niebieski
+            _ => new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0))                   // szary
+        };
+        public Brush TypeBadgeFg => Type switch
+        {
+            TaskType.Bug => new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C)),       // czerwony
+            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0x8B, 0x5C, 0xF6)),   // fioletowy
+            TaskType.Task => new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8)),      // niebieski
+            _ => new SolidColorBrush(Color.FromRgb(0x2B, 0x2B, 0x2B))                   // szary
+        };
     }
 
     public partial class BacklogViewModel : INotifyPropertyChanged

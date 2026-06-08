@@ -197,8 +197,13 @@ namespace TeamTaskManager.ViewModels
 
         // komentarze
         public ObservableCollection<CommentItem> Comments { get; } = new();
+        private bool _focusCommentInput;
+        public bool FocusCommentInput
+        {
+            get => _focusCommentInput;
+            set { _focusCommentInput = value; OnPropertyChanged(nameof(FocusCommentInput)); }
+        }
         public string NewCommentContent { get; set; } = string.Empty;
-        public bool ShowAddComment => !string.IsNullOrWhiteSpace(NewCommentContent);
         public string NewReplyContent { get; set; } = string.Empty;
         public bool HasNoComments => Comments.Where(c => !c.IsDeleted).Count() == 0;
 
@@ -219,9 +224,12 @@ namespace TeamTaskManager.ViewModels
             if (worklogItem == null) return;
             if (!worklogItem.IsOwner)
             {
-                MessageBox.Show("Możesz usuwać tylko swoje worklogi.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Możesz usuwać tylko swoje wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            if (MessageBox.Show("Czy na pewno chcesz usunąć ten wpis?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
 
             await _taskService.DeleteTaskWorklogAsync(worklogItem.Id);
 
@@ -283,7 +291,8 @@ namespace TeamTaskManager.ViewModels
         {
             if (string.IsNullOrWhiteSpace(NewCommentContent))
             {
-                MessageBox.Show("Treść komentarza nie może być pusta.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                FocusCommentInput = false;
+                FocusCommentInput = true;
                 return;
             }
 
@@ -304,6 +313,9 @@ namespace TeamTaskManager.ViewModels
                 MessageBox.Show("Możesz usuwać tylko swoje komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            if (MessageBox.Show("Czy na pewno chcesz usunąć ten komentarz?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
 
             await _taskService.DeleteTaskCommentAsync(commentItem.Id);
 

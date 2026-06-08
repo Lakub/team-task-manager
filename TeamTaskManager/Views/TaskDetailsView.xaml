@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:helpers="clr-namespace:TeamTaskManager.Helpers"
         mc:Ignorable="d"
         Background="#F3F4F6">
 
@@ -140,7 +141,11 @@
                                     <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,30,10">
                                         <TextBox Text="{Binding NewCommentContent, UpdateSourceTrigger=PropertyChanged}"
                                              Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
-                                             VerticalScrollBarVisibility="Auto"/>
+                                             VerticalScrollBarVisibility="Auto" helpers:FocusHelper.IsFocused="{Binding FocusCommentInput}">
+                                            <TextBox.InputBindings>
+                                                <KeyBinding Key="Enter" Modifiers="Control" Command="{Binding AddCommentCommand}" CommandParameter="{Binding}"/>
+                                            </TextBox.InputBindings>
+                                        </TextBox>
                                     </Border>
 
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,8,8">
@@ -207,7 +212,14 @@
                                                             Visibility="{Binding IsBeingRepliedTo, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <TextBox Text="{Binding DataContext.NewReplyContent, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                                                                  Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
-                                                                 VerticalScrollBarVisibility="Auto"/>
+                                                                 VerticalScrollBarVisibility="Auto" helpers:FocusHelper.IsFocused="{Binding IsBeingRepliedTo}">
+                                                            <TextBox.InputBindings>
+                                                                <KeyBinding Key="Enter" Modifiers="Control" CommandParameter="{Binding}"
+                                                                            Command="{Binding DataContext.AddReplyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                                <KeyBinding Key="Escape" CommandParameter="{Binding}"
+                                                                            Command="{Binding DataContext.CancelReplyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                            </TextBox.InputBindings>
+                                                        </TextBox>
                                                     </Border>
 
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,8,8">
@@ -281,7 +293,14 @@
                                                                             Visibility="{Binding IsBeingRepliedTo, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                             <TextBox Text="{Binding DataContext.NewReplyContent, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                                                                                  Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
-                                                                                 VerticalScrollBarVisibility="Auto"/>
+                                                                                 VerticalScrollBarVisibility="Auto" helpers:FocusHelper.IsFocused="{Binding IsBeingRepliedTo}">
+                                                                                <TextBox.InputBindings>
+                                                                                    <KeyBinding Key="Enter" Modifiers="Control" CommandParameter="{Binding}"
+                                                                                                Command="{Binding DataContext.AddReplyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                                                    <KeyBinding Key="Escape" CommandParameter="{Binding}"
+                                                                                                Command="{Binding DataContext.CancelReplyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                                                </TextBox.InputBindings>
+                                                                            </TextBox>
                                                                         </Border>
 
                                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,8,8">

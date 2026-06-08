@@ -50,23 +50,25 @@
                         <ItemsControl ItemsSource="{Binding TodoTasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
+                                    <Grid PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
+                                          PreviewMouseMove="TaskCard_PreviewMouseMove">
+                                        <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
                                             Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}"
-                                            PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
-                                            PreviewMouseMove="TaskCard_PreviewMouseMove">
-                                        <Border Background="#F9FAFB" CornerRadius="6" Padding="10 8"
+                                            x:Name="GhostTarget">
+                                            <Border Background="#F9FAFB" CornerRadius="6" Padding="10 8"
                                                 BorderBrush="#E5E7EB" BorderThickness="1">
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding Key}" FontFamily="Segoe UI" FontSize="11"
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Key}" FontFamily="Segoe UI" FontSize="11"
                                                            Foreground="#6B7280" Margin="0 0 0 2"/>
-                                                <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
+                                                    <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
                                                            Foreground="#1F2937" TextWrapping="Wrap" Margin="0 0 0 4"/>
-                                                <TextBlock Text="{Binding AssigneeName}" FontFamily="Segoe UI" FontSize="11"
+                                                    <TextBlock Text="{Binding AssigneeName}" FontFamily="Segoe UI" FontSize="11"
                                                            Foreground="#9CA3AF"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </Button>
+                                                </StackPanel>
+                                            </Border>
+                                        </Button>
+                                    </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -83,23 +85,25 @@
                         <ItemsControl ItemsSource="{Binding InProgressTasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
+                                    <Grid PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
+                                          PreviewMouseMove="TaskCard_PreviewMouseMove">
+                                        <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
                                             Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}"
-                                            PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
-                                            PreviewMouseMove="TaskCard_PreviewMouseMove">
-                                        <Border Background="#EFF6FF" CornerRadius="6" Padding="10 8"
+                                            x:Name="GhostTarget">
+                                            <Border Background="#EFF6FF" CornerRadius="6" Padding="10 8"
                                                 BorderBrush="#BFDBFE" BorderThickness="1">
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding Key}" FontFamily="Segoe UI" FontSize="11"
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Key}" FontFamily="Segoe UI" FontSize="11"
                                                            Foreground="#6B7280" Margin="0 0 0 2"/>
-                                                <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
+                                                    <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
                                                            Foreground="#1F2937" TextWrapping="Wrap" Margin="0 0 0 4"/>
-                                                <TextBlock Text="{Binding AssigneeName}" FontFamily="Segoe UI" FontSize="11"
+                                                    <TextBlock Text="{Binding AssigneeName}" FontFamily="Segoe UI" FontSize="11"
                                                            Foreground="#9CA3AF"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </Button>
+                                                </StackPanel>
+                                            </Border>
+                                        </Button>
+                                    </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -116,23 +120,25 @@
                         <ItemsControl ItemsSource="{Binding DoneTasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
+                                    <Grid PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
+                                          PreviewMouseMove="TaskCard_PreviewMouseMove">
+                                        <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
                                             Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}"
-                                            PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
-                                            PreviewMouseMove="TaskCard_PreviewMouseMove">
-                                        <Border Background="#F0FDF4" CornerRadius="6" Padding="10 8"
+                                            x:Name="GhostTarget">
+                                            <Border Background="#F0FDF4" CornerRadius="6" Padding="10 8"
                                                 BorderBrush="#BBF7D0" BorderThickness="1">
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding Key}" FontFamily="Segoe UI" FontSize="11"
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Key}" FontFamily="Segoe UI" FontSize="11"
                                                            Foreground="#6B7280" Margin="0 0 0 2"/>
-                                                <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
+                                                    <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="13"
                                                            Foreground="#1F2937" TextWrapping="Wrap" Margin="0 0 0 4"/>
-                                                <TextBlock Text="{Binding AssigneeName}" FontFamily="Segoe UI" FontSize="11"
+                                                    <TextBlock Text="{Binding AssigneeName}" FontFamily="Segoe UI" FontSize="11"
                                                            Foreground="#9CA3AF"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </Button>
+                                                </StackPanel>
+                                            </Border>
+                                        </Button>
+                                    </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

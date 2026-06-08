@@ -35,6 +35,7 @@ namespace TeamTaskManager.ViewModels
 
         public int TaskId => _model.TaskId;
         public string Title => _model.Task.Title;
+        public int PerProjectId => _model.Task.PerProjectId;
         public string Key => $"{_model.Task.Project.Key}-{_model.Task.PerProjectId}";
         public string KeyAndTitle => $"{Key} - {Title}";
         public TaskType Type => _model.Task.Type;
@@ -404,8 +405,8 @@ namespace TeamTaskManager.ViewModels
             };
 
             result = _sortAscending
-                ? result.OrderBy(t => t.Key)
-                : result.OrderByDescending(t => t.Key);
+                ? result.OrderBy(t => t.PerProjectId)
+                : result.OrderByDescending(t => t.PerProjectId);
 
             FilteredTasks.Clear();
             foreach (var t in result)

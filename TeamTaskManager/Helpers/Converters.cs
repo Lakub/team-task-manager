@@ -40,4 +40,30 @@ namespace TeamTaskManager.Helpers
         }
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
+
+    public class CollectionToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is System.Collections.IEnumerable collection)
+            {
+                foreach (var _ in collection) return Visibility.Visible;
+            }
+            return Visibility.Collapsed;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class InverseCollectionToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is System.Collections.IEnumerable collection)
+            {
+                foreach (var _ in collection) return Visibility.Collapsed;
+            }
+            return Visibility.Visible;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
 }

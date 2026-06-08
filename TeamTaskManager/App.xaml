@@ -7,6 +7,8 @@
     <Application.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <helpers:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter"/>
+        <helpers:InverseCollectionToVisibilityConverter x:Key="InverseCollectionToVisibilityConverter"/>
         <helpers:EqualityConverter x:Key="EqualityConverter"/>
         <helpers:IntToStarGridLengthConverter x:Key="StarConverter"/>
         <SolidColorBrush x:Key="DefaultButtonBackground" Color="#4B5563"/>

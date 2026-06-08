@@ -125,7 +125,7 @@
                                         <Button Style="{StaticResource KanbanCardButton}" Margin="0 0 0 6"
                                             Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}"
-                                            x:Name="GhostTargetContainer">
+                                            x:Name="GhostTarget">
                                             <Border Background="#F0FDF4" CornerRadius="6" Padding="10 8"
                                                 BorderBrush="#BBF7D0" BorderThickness="1">
                                                 <StackPanel>

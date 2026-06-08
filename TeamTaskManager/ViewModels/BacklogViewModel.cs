@@ -154,7 +154,7 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
         }
 
-        private async System.Threading.Tasks.Task MoveToSprint(BacklogTaskItem? item)
+        public async System.Threading.Tasks.Task MoveToSprint(BacklogTaskItem? item)
         {
             if (!CanEditSprint)
             {
@@ -164,11 +164,14 @@ namespace TeamTaskManager.ViewModels
 
             if (item == null) return;
 
+            // czy jest juz w sprincie
+            if (SprintTasks.Any(t => t.TaskId == item.TaskId)) return;
+
             await _backlogService.AddTaskToSprintAsync(_sprintId, item.TaskId);
             await LoadTasksAsync();
         }
 
-        private async System.Threading.Tasks.Task RemoveFromSprint(BacklogTaskItem? item)
+        public async System.Threading.Tasks.Task RemoveFromSprint(BacklogTaskItem? item)
         {
             if (!CanEditSprint)
             {

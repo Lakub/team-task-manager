@@ -8,7 +8,9 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Orientation="Vertical" Margin="0 0 8 0">
-            <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding HasSprint, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12"
+                    Visibility="{Binding HasSprint, Converter={StaticResource BoolToVisibilityConverter}}"
+                    AllowDrop="True" Tag="Sprint" Drop="Row_Drop" DragOver="Row_DragOver">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
@@ -34,32 +36,36 @@
                     <ItemsControl x:Name="SprintTasksControl" ItemsSource="{Binding SprintTasks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                <Grid PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
+                                      PreviewMouseMove="TaskCard_PreviewMouseMove">
+                                    <Button Style="{StaticResource ListItemButtonStyle}"
                                         Command="{Binding DataContext.OpenTaskCommand,
                                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="70"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                                        CommandParameter="{Binding}"
+                                        x:Name="GhostTarget">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="70"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
 
-                                        <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
-                                        </Border>
+                                            <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
+                                            </Border>
 
-                                        <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
-                                        <Button Grid.Column="3" Content="-"
+                                            <Button Grid.Column="3" Content="-"
                                                     Style="{StaticResource ActionButtonStyle}"
                                                     Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
                                                     Visibility="{Binding DataContext.CanEditSprint, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                    </Grid>
-                                </Button>
+                                        </Grid>
+                                    </Button>
+                                </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -69,39 +75,44 @@
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12"
+                    AllowDrop="True" Tag="Backlog" Drop="Row_Drop" DragOver="Row_DragOver">
                 <StackPanel>
                     <TextBlock Text="Backlog" Style="{StaticResource SectionTitle}"/>
 
                     <ItemsControl x:Name="BacklogTasksControl" ItemsSource="{Binding BacklogTasks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Style="{StaticResource ListItemButtonStyle}"
+                                <Grid PreviewMouseLeftButtonDown="TaskCard_PreviewMouseLeftButtonDown"
+                                      PreviewMouseMove="TaskCard_PreviewMouseMove">
+                                    <Button Style="{StaticResource ListItemButtonStyle}"
                                         Command="{Binding DataContext.OpenTaskCommand,
-                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="70"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        x:Name="GhostTarget">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="70"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
 
-                                        <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
-                                        </Border>
+                                            <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
+                                            </Border>
 
-                                        <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
-                                        <Button Grid.Column="3" Content="+"
+                                            <Button Grid.Column="3" Content="+"
                                                 Style="{StaticResource ActionButtonStyle}"
                                                 Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
                                                 Visibility="{Binding DataContext.CanEditSprint, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                    </Grid>
-                                </Button>
+                                        </Grid>
+                                    </Button>
+                                </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

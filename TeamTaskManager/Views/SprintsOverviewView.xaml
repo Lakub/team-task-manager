@@ -29,105 +29,103 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Orientation="Vertical">
-            <StackPanel>
-                <ItemsControl ItemsSource="{Binding Sprints}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Style="{StaticResource GrayoutableCard}" Margin="0,0,0,8" Cursor="Hand">
-                                <Border.InputBindings>
-                                    <MouseBinding MouseAction="LeftClick" 
+            <ItemsControl ItemsSource="{Binding Sprints}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource GrayoutableCard}" Margin="0,0,0,8" Cursor="Hand">
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" 
                                         Command="{Binding DataContext.OpenSprintReportCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                         CommandParameter="{Binding}" />
-                                </Border.InputBindings>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                            </Border.InputBindings>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
 
-                                    <StackPanel Grid.Column="0">
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                            <TextBlock Text="{Binding SprintName, FallbackValue='Sprint'}"
+                                <StackPanel Grid.Column="0">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <TextBlock Text="{Binding SprintName, FallbackValue='Sprint'}"
                                                     FontFamily="Segoe UI" FontSize="18" FontWeight="Medium"
                                                     Foreground="#1F2937" Margin="0,0,10,0"/>
 
-                                            <Border Background="#D1FAE5" CornerRadius="12" Padding="10,3" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding StatusText, FallbackValue='W toku'}" FontFamily="Segoe UI" FontSize="12"
+                                        <Border Background="#D1FAE5" CornerRadius="12" Padding="10,3" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding StatusText, FallbackValue='W toku'}" FontFamily="Segoe UI" FontSize="12"
                                                         FontWeight="Medium" Foreground="#065F46"/>
-                                            </Border>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <StackPanel Margin="0,0,20,0">
+                                            <TextBlock Text="START" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding StartDateStr, FallbackValue='01.01.2026'}" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
                                         </StackPanel>
 
-                                        <StackPanel Orientation="Horizontal">
-                                            <StackPanel Margin="0,0,20,0">
-                                                <TextBlock Text="START" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
-                                                <TextBlock Text="{Binding StartDateStr, FallbackValue='01.01.2026'}" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
-                                            </StackPanel>
+                                        <StackPanel Margin="0,0,20,0">
+                                            <TextBlock Text="KONIEC" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding EndDateStr, FallbackValue='01.01.2026'}" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
+                                        </StackPanel>
 
-                                            <StackPanel Margin="0,0,20,0">
-                                                <TextBlock Text="KONIEC" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
-                                                <TextBlock Text="{Binding EndDateStr, FallbackValue='01.01.2026'}" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
-                                            </StackPanel>
-
-                                            <StackPanel Margin="0,0,20,0">
-                                                <TextBlock Text="AUTOR" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Border Background="{Binding CreatorAvatarBg}" CornerRadius="9"
+                                        <StackPanel Margin="0,0,20,0">
+                                            <TextBlock Text="AUTOR" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Background="{Binding CreatorAvatarBg}" CornerRadius="9"
                                                             Width="18" Height="18" Margin="0,0,5,0">
-                                                        <TextBlock Text="{Binding CreatorInitials}" FontFamily="Segoe UI" FontSize="8"
+                                                    <TextBlock Text="{Binding CreatorInitials}" FontFamily="Segoe UI" FontSize="8"
                                                                    FontWeight="SemiBold" Foreground="{Binding CreatorAvatarFg}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <TextBlock Text="{Binding CreatorName, FallbackValue='Autor Sprintu'}" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
-                                                </StackPanel>
+                                                </Border>
+                                                <TextBlock Text="{Binding CreatorName, FallbackValue='Autor Sprintu'}" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </StackPanel>
+                                </StackPanel>
 
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                        <Border Background="#FEF3C7" CornerRadius="8" Padding="14,8" Visibility="{Binding DaysRemainingVisibility}">
-                                            <StackPanel HorizontalAlignment="Center">
-                                                <TextBlock Text="{Binding DaysRemaining, FallbackValue='0'}" FontFamily="Segoe UI" FontSize="28" FontWeight="Medium"
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                    <Border Background="#FEF3C7" CornerRadius="8" Padding="14,8" Visibility="{Binding DaysRemainingVisibility}">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding DaysRemaining, FallbackValue='0'}" FontFamily="Segoe UI" FontSize="28" FontWeight="Medium"
                                                         Foreground="#92400E" HorizontalAlignment="Center"/>
-                                                <TextBlock Text="dni pozostało" FontFamily="Segoe UI" FontSize="11"
+                                            <TextBlock Text="dni pozostało" FontFamily="Segoe UI" FontSize="11"
                                                         Foreground="#B45309" HorizontalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
 
-                                    <StackPanel Margin="0,8,0,0" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
-                                        <Border Background="#E5E7EB" CornerRadius="5" Height="10">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="{Binding DoneTasks, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=0}" />
-                                                    <ColumnDefinition Width="{Binding RemainingTasks, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=1}" />
-                                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,8,0,0" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
+                                    <Border Background="#E5E7EB" CornerRadius="5" Height="10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="{Binding DoneTasks, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=0}" />
+                                                <ColumnDefinition Width="{Binding RemainingTasks, Converter={StaticResource StarConverter}, Mode=OneWay, FallbackValue=1}" />
+                                            </Grid.ColumnDefinitions>
 
-                                                <Border Grid.Column="0" 
+                                            <Border Grid.Column="0" 
                                                         Background="#10B981" 
                                                         CornerRadius="5" />
-                                            </Grid>
-                                        </Border>
-                                        <Grid Margin="0,8,0,0">
-                                            <TextBlock Text="{Binding ProgressText, FallbackValue='0 / 1 zadań ukończonych (0%)'}" FontFamily="Segoe UI"
-                                                    FontSize="13" Foreground="#6B7280" HorizontalAlignment="Center"/>
                                         </Grid>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                                    </Border>
+                                    <Grid Margin="0,8,0,0">
+                                        <TextBlock Text="{Binding ProgressText, FallbackValue='0 / 1 zadań ukończonych (0%)'}" FontFamily="Segoe UI"
+                                                    FontSize="13" Foreground="#6B7280" HorizontalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-                <Button Content="+ Utwórz nowy sprint" Margin="0,4,0,0"
+            <Button Content="+ Utwórz nowy sprint" Margin="0,4,0,0"
                     Style="{StaticResource PrimaryButtonStyle}"
                     Command="{Binding CreateSprintCommand}"
                         Visibility="{Binding CanManageProject, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

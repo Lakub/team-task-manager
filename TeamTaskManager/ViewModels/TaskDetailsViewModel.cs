@@ -82,8 +82,7 @@ namespace TeamTaskManager.ViewModels
                 Worklogs.Add(new WorklogItem(worklog));
             }
 
-            OnPropertyChanged(nameof(HasNoWorklogs));
-            OnPropertyChanged(nameof(TotalTimeSpent));
+            OnPropertyChanged(string.Empty);
         }
 
         public ICommand LogWorkCommand { get; }
@@ -194,14 +193,12 @@ namespace TeamTaskManager.ViewModels
 
         // komentarze
         public ObservableCollection<CommentItem> Comments { get; } = new();
-        public bool HasNoComments => !Comments.Any();
         public string NewCommentContent { get; set; } = string.Empty;
         public bool ShowAddComment => !string.IsNullOrWhiteSpace(NewCommentContent);
         public string NewReplyContent { get; set; } = string.Empty;
 
         // worklogi
         public ObservableCollection<WorklogItem> Worklogs { get; } = new();
-        public bool HasNoWorklogs => !Worklogs.Any();
 
         private void LogWork()
         {
@@ -308,7 +305,6 @@ namespace TeamTaskManager.ViewModels
 
         // odpowiedzi
         public ObservableCollection<CommentItem> Replies { get; set; } = new();
-        public bool HasNoReplies => !Replies.Any();
         private bool _isBeingRepliedTo;
         public bool IsBeingRepliedTo
         {

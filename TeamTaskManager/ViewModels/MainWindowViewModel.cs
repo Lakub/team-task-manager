@@ -37,6 +37,7 @@ namespace TeamTaskManager.ViewModels
                     SprintsOverviewView => new SprintsOverviewView(SelectedProject?.Id ?? -1),
                     SprintReportView => SelectedProject != null ? new SprintReportView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
                     BacklogView => SelectedProject != null ? new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
+                    AllTasksView => SelectedProject != null ? new AllTasksView(SelectedProject.Id) : CurrentView,
                     WikiMainView => SelectedProject != null ? new WikiMainView(SelectedProject.Id) : CurrentView,
                     _ => CurrentView
                 };

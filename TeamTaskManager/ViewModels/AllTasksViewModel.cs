@@ -116,6 +116,7 @@ namespace TeamTaskManager.ViewModels
             {
                 TaskId = t.Id,
                 Title = t.Title,
+                PerProjectId = t.PerProjectId,
                 Key = $"{_projectKey}-{t.PerProjectId}",
                 Type = t.Type,
                 Priority = t.Priority,
@@ -144,8 +145,8 @@ namespace TeamTaskManager.ViewModels
             };
 
             result = _sortAscending
-                ? result.OrderBy(t => t.Key)
-                : result.OrderByDescending(t => t.Key);
+                ? result.OrderBy(t => t.PerProjectId)
+                : result.OrderByDescending(t => t.PerProjectId);
 
             FilteredTasks.Clear();
             foreach (var t in result)

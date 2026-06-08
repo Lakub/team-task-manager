@@ -20,6 +20,8 @@ namespace TeamTaskManager.Services
             int projectId, int reporterId, int? assigneeId);
         System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
             string text, int taskId, int commenterId, int? parentCommentId);
+        System.Threading.Tasks.Task DeleteTaskCommentAsync(int commentId);
+        System.Threading.Tasks.Task DeleteTaskWorklogAsync(int worklogId);
     }
 
     public class TaskService : ITaskService
@@ -80,6 +82,7 @@ namespace TeamTaskManager.Services
         public async System.Threading.Tasks.Task<List<Worklog>> GetWorklogsByTaskIdAsync(int taskId)
         {
             return await _context.Worklogs
+                .AsNoTracking()
                 .Where(w => w.TaskId == taskId && !w.IsDeleted)
                 .Include(w => w.User)
                 .ToListAsync();
@@ -115,6 +118,24 @@ namespace TeamTaskManager.Services
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
             return comment;
+        }
+
+        public async System.Threading.Tasks.Task DeleteTaskCommentAsync(int commentId)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null || comment.IsDeleted)
+                throw new Exception("Comment not found");
+            comment.IsDeleted = true;
+            await _context.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task DeleteTaskWorklogAsync(int worklogId)
+        {
+            var worklog = await _context.Worklogs.FindAsync(worklogId);
+            if (worklog == null || worklog.IsDeleted)
+                throw new Exception("Worklog not found");
+            worklog.IsDeleted = true;
+            await _context.SaveChangesAsync();
         }
     }
 }

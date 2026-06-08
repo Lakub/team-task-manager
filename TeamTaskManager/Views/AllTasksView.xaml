@@ -132,8 +132,9 @@
                 </StackPanel>
             </Border>
 
-            <local:TaskDetailsView x:Name="TaskDetailPanel"
-                Visibility="{Binding HasSelectedTask, Converter={StaticResource BoolToVisibilityConverter}}"
+            <local:TaskDetailsView x:Name="TaskDetailPanel" DataContext="{x:Null}"
+                Visibility="{Binding DataContext.HasSelectedTask, RelativeSource={RelativeSource AncestorType=UserControl},
+                Converter={StaticResource BoolToVisibilityConverter}}"
                 xmlns:local="clr-namespace:TeamTaskManager.Views"/>
         </Grid>
     </Grid>

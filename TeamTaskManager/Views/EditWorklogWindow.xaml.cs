@@ -7,16 +7,15 @@ using TeamTaskManager.ViewModels;
 
 namespace TeamTaskManager.Views
 {
-    public partial class CreateWorklogWindow : Window
+    public partial class EditWorklogWindow : Window
     {
-        public CreateWorklogWindow(int taskId)
+        public EditWorklogWindow(int worklogId)
         {
             InitializeComponent();
 
             var dbContext = new AppDbContext();
             var worklogService = new WorklogService(dbContext);
-            var taskService = new TaskService(dbContext);
-            var vm = new CreateWorklogViewModel(worklogService, taskService, taskId);
+            var vm = new EditWorklogViewModel(worklogService, worklogId);
 
             vm.OnSuccess = () =>
             {

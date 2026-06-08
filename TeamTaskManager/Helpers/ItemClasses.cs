@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace TeamTaskManager.Helpers
 {
@@ -52,5 +54,28 @@ namespace TeamTaskManager.Helpers
     {
         public string Label { get; set; } = "";
         public string Value { get; set; } = "";
+    }
+
+    // do focusowania bez code-behind
+    public static class FocusHelper
+    {
+        public static readonly DependencyProperty IsFocusedProperty =
+            DependencyProperty.RegisterAttached("IsFocused", typeof(bool), typeof(FocusHelper),
+            new PropertyMetadata(false, OnIsFocusedPropertyChanged));
+
+        public static void SetIsFocused(DependencyObject obj, bool value) => obj.SetValue(IsFocusedProperty, value);
+
+        private static void OnIsFocusedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is TextBox textBox)
+            {
+                textBox.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    textBox.Focus();
+                    textBox.SelectionStart = textBox.Text.Length;
+                    textBox.SelectionLength = 0;
+                }), System.Windows.Threading.DispatcherPriority.Input);
+            }
+        }
     }
 }

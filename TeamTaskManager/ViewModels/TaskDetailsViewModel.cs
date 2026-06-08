@@ -31,9 +31,12 @@ namespace TeamTaskManager.ViewModels
             _taskId = taskId;
 
             AddCommentCommand = new AsyncRelayCommand(AddCommentAsync);
+            DeleteCommentCommand = new AsyncRelayCommand<CommentItem>(DeleteCommentAsync);
             AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
             CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
             LogWorkCommand = new RelayCommand(LogWork);
+            DeleteWorklogCommand = new AsyncRelayCommand<WorklogItem>(DeleteWorklogAsync);
+            EditWorklogCommand = new RelayCommand<WorklogItem>(EditWorklog);
             PopOutCommand = new RelayCommand(() =>
             {
                 var window = new TaskDetailsWindow(_taskId);
@@ -82,12 +85,14 @@ namespace TeamTaskManager.ViewModels
                 Worklogs.Add(new WorklogItem(worklog));
             }
 
-            OnPropertyChanged(nameof(HasNoWorklogs));
-            OnPropertyChanged(nameof(TotalTimeSpent));
+            OnPropertyChanged(string.Empty);
         }
 
         public ICommand LogWorkCommand { get; }
+        public ICommand DeleteWorklogCommand { get; }
+        public ICommand EditWorklogCommand { get; }
         public ICommand AddCommentCommand { get; }
+        public ICommand DeleteCommentCommand { get; }
         public ICommand AddReplyCommand { get; }
         public ICommand CancelReplyCommand { get; }
         public ICommand PopOutCommand { get; }
@@ -194,19 +199,56 @@ namespace TeamTaskManager.ViewModels
 
         // komentarze
         public ObservableCollection<CommentItem> Comments { get; } = new();
-        public bool HasNoComments => !Comments.Any();
+        private bool _focusCommentInput;
+        public bool FocusCommentInput
+        {
+            get => _focusCommentInput;
+            set { _focusCommentInput = value; OnPropertyChanged(nameof(FocusCommentInput)); }
+        }
         public string NewCommentContent { get; set; } = string.Empty;
-        public bool ShowAddComment => !string.IsNullOrWhiteSpace(NewCommentContent);
         public string NewReplyContent { get; set; } = string.Empty;
+        public bool HasNoComments => Comments.Where(c => !c.IsDeleted).Count() == 0;
 
         // worklogi
         public ObservableCollection<WorklogItem> Worklogs { get; } = new();
-        public bool HasNoWorklogs => !Worklogs.Any();
 
         private void LogWork()
         {
             var createWorklogWindow = new CreateWorklogWindow(_taskId);
             if (createWorklogWindow.ShowDialog() == true)
+            {
+                _ = LoadWorklogsAsync();
+            }
+        }
+
+        private async System.Threading.Tasks.Task DeleteWorklogAsync(WorklogItem? worklogItem)
+        {
+            if (worklogItem == null) return;
+            if (!worklogItem.IsOwner)
+            {
+                MessageBox.Show("Możesz usuwać tylko własne wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (MessageBox.Show("Czy na pewno chcesz usunąć ten wpis?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+
+            await _taskService.DeleteTaskWorklogAsync(worklogItem.Id);
+
+            await LoadWorklogsAsync();
+        }
+
+        private void EditWorklog(WorklogItem? worklogItem)
+        {
+            if (worklogItem == null) return;
+            if (!worklogItem.IsOwner)
+            {
+                MessageBox.Show("Możesz modyfikować tylko własne wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var editWorklogWindow = new EditWorklogWindow(worklogItem.Id);
+            if (editWorklogWindow.ShowDialog() == true)
             {
                 _ = LoadWorklogsAsync();
             }
@@ -247,7 +289,7 @@ namespace TeamTaskManager.ViewModels
             if (commentItem != null)
             {
                 commentItem.IsBeingRepliedTo = true;
-                NewReplyContent = $"@{commentItem.Name} ";
+                NewReplyContent = $"@{commentItem.DisplayName} ";
             }
 
             OnPropertyChanged(nameof(NewReplyContent));
@@ -267,7 +309,8 @@ namespace TeamTaskManager.ViewModels
         {
             if (string.IsNullOrWhiteSpace(NewCommentContent))
             {
-                MessageBox.Show("Treść komentarza nie może być pusta.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                FocusCommentInput = false;
+                FocusCommentInput = true;
                 return;
             }
 
@@ -276,6 +319,23 @@ namespace TeamTaskManager.ViewModels
 
             NewCommentContent = string.Empty;
             OnPropertyChanged(nameof(NewCommentContent));
+
+            await LoadCommentsAsync();
+        }
+
+        private async System.Threading.Tasks.Task DeleteCommentAsync(CommentItem? commentItem)
+        {
+            if (commentItem == null) return;
+            if (!commentItem.IsOwner)
+            {
+                MessageBox.Show("Możesz usuwać tylko własne komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (MessageBox.Show("Czy na pewno chcesz usunąć ten komentarz?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+
+            await _taskService.DeleteTaskCommentAsync(commentItem.Id);
 
             await LoadCommentsAsync();
         }
@@ -300,15 +360,18 @@ namespace TeamTaskManager.ViewModels
             _model = model;
         }
 
-        public string Content => _model.Text;
-        public string Name => _model.Commenter?.FullName ?? "Unknown";
+        public string Content => _model.IsDeleted ? "" : _model.Text;
+        public string DisplayName => _model.IsDeleted ? "Nieznany Użytkownik" : (_model.Commenter?.FullName ?? "Nieznany Użytkownik");
+        public bool IsDeleted => _model.IsDeleted;
+        // pokazujemy usuniete tylko wtedy, gdy maja jakas nieusunieta odpowiedz
+        public bool ShowDetails => !IsDeleted || (_model.Replies != null && _model.Replies.Any(r => !r.IsDeleted));
+        public bool IsOwner => !IsDeleted && _model.CommenterId == App.CurrentUser?.Id;
         public int Id => _model.Id;
         public DateTime CreatedAt => _model.CreatedAt;
         public string CreatedAtStr => _model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
 
         // odpowiedzi
         public ObservableCollection<CommentItem> Replies { get; set; } = new();
-        public bool HasNoReplies => !Replies.Any();
         private bool _isBeingRepliedTo;
         public bool IsBeingRepliedTo
         {
@@ -317,7 +380,7 @@ namespace TeamTaskManager.ViewModels
         }
 
         // te kolorki to przydaloby sie na przyszlosc od usera uzaleznic aby bylo troche radosci i stymulacji w szarym zyciu programisty
-        public string Initials => string.Concat(Name.Split(' ').Select(n => n[0])).ToUpper();
+        public string Initials => string.Concat(DisplayName.Split(' ').Select(n => n[0])).ToUpper();
         public Brush AvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush AvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
     }
@@ -330,11 +393,13 @@ namespace TeamTaskManager.ViewModels
             _model = model;
         }
 
+        public int Id => _model.Id;
         public string Name => _model.User.FullName;
         public string Description => _model.Description;
+        public bool IsOwner => _model.UserId == App.CurrentUser?.Id;
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public string CreatedAtStr => _model.LoggedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
-        public string CreatedAtFullStr => "Created: " + CreatedAtStr;
+        public string CreatedAtFullStr => "Utworzono: " + CreatedAtStr;
         public string StartedAtStr => _model.StartTime.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
         public string TimeSpentStr => $"{_model.TimeSpent.TotalHours:0.#}h";
 

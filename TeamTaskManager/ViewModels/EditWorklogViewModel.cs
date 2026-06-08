@@ -4,50 +4,49 @@ using TeamTaskManager.Services;
 
 namespace TeamTaskManager.ViewModels
 {
-    public partial class CreateWorklogViewModel : WorklogFormViewModel
+    public partial class EditWorklogViewModel : WorklogFormViewModel
     {
         private readonly IWorklogService _worklogService;
-        private readonly ITaskService _taskService;
-        private readonly int _taskId;
+        private readonly int _worklogId;
 
         [ObservableProperty]
         private string _taskKey = string.Empty;
 
-        public override string WindowTitle => !string.IsNullOrEmpty(TaskKey) ? $"Dodaj wpis: {TaskKey}" : "Dodaj wpis";
+        public override string WindowTitle => !string.IsNullOrEmpty(TaskKey) ? $"Edytuj wpis: {TaskKey}" : "Edytuj wpis";
 
-        public CreateWorklogViewModel(IWorklogService worklogService, ITaskService taskService, int taskId)
+        public EditWorklogViewModel(IWorklogService worklogService, int worklogId)
         {
             _worklogService = worklogService;
-            _taskService = taskService;
-            _taskId = taskId;
+            _worklogId = worklogId;
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            var task = await _taskService.GetTaskByIdAsync(_taskId);
+            var worklog = await _worklogService.GetWorklogByIdAsync(_worklogId);
 
-            if (task == null)
+            if (worklog == null || worklog.IsDeleted)
             {
                 MessageBox.Show("Nie można znaleźć zadania.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 OnCancel?.Invoke();
                 return;
             }
 
-            TaskKey = $"{task.Project.Key}-{task.Id}";
+            Description = worklog.Description;
+            StartDate = worklog.StartTime;
+            TimeSpentInput = worklog.TimeSpentText;
+
+            TaskKey = $"{worklog.Task.Project.Key}-{worklog.Task.Id}";
             OnPropertyChanged(nameof(WindowTitle));
         }
 
         protected override async System.Threading.Tasks.Task ExecuteSubmitAsync()
         {
-            var userId = App.CurrentUser?.Id ?? throw new InvalidOperationException("Brak zalogowanego użytkownika.");
-
-            await _worklogService.CreateWorklogAsync(
+            await _worklogService.EditWorklogAsync(
+                worklogId: _worklogId,
                 description: Description.Trim(),
                 startTime: StartDate,
                 timeSpentText: _timeSpentParsed,
-                timeSpent: TimeSpent,
-                taskId: _taskId,
-                userId: userId);
+                timeSpent: TimeSpent);
         }
     }
 }

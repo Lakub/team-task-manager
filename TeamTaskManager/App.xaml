@@ -183,6 +183,11 @@
             </Style.Triggers>
         </Style>
 
+        <!-- to co wyzej ale ikonki -->
+        <Style x:Key="IconActionButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Padding" Value="5,3"/>
+        </Style>
+
         <!-- "zobacz więcej" do wykorzystania wraz z klasą ExpandableTextItem -->
         <Style x:Key="InlineSeeMoreButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
 

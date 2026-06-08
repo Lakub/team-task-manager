@@ -36,6 +36,7 @@ namespace TeamTaskManager.ViewModels
             CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
             LogWorkCommand = new RelayCommand(LogWork);
             DeleteWorklogCommand = new AsyncRelayCommand<WorklogItem>(DeleteWorklogAsync);
+            EditWorklogCommand = new RelayCommand<WorklogItem>(EditWorklog);
             PopOutCommand = new RelayCommand(() =>
             {
                 var window = new TaskDetailsWindow(_taskId);
@@ -89,6 +90,7 @@ namespace TeamTaskManager.ViewModels
 
         public ICommand LogWorkCommand { get; }
         public ICommand DeleteWorklogCommand { get; }
+        public ICommand EditWorklogCommand { get; }
         public ICommand AddCommentCommand { get; }
         public ICommand DeleteCommentCommand { get; }
         public ICommand AddReplyCommand { get; }
@@ -224,7 +226,7 @@ namespace TeamTaskManager.ViewModels
             if (worklogItem == null) return;
             if (!worklogItem.IsOwner)
             {
-                MessageBox.Show("Możesz usuwać tylko swoje wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Możesz usuwać tylko własne wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -234,6 +236,22 @@ namespace TeamTaskManager.ViewModels
             await _taskService.DeleteTaskWorklogAsync(worklogItem.Id);
 
             await LoadWorklogsAsync();
+        }
+
+        private void EditWorklog(WorklogItem? worklogItem)
+        {
+            if (worklogItem == null) return;
+            if (!worklogItem.IsOwner)
+            {
+                MessageBox.Show("Możesz modyfikować tylko własne wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var editWorklogWindow = new EditWorklogWindow(worklogItem.Id);
+            if (editWorklogWindow.ShowDialog() == true)
+            {
+                _ = LoadWorklogsAsync();
+            }
         }
 
         private async System.Threading.Tasks.Task AddReplyAsync(CommentItem? commentItem)
@@ -310,7 +328,7 @@ namespace TeamTaskManager.ViewModels
             if (commentItem == null) return;
             if (!commentItem.IsOwner)
             {
-                MessageBox.Show("Możesz usuwać tylko swoje komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Możesz usuwać tylko własne komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 

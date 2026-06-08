@@ -82,6 +82,7 @@ namespace TeamTaskManager.Services
         public async System.Threading.Tasks.Task<List<Worklog>> GetWorklogsByTaskIdAsync(int taskId)
         {
             return await _context.Worklogs
+                .AsNoTracking()
                 .Where(w => w.TaskId == taskId && !w.IsDeleted)
                 .Include(w => w.User)
                 .ToListAsync();

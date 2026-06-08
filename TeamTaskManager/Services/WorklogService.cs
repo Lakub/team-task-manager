@@ -13,6 +13,9 @@ namespace TeamTaskManager.Services
     {
         System.Threading.Tasks.Task<Worklog> CreateWorklogAsync(
             string description, DateTime startTime, string timeSpentText, TimeSpan timeSpent, int taskId, int userId);
+        System.Threading.Tasks.Task<Worklog> EditWorklogAsync(
+            int worklogId, string description, DateTime startTime, string timeSpentText, TimeSpan timeSpent);
+        System.Threading.Tasks.Task<Worklog?> GetWorklogByIdAsync(int worklogId);
     }
 
     public class WorklogService : IWorklogService
@@ -45,6 +48,29 @@ namespace TeamTaskManager.Services
             _context.Worklogs.Add(worklog);
             await _context.SaveChangesAsync();
             return worklog;
+        }
+
+        public async System.Threading.Tasks.Task<Worklog> EditWorklogAsync(
+            int worklogId, string description, DateTime startTime, string timeSpentText, TimeSpan timeSpent)
+        {
+            var worklog = await _context.Worklogs.FindAsync(worklogId) ?? throw new Exception("Worklog not found");
+
+            worklog.Description = description;
+            worklog.StartTime = startTime;
+            worklog.TimeSpentText = timeSpentText;
+            worklog.TimeSpent = timeSpent;
+
+            await _context.SaveChangesAsync();
+            return worklog;
+        }
+
+        public async System.Threading.Tasks.Task<Worklog?> GetWorklogByIdAsync(int worklogId)
+        {
+            return await _context.Worklogs
+                .Include(w => w.User)
+                .Include(w => w.Task)
+                    .ThenInclude(t => t.Project)
+                .FirstOrDefaultAsync(w => w.Id == worklogId);
         }
     }
 }

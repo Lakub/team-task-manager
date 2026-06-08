@@ -12,7 +12,7 @@ namespace TeamTaskManager.Services
     public interface IWorklogService
     {
         System.Threading.Tasks.Task<Worklog> CreateWorklogAsync(
-            string description, DateTime startTime, TimeSpan timeSpent, int taskId, int userId);
+            string description, DateTime startTime, string timeSpentText, TimeSpan timeSpent, int taskId, int userId);
     }
 
     public class WorklogService : IWorklogService
@@ -25,18 +25,19 @@ namespace TeamTaskManager.Services
         }
 
         public async System.Threading.Tasks.Task<Worklog> CreateWorklogAsync(
-            string description, DateTime startTime, TimeSpan timeSpent, int taskId, int userId)
+            string description, DateTime startTime, string timeSpentText, TimeSpan timeSpent, int taskId, int userId)
         {
-            var user = await _context.Users.FindAsync(userId);
-            var task = await _context.Tasks.FindAsync(taskId);
+            var user = await _context.Users.FindAsync(userId) ?? throw new Exception("User not found");
+            var task = await _context.Tasks.FindAsync(taskId) ?? throw new Exception("Task not found");
 
             var worklog = new Worklog
             {
                 Description = description,
                 StartTime = startTime,
+                TimeSpentText = timeSpentText,
                 TimeSpent = timeSpent,
-                Task = task!,
-                User = user!,
+                Task = task,
+                User = user,
                 LoggedAt = DateTime.UtcNow,
                 IsDeleted = false
             };

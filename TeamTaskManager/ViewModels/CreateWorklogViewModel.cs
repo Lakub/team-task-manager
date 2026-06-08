@@ -174,6 +174,7 @@ namespace TeamTaskManager.ViewModels
                 await _worklogService.CreateWorklogAsync(
                     description: Description.Trim(),
                     startTime: StartDate,
+                    timeSpentText: "",
                     timeSpent: TimeSpent,
                     taskId: _taskId,
                     userId: userId);

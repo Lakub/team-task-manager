@@ -6,6 +6,7 @@ namespace TeamTaskManager.Models.Entities
     {
         public int Id { get; set; }
         public string Description { get; set; } = string.Empty;
+        public string TimeSpentText { get; set; } = "0m";
         public DateTime StartTime { get; set; } = DateTime.UtcNow;
         public TimeSpan TimeSpent { get; set; } = TimeSpan.Zero;
         public DateTime LoggedAt { get; set; } = DateTime.UtcNow;

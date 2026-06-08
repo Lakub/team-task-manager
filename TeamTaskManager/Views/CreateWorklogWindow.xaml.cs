@@ -9,7 +9,7 @@ namespace TeamTaskManager.Views
 {
     public partial class CreateWorklogWindow : Window
     {
-        public CreateWorklogWindow(int taskId = -1)
+        public CreateWorklogWindow(int taskId)
         {
             InitializeComponent();
 

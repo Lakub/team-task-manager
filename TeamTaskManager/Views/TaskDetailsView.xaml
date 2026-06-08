@@ -70,7 +70,7 @@
                         <StackPanel>
                             <Grid>
                                 <TextBlock Text="DZIENNIK PRACY" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
-                                <Button Content="+ Zaloguj pracę" Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Right"
+                                <Button Content="+ Dodaj wpis" Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Right"
                                         Command="{Binding LogWorkCommand}" VerticalAlignment="Center"/>
                             </Grid>
 
@@ -83,16 +83,31 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
-                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                                    <Border Background="{Binding AvatarBg}" CornerRadius="9"
-                                                                Width="18" Height="18" Margin="0,0,5,0">
+                                                <!-- autor, czas zaczecia, edytuj, usun -->
+                                                <Grid Margin="0,0,0,5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Background="{Binding AvatarBg}" CornerRadius="9"
+                                                            Width="18" Height="18" Margin="0,0,5,0">
                                                         <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="8"
-                                                                       FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
-                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                   FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
-                                                    <TextBlock Text="{Binding StartedAtStr}" Foreground="#9CA3AF" FontSize="12" ToolTip="{Binding CreatedAtFullStr}"/>
-                                                </StackPanel>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding StartedAtStr}" Foreground="#9CA3AF" FontSize="12" ToolTip="{Binding CreatedAtFullStr}" Margin="0,0,10,0"/>
+                                                    <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,8,0">
+                                                        <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Usuń"
+                                                                Visibility="{Binding IsOwner, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                Command="{Binding DataContext.DeleteWorklogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
                                                 <StackPanel Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
                                                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"

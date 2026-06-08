@@ -35,6 +35,7 @@ namespace TeamTaskManager.ViewModels
             AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
             CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
             LogWorkCommand = new RelayCommand(LogWork);
+            DeleteWorklogCommand = new AsyncRelayCommand<WorklogItem>(DeleteWorklogAsync);
             PopOutCommand = new RelayCommand(() =>
             {
                 var window = new TaskDetailsWindow(_taskId);
@@ -87,6 +88,7 @@ namespace TeamTaskManager.ViewModels
         }
 
         public ICommand LogWorkCommand { get; }
+        public ICommand DeleteWorklogCommand { get; }
         public ICommand AddCommentCommand { get; }
         public ICommand DeleteCommentCommand { get; }
         public ICommand AddReplyCommand { get; }
@@ -210,6 +212,20 @@ namespace TeamTaskManager.ViewModels
             {
                 _ = LoadWorklogsAsync();
             }
+        }
+
+        private async System.Threading.Tasks.Task DeleteWorklogAsync(WorklogItem? worklogItem)
+        {
+            if (worklogItem == null) return;
+            if (!worklogItem.IsOwner)
+            {
+                MessageBox.Show("Możesz usuwać tylko swoje worklogi.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            await _taskService.DeleteTaskWorklogAsync(worklogItem.Id);
+
+            await LoadWorklogsAsync();
         }
 
         private async System.Threading.Tasks.Task AddReplyAsync(CommentItem? commentItem)
@@ -347,8 +363,10 @@ namespace TeamTaskManager.ViewModels
             _model = model;
         }
 
+        public int Id => _model.Id;
         public string Name => _model.User.FullName;
         public string Description => _model.Description;
+        public bool IsOwner => _model.UserId == App.CurrentUser?.Id;
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public string CreatedAtStr => _model.LoggedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
         public string CreatedAtFullStr => "Utworzono: " + CreatedAtStr;

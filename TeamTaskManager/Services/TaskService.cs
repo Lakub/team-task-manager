@@ -21,6 +21,7 @@ namespace TeamTaskManager.Services
         System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
             string text, int taskId, int commenterId, int? parentCommentId);
         System.Threading.Tasks.Task DeleteTaskCommentAsync(int commentId);
+        System.Threading.Tasks.Task DeleteTaskWorklogAsync(int worklogId);
     }
 
     public class TaskService : ITaskService
@@ -124,6 +125,15 @@ namespace TeamTaskManager.Services
             if (comment == null || comment.IsDeleted)
                 throw new Exception("Comment not found");
             comment.IsDeleted = true;
+            await _context.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task DeleteTaskWorklogAsync(int worklogId)
+        {
+            var worklog = await _context.Worklogs.FindAsync(worklogId);
+            if (worklog == null || worklog.IsDeleted)
+                throw new Exception("Worklog not found");
+            worklog.IsDeleted = true;
             await _context.SaveChangesAsync();
         }
     }

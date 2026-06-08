@@ -78,6 +78,8 @@ namespace TeamTaskManager.ViewModels
             StartDate = new DateTime(StartDate.Year, StartDate.Month, StartDate.Day, _startHour, _startMinute, 0);
         }
 
+        private string _timeSpentParsed = string.Empty;
+
         private string _timeSpentInput = string.Empty;
         [Required(ErrorMessage = "Czas spędzony jest wymagany.")]
         [CustomValidation(typeof(CreateWorklogViewModel), nameof(ValidateTimeSpentInput))]
@@ -87,7 +89,7 @@ namespace TeamTaskManager.ViewModels
             set
             {
                 SetProperty(ref _timeSpentInput, value, true);
-                if (TimeSpanExtensions.TryParse(_timeSpentInput, out var timeSpent))
+                if (TimeSpanExtensions.TryParse(_timeSpentInput, out var timeSpent, out _timeSpentParsed))
                     TimeSpent = timeSpent;
 
                 ValidateProperty(_timeSpentInput, nameof(TimeSpentInput));
@@ -174,7 +176,7 @@ namespace TeamTaskManager.ViewModels
                 await _worklogService.CreateWorklogAsync(
                     description: Description.Trim(),
                     startTime: StartDate,
-                    timeSpentText: "",
+                    timeSpentText: _timeSpentParsed,
                     timeSpent: TimeSpent,
                     taskId: _taskId,
                     userId: userId);

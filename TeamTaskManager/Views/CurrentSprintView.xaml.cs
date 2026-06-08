@@ -16,6 +16,7 @@ namespace TeamTaskManager.Views
         private Point _dragStart;
         private Point _clickOffset;
 
+        private bool _isDragging = false;
         public CurrentSprintView(int sprintId = -1)
         {
             InitializeComponent();
@@ -40,24 +41,29 @@ namespace TeamTaskManager.Views
         private void TaskCard_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _dragStart = e.GetPosition(null);
-            if (sender is Button btn)
+            if (sender is FrameworkElement btn)
                 _clickOffset = e.GetPosition(btn);
         }
 
         private void TaskCard_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton != MouseButtonState.Pressed) return;
+            if (e.LeftButton != MouseButtonState.Pressed || _isDragging) return;
 
             var pos = e.GetPosition(null);
             var diff = _dragStart - pos;
             if (Math.Abs(diff.X) <= SystemParameters.MinimumHorizontalDragDistance &&
                 Math.Abs(diff.Y) <= SystemParameters.MinimumVerticalDragDistance) return;
 
-            if (sender is not Button button || button.DataContext is not KanbanTaskItem item) return;
+            if (sender is not FrameworkElement button || button.DataContext is not KanbanTaskItem item) return;
+
+            _isDragging = true;
+
+            var ghostTarget = button.FindName("GhostTarget") as UIElement ?? button;
 
             var root = Application.Current.MainWindow.Content as UIElement;
             var layer = AdornerLayer.GetAdornerLayer(root);
-            var ghost = new DragGhost(root, button, _clickOffset);
+
+            var ghost = new DragGhost(root, ghostTarget, _clickOffset);
             layer.Add(ghost);
             ghost.Follow();
 
@@ -76,6 +82,8 @@ namespace TeamTaskManager.Views
 
             button.Opacity = 1;
             layer.Remove(ghost);
+
+            _isDragging = false;
         }
 
         private void Column_DragOver(object sender, DragEventArgs e)

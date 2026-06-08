@@ -31,6 +31,7 @@ namespace TeamTaskManager.ViewModels
             _taskId = taskId;
 
             AddCommentCommand = new AsyncRelayCommand(AddCommentAsync);
+            DeleteCommentCommand = new AsyncRelayCommand<CommentItem>(DeleteCommentAsync);
             AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
             CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
             LogWorkCommand = new RelayCommand(LogWork);
@@ -87,6 +88,7 @@ namespace TeamTaskManager.ViewModels
 
         public ICommand LogWorkCommand { get; }
         public ICommand AddCommentCommand { get; }
+        public ICommand DeleteCommentCommand { get; }
         public ICommand AddReplyCommand { get; }
         public ICommand CancelReplyCommand { get; }
         public ICommand PopOutCommand { get; }
@@ -196,6 +198,7 @@ namespace TeamTaskManager.ViewModels
         public string NewCommentContent { get; set; } = string.Empty;
         public bool ShowAddComment => !string.IsNullOrWhiteSpace(NewCommentContent);
         public string NewReplyContent { get; set; } = string.Empty;
+        public bool HasNoComments => Comments.Where(c => !c.IsDeleted).Count() == 0;
 
         // worklogi
         public ObservableCollection<WorklogItem> Worklogs { get; } = new();
@@ -244,7 +247,7 @@ namespace TeamTaskManager.ViewModels
             if (commentItem != null)
             {
                 commentItem.IsBeingRepliedTo = true;
-                NewReplyContent = $"@{commentItem.Name} ";
+                NewReplyContent = $"@{commentItem.DisplayName} ";
             }
 
             OnPropertyChanged(nameof(NewReplyContent));
@@ -277,6 +280,20 @@ namespace TeamTaskManager.ViewModels
             await LoadCommentsAsync();
         }
 
+        private async System.Threading.Tasks.Task DeleteCommentAsync(CommentItem? commentItem)
+        {
+            if (commentItem == null) return;
+            if (!commentItem.IsOwner)
+            {
+                MessageBox.Show("Możesz usuwać tylko swoje komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            await _taskService.DeleteTaskCommentAsync(commentItem.Id);
+
+            await LoadCommentsAsync();
+        }
+
         private void AggregateReplies(Comment comment, ObservableCollection<CommentItem> collection)
         {
             foreach (var reply in comment.Replies)
@@ -297,8 +314,12 @@ namespace TeamTaskManager.ViewModels
             _model = model;
         }
 
-        public string Content => _model.Text;
-        public string Name => _model.Commenter?.FullName ?? "Unknown";
+        public string Content => _model.IsDeleted ? "" : _model.Text;
+        public string DisplayName => _model.IsDeleted ? "Nieznany Użytkownik" : (_model.Commenter?.FullName ?? "Nieznany Użytkownik");
+        public bool IsDeleted => _model.IsDeleted;
+        // pokazujemy usuniete tylko wtedy, gdy maja jakas nieusunieta odpowiedz
+        public bool ShowDetails => !IsDeleted || (_model.Replies != null && _model.Replies.Any(r => !r.IsDeleted));
+        public bool IsOwner => !IsDeleted && _model.CommenterId == App.CurrentUser?.Id;
         public int Id => _model.Id;
         public DateTime CreatedAt => _model.CreatedAt;
         public string CreatedAtStr => _model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
@@ -313,7 +334,7 @@ namespace TeamTaskManager.ViewModels
         }
 
         // te kolorki to przydaloby sie na przyszlosc od usera uzaleznic aby bylo troche radosci i stymulacji w szarym zyciu programisty
-        public string Initials => string.Concat(Name.Split(' ').Select(n => n[0])).ToUpper();
+        public string Initials => string.Concat(DisplayName.Split(' ').Select(n => n[0])).ToUpper();
         public Brush AvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush AvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
     }
@@ -330,7 +351,7 @@ namespace TeamTaskManager.ViewModels
         public string Description => _model.Description;
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public string CreatedAtStr => _model.LoggedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
-        public string CreatedAtFullStr => "Created: " + CreatedAtStr;
+        public string CreatedAtFullStr => "Utworzono: " + CreatedAtStr;
         public string StartedAtStr => _model.StartTime.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
         public string TimeSpentStr => $"{_model.TimeSpent.TotalHours:0.#}h";
 

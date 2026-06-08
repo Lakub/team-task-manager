@@ -20,6 +20,7 @@ namespace TeamTaskManager.Services
             int projectId, int reporterId, int? assigneeId);
         System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
             string text, int taskId, int commenterId, int? parentCommentId);
+        System.Threading.Tasks.Task DeleteTaskCommentAsync(int commentId);
     }
 
     public class TaskService : ITaskService
@@ -115,6 +116,15 @@ namespace TeamTaskManager.Services
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
             return comment;
+        }
+
+        public async System.Threading.Tasks.Task DeleteTaskCommentAsync(int commentId)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null || comment.IsDeleted)
+                throw new Exception("Comment not found");
+            comment.IsDeleted = true;
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -140,19 +140,38 @@
                             <ItemsControl ItemsSource="{Binding Comments}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,10,0,5">
+                                        <Border Visibility="{Binding ShowDetails, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                Padding="0,15,0,5" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
                                             <StackPanel>
-                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                                    <Border Background="{Binding AvatarBg}" CornerRadius="9"
+                                                <!-- autor, data stworzenia, edytuj, usun -->
+                                                <Grid Margin="0,0,0,5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Background="{Binding AvatarBg}" CornerRadius="9"
                                                             Width="18" Height="18" Margin="0,0,5,0">
                                                         <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="8"
                                                                    FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
-                                                    <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
-                                                </StackPanel>
-                                                <StackPanel>
+                                                    <TextBlock Grid.Column="1" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
+
+                                                    <StackPanel Orientation="Horizontal" Grid.Column="4" Margin="0,0,8,0">
+                                                        <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Usuń"
+                                                                Visibility="{Binding IsOwner, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                Command="{Binding DataContext.DeleteCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
+                                                
+                                                <!-- tresc -->
+                                                <StackPanel Visibility="{Binding IsDeleted, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                     <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
                                                         <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"
                                                                    Loaded="ItemText_Loaded" SizeChanged="ItemText_SizeChanged"/>
@@ -161,7 +180,14 @@
                                                             Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right" FontSize="11"
                                                             Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                 </StackPanel>
-                                                <Grid Margin="0,5,0,0">
+                            
+                                                <!-- usuniety -->
+                                                <TextBlock Margin="0,0,0,15"
+                                                           Visibility="{Binding IsDeleted, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                           Text="[ Ten komentarz został usunięty ]" FontStyle="Italic" Foreground="#6B7280"/>
+
+                                                <!-- odpowiadanie -->
+                                                <Grid Margin="0,5,0,0" Visibility="{Binding IsDeleted, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                     <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,55,10"
                                                             Visibility="{Binding IsBeingRepliedTo, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <TextBox Text="{Binding DataContext.NewReplyContent, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
@@ -183,22 +209,43 @@
                                                     </StackPanel>
                                                 </Grid>
 
-                                                <ItemsControl ItemsSource="{Binding Replies}" Margin="30,0,0,0">
+                                                <!-- odpowiedzi -->
+                                                <ItemsControl ItemsSource="{Binding Replies}" Margin="30,5,0,0"
+                                                              Visibility="{Binding ShowDetails, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <Border BorderBrush="#E5E7EB" BorderThickness="0,1,0,0" Padding="0,10,0,5">
+                                                            <Border Visibility="{Binding ShowDetails, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                    BorderBrush="#E5E7EB" BorderThickness="0,1,0,0" Padding="0,10,0,5">
                                                                 <StackPanel>
-                                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                                                        <Border Background="{Binding AvatarBg}" CornerRadius="9"
-                                                                            Width="18" Height="18" Margin="0,0,5,0">
+                                                                    <!-- autor, data stworzenia, edytuj, usun -->
+                                                                    <Grid Margin="0,0,0,5">
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <Border Grid.Column="0" Background="{Binding AvatarBg}" CornerRadius="9"
+                                                                                Width="18" Height="18" Margin="0,0,5,0">
                                                                             <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="8"
-                                                                                   FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
-                                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                                       FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
+                                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                                         </Border>
-                                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
-                                                                        <TextBlock Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
-                                                                    </StackPanel>
-                                                                    <StackPanel>
+                                                                        <TextBlock Grid.Column="1" Text="{Binding DisplayName}" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,10,0"/>
+                                                                        <TextBlock Grid.Column="2" Text="{Binding CreatedAtStr}" Foreground="#9CA3AF" FontSize="12"/>
+
+                                                                        <StackPanel Orientation="Horizontal" Grid.Column="4" Margin="0,0,8,0">
+                                                                            <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Usuń"
+                                                                                    Visibility="{Binding IsOwner, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                                    Command="{Binding DataContext.DeleteCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                                                <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+                                                                            </Button>
+                                                                        </StackPanel>
+                                                                    </Grid>
+
+                                                                    <!-- tresc -->
+                                                                    <StackPanel Visibility="{Binding IsDeleted, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                                         <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
                                                                             <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"
                                                                                        Loaded="ItemText_Loaded" SizeChanged="ItemText_SizeChanged"/>
@@ -207,7 +254,14 @@
                                                                                 Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right"
                                                                                 Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                                     </StackPanel>
-                                                                    <Grid Margin="0,5,0,0">
+                                                                    
+                                                                    <!-- usuniety -->
+                                                                    <TextBlock Margin="0,0,0,15"
+                                                                               Visibility="{Binding IsDeleted, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                               Text="[ Ten komentarz został usunięty ]" FontStyle="Italic" Foreground="#6B7280"/>
+
+                                                                    <!-- odpowiadanie -->
+                                                                    <Grid Margin="0,5,0,0" Visibility="{Binding IsDeleted, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                                         <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,55,10"
                                                                             Visibility="{Binding IsBeingRepliedTo, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                             <TextBox Text="{Binding DataContext.NewReplyContent, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
@@ -240,7 +294,7 @@
                             </ItemsControl>
 
                             <TextBlock Text="Brak komentarzy." FontStyle="Italic" Foreground="#9CA3AF" Margin="0,10,0,0"
-                                       Visibility="{Binding Comments, Converter={StaticResource InverseCollectionToVisibilityConverter}}"/>
+                                       Visibility="{Binding HasNoComments, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

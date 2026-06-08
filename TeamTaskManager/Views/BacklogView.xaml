@@ -65,7 +65,7 @@
                     </ItemsControl>
 
                     <TextBlock Text="Brak zadań w sprincie." Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="13" Margin="0 8 0 0"
-                               Visibility="{Binding SprintTasks.Count, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                               Visibility="{Binding SprintTasks, Converter={StaticResource InverseCollectionToVisibilityConverter}}"/>
                 </StackPanel>
             </Border>
 
@@ -107,7 +107,7 @@
                     </ItemsControl>
                     
                     <TextBlock Text="Brak zadań w backlogu." Foreground="#9CA3AF" FontFamily="Segoe UI" FontSize="13" Margin="0 8 0 0"
-                               Visibility="{Binding BacklogTasks.Count, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                               Visibility="{Binding BacklogTasks, Converter={StaticResource InverseCollectionToVisibilityConverter}}"/>
 
                     <Button Content="+ Utwórz nowe zadanie" Margin="0,4,0,0"
                             Style="{StaticResource PrimaryButtonStyle}"

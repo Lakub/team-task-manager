@@ -39,9 +39,9 @@
                                         FontFamily="Segoe UI" FontSize="18" FontWeight="Medium"
                                         Foreground="#1F2937" Margin="0,0,10,0"/>
 
-                            <Border Background="#D1FAE5" CornerRadius="12" Padding="10,3" VerticalAlignment="Center">
+                            <Border Background="{Binding StatusBg}" CornerRadius="12" Padding="10,3" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding StatusText, FallbackValue='W toku'}" FontFamily="Segoe UI" FontSize="12"
-                                            FontWeight="Medium" Foreground="#065F46"/>
+                                            FontWeight="Medium" Foreground="{Binding StatusFg}"/>
                             </Border>
                         </StackPanel>
 

@@ -66,8 +66,7 @@ namespace TeamTaskManager.ViewModels
             CreatorName = sprint.Creator.FullName;
             StartDate = sprint.StartDate;
             EndDate = sprint.EndDate;
-            IsActive = sprint.Status == SprintStatus.Active;
-            IsPlanned = sprint.Status == SprintStatus.Planned;
+            Status = sprint.Status;
 
             _allTaskItems.Clear();
             foreach (var st in sprintTasks)
@@ -100,9 +99,12 @@ namespace TeamTaskManager.ViewModels
         public int DaysRemaining => Math.Max(0, (EndDate - DateTime.Today).Days);
 
         // status sprintu
-        public bool IsActive { get; set; }
-        public bool IsPlanned { get; set; }
-        public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
+        public SprintStatus Status { get; set; }
+        public string StatusText => StyleHelper.GetSprintStatusDisplay(Status);
+        public Brush StatusBg => StyleHelper.GetSprintStatusStyle(Status).Bg;
+        public Brush StatusFg => StyleHelper.GetSprintStatusStyle(Status).Fg;
+        public bool IsActive => Status == SprintStatus.Active;
+        public bool IsPlanned => Status == SprintStatus.Planned;
 
 
         // metryki
@@ -340,13 +342,25 @@ namespace TeamTaskManager.ViewModels
 
         public int TaskId => _model.TaskId;
         public int PerProjectId => _model.Task.PerProjectId;
+
         public string Key => $"{_model.Task.Project.Key}-{_model.Task.PerProjectId}";
         public string Title => _model.Task.Title;
         public string KeyAndTitle => $"{Key} - {Title}";
-        public TaskType Type => _model.Task.Type;
-        public TaskPriority Priority => _model.Task.Priority;
-        public TaskStatus Status => _model.Status;
+
         public bool IsAssigned => _model.AssigneeId.HasValue;
+
+        public TaskType Type => _model.Task.Type;
+        public string TypeDisplay => Type.ToString();
+        public Brush TypeBadgeBg => StyleHelper.GetTaskTypeStyle(Type).Bg;
+        public Brush TypeBadgeFg => StyleHelper.GetTaskTypeStyle(Type).Fg;
+
+        public TaskPriority Priority => _model.Task.Priority;
+        public string PriorityDisplay => Priority.ToString();
+        public Brush PriorityColor => StyleHelper.GetTaskPriorityColor(Priority);
+
+        public TaskStatus Status => _model.Status;
+        public Brush StatusColor => StyleHelper.GetTaskStatusColor(Status);
+
 
         // laczny czas
         public double? HoursSpent
@@ -374,17 +388,6 @@ namespace TeamTaskManager.ViewModels
             }
         }
         public bool ScopeChanged => Scope != ScopeChange.None;
-
-        // kolorki i tekst dla typu, statusu i priorytetu
-        public string TypeDisplay => Type.ToString();
-        public Brush TypeBadgeBg => StyleHelper.GetTaskTypeStyle(Type).Bg;
-        public Brush TypeBadgeFg => StyleHelper.GetTaskTypeStyle(Type).Fg;
-
-        public string PriorityDisplay => Priority.ToString();
-        public Brush PriorityColor => StyleHelper.GetTaskPriorityColor(Priority);
-
-        public Brush StatusColor => StyleHelper.GetTaskStatusColor(Status);
-
         public string ScopeBadgeText => StyleHelper.GetScopeDisplay(Scope);
         public Brush ScopeBadgeBg => StyleHelper.GetScopeStyle(Scope).Bg;
         public Brush ScopeBadgeFg => StyleHelper.GetScopeStyle(Scope).Fg;

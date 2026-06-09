@@ -146,7 +146,6 @@ namespace TeamTaskManager.ViewModels
     public partial class SprintReportViewModel : ObservableObject
     {
         private readonly ISprintService _sprintService;
-        private readonly IUserService _userService;
 
         private int _sprintId;
         private int _projectId;
@@ -222,10 +221,9 @@ namespace TeamTaskManager.ViewModels
             set { _teamMembers = value; OnPropertyChanged(); }
         }
 
-        public SprintReportViewModel(ISprintService sprintService, IUserService userService, int sprintId, int projectId)
+        public SprintReportViewModel(ISprintService sprintService, int sprintId, int projectId)
         {
             _sprintService = sprintService;
-            _userService = userService;
             _sprintId = sprintId;
             _projectId = projectId;
 
@@ -285,14 +283,15 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
             ApplyFilterSort();
 
-            await LoadTeamStatsAsync(sprintTasks);
+            LoadTeamStats(sprintTasks);
         }
 
-        private async System.Threading.Tasks.Task LoadTeamStatsAsync(List<SprintTask> sprintTasks)
+        private void LoadTeamStats(List<SprintTask> sprintTasks)
         {
             var worklogs = sprintTasks
                 .Where(st => st.Task.Worklogs != null)
-                .SelectMany(st => st.Task.Worklogs);
+                .SelectMany(st => st.Task.Worklogs)
+                .ToList();
 
             // oddzielnie bo tutaj bardziej chcemy czas na taski, nie przecietny czas pracy w sprincie, bo to jest nizej w team statach
             if (worklogs.Any())
@@ -304,37 +303,50 @@ namespace TeamTaskManager.ViewModels
                 AvgTaskTime = $"{avgTime:0.#}h";
             }
 
+            // worklogi z czasu trwania sprintu
             var worklogsDuringSprint = worklogs.Where(w =>
                 w.StartTime >= StartDate    // praca zaczeta po starcie sprintu
                 && w.LoggedAt <= EndDate    // praca zlogowana przed koncem sprintu
-            );
+            ).ToList();
 
-            var worklogsUserIds = worklogsDuringSprint.Select(w => w.UserId).Distinct();
+            // uzytkownicy, ktorzy logowali prace w sprincie
+            var worklogUsers = worklogsDuringSprint
+                .Where(w => w.User != null)
+                .Select(w => w.User);
 
-            var assigneeIds = sprintTasks
+            // uzytkownicy, ktorzy mieli przydzielone zadania
+            var assigneeUsers = sprintTasks
+                .Where(st => st.Task?.Assignee != null)
+                .Select(st => st.Task.Assignee!);
+
+            // unikalne z obu
+            var distinctUsers = worklogUsers
+                .Union(assigneeUsers)
+                .GroupBy(u => u.Id)
+                .Select(g => g.First())
+                .ToList();
+
+            // mapowanko userId do sumy godzin pracy w sprincie
+            var worklogsByUser = worklogsDuringSprint
+                .GroupBy(w => w.UserId)
+                .ToDictionary(g => g.Key, g => g.Sum(w => w.TimeSpent.TotalHours));
+
+            // mapowanko userId do listy zadan przydzielonych w sprincie
+            var tasksByUser = sprintTasks
                 .Where(st => st.AssigneeId.HasValue)
-                .Select(st => st.AssigneeId!.Value);
-
-            var userIds = worklogsUserIds.Union(assigneeIds).Distinct();
+                .GroupBy(st => st.AssigneeId!.Value)
+                .ToDictionary(g => g.Key, g => g.ToList());
 
             TeamMembers.Clear();
-            foreach (var userId in userIds)
+            foreach (var user in distinctUsers)
             {
-                var user = await _userService.GetByIdAsync(userId);
+                worklogsByUser.TryGetValue(user.Id, out var hours);
+                tasksByUser.TryGetValue(user.Id, out var assignedToThisUser);
+                // jak nie znalazlo to pusta
+                assignedToThisUser ??= new List<SprintTask>();
 
-                var hours = worklogsDuringSprint
-                    .Where(w => w.UserId == userId)
-                    .Sum(w => w.TimeSpent.TotalHours);
-
-                var assignedToThisUser = sprintTasks.Where(st => st.AssigneeId == userId).ToList();
-                int done = assignedToThisUser.Count(
-                    t => t.Status == TaskStatus.Closed
-                    && !t.RemovedAt.HasValue
-                );
-                int inProgress = assignedToThisUser.Count(
-                    t => t.Status == TaskStatus.InProgress
-                    && !t.RemovedAt.HasValue
-                );
+                int done = assignedToThisUser.Count(t => t.Status == TaskStatus.Closed && !t.RemovedAt.HasValue);
+                int inProgress = assignedToThisUser.Count(t => t.Status == TaskStatus.InProgress && !t.RemovedAt.HasValue);
 
                 var member = new TeamMemberItem
                 {

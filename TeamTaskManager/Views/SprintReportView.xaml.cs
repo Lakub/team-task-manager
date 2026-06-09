@@ -15,7 +15,6 @@ namespace TeamTaskManager.Views
             var dbContext = new AppDbContext();
             DataContext = new SprintReportViewModel(
                 new SprintService(dbContext),
-                new UserService(dbContext),
                 sprintId,
                 projectId);
 

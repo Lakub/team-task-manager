@@ -37,6 +37,7 @@ namespace TeamTaskManager.Services
             var sprintTasks = await _context.SprintTasks
                 .Include(st => st.Task)
                     .ThenInclude(t => t.Worklogs)
+                        .ThenInclude(w => w.User)
                 .Include(st => st.Task)
                     .ThenInclude(t => t.Assignee)
                 .Where(st => st.SprintId == sprintId)

@@ -43,13 +43,7 @@ namespace TeamTaskManager.ViewModels
                                 ?? sprints.Where(s => s.Status != SprintStatus.Planned).OrderByDescending(s => s.StartDate).FirstOrDefault()
                                 ?? sprints.FirstOrDefault();
 
-                if (targetSprint == null)
-                {
-                    MessageBox.Show("Brak sprintów w projekcie.");
-                    var backlogView = new BacklogView(_projectId);
-                    WeakReferenceMessenger.Default.Send(new NavigationMessage(backlogView));
-                    return;
-                }
+                if (targetSprint == null) return;
 
                 _sprintId = targetSprint.Id;
             }
@@ -57,6 +51,8 @@ namespace TeamTaskManager.ViewModels
             var (sprint, sprintTasks) = await _sprintService.GetSprintReportDataAsync(_sprintId);
 
             if (sprint == null) return;
+
+            HasSprints = true;
 
             _projectId = sprint.ProjectId;
 
@@ -84,6 +80,7 @@ namespace TeamTaskManager.ViewModels
         private string ProjectKey { get; set; } = "";
         public string ProjectName { get; set; } = "";
         public string SprintName { get; set; } = "";
+        public bool HasSprints { get; set; } = false;
 
         // tworca sprintu
         public string CreatorName { get; set; } = "";

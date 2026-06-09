@@ -76,6 +76,8 @@ namespace TeamTaskManager.ViewModels
 
         public int? SelectedTaskId => _selectedTask?.TaskId;
         public bool HasSelectedTask => _selectedTask != null;
+        public bool HasNoTasks => FilteredTasks.Count == 0;
+        public string NoTaskSelectedFeedback => HasNoTasks ? "Brak zadań w projekcie." : "Wybierz zadanie z listy.";
 
         public ICommand SelectTaskCommand { get; }
         public void SelectTask(BacklogTaskItem? item)

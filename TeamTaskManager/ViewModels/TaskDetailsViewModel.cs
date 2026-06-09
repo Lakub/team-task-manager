@@ -152,7 +152,8 @@ namespace TeamTaskManager.ViewModels
             {
                 // agregujemy wszystkie odpowiedzi odpowiedzi itp do jednego threada bo inaczej by szybko sie miejsce skonczylo
                 var commentItem = new CommentItem(comment);
-                AggregateReplies(comment, commentItem.Replies);
+                commentItem.HasNonDeletedDescendants = AggregateReplies(comment, commentItem.Replies);
+
                 commentItem.Replies = new ObservableCollection<CommentItem>(commentItem.Replies.OrderBy(c => c.CreatedAt));
                 Comments.Add(commentItem);
             }
@@ -160,14 +161,25 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
         }
 
-        private void AggregateReplies(Comment comment, ObservableCollection<CommentItem> collection)
+        // bool zwraca czy ma jakiekolwiek nieusuniete odpowiedzi
+        private bool AggregateReplies(Comment comment, ObservableCollection<CommentItem> collection)
         {
+            bool hasNonDeletedDescendants = false;
+
+            if (comment.Replies == null) return false;
+
             foreach (var reply in comment.Replies)
             {
                 var replyItem = new CommentItem(reply);
                 collection.Add(replyItem);
-                AggregateReplies(reply, collection);
+
+                replyItem.HasNonDeletedDescendants = AggregateReplies(reply, collection);
+
+                if (!replyItem.IsDeleted || replyItem.HasNonDeletedDescendants)
+                    hasNonDeletedDescendants = true;
             }
+
+            return hasNonDeletedDescendants;
         }
 
         private async System.Threading.Tasks.Task AddCommentAsync()
@@ -341,7 +353,7 @@ namespace TeamTaskManager.ViewModels
         }
     }
 
-    public class CommentItem : ExpandableTextItem
+    public partial class CommentItem : ExpandableTextItem
     {
         private readonly Comment _model;
 
@@ -358,7 +370,9 @@ namespace TeamTaskManager.ViewModels
         public bool CanEdit => !IsDeleted && _model.CommenterId == App.CurrentUser?.Id;
         public bool IsDeleted => _model.IsDeleted;
         // pokazujemy usuniete tylko wtedy, gdy maja jakas nieusunieta odpowiedz
-        public bool ShowDetails => !IsDeleted || (_model.Replies != null && _model.Replies.Any(r => !r.IsDeleted));
+        [ObservableProperty]
+        public bool _hasNonDeletedDescendants;
+        public bool ShowDetails => !IsDeleted || HasNonDeletedDescendants;
 
         public DateTime CreatedAt => _model.CreatedAt;
         public string CreatedAtStr => _model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");

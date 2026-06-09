@@ -84,6 +84,7 @@ namespace TeamTaskManager.Helpers
             int maxCommentDepth = 3,
             float commentReplyProbability = 0.5f,
             float commentDeletionProbability = 0.1f,
+            float commentEditProbability = 0.15f,
 
             // worklogi
             float worklogByManagerProbability = 0.2f,
@@ -276,6 +277,8 @@ namespace TeamTaskManager.Helpers
                         var cCommenter = projectUsers[Random.Shared.Next(projectUsers.Count)].User;
                         var cCreatedAt = tCreatedAt.AddDays(Random.Shared.Next(0, 10)).AddHours(Random.Shared.Next(1, 24));
                         var cWasDeleted = Random.Shared.NextDouble() < commentDeletionProbability;
+                        var cWasEdited = cWasDeleted || (Random.Shared.NextDouble() < commentEditProbability);
+                        var cUpdatedAt = cWasEdited ? cCreatedAt.AddDays(Random.Shared.Next(1, 10)) : cCreatedAt;
 
                         var parentComment = new Comment
                         {
@@ -283,12 +286,13 @@ namespace TeamTaskManager.Helpers
                             Commenter = cCommenter,
                             Text = cText,
                             CreatedAt = cCreatedAt,
-                            UpdatedAt = cCreatedAt,
+                            UpdatedAt = cUpdatedAt,
                             IsDeleted = cWasDeleted
                         };
 
                         comments.Add(parentComment);
-                        comments.AddRange(GenerateReplies(task, parentComment, projectUsers, maxNumRepliesPerComment, commentReplyProbability, commentDeletionProbability, 0, maxCommentDepth));
+                        comments.AddRange(GenerateReplies(task, parentComment, projectUsers, maxNumRepliesPerComment, commentReplyProbability,
+                                                          commentDeletionProbability, commentEditProbability, 0, maxCommentDepth));
                     }
                     context.Comments.AddRange(comments);
                 }
@@ -458,7 +462,8 @@ namespace TeamTaskManager.Helpers
 
         static private List<Comment> GenerateReplies(
             Task task, Comment parentComment, List<ProjectUser> projectUsers,
-            int maxNumOfReplies = 3, float replyProbability = 0.5f, float deletionProbability = 0.05f,
+            int maxNumOfReplies = 3, float replyProbability = 0.5f,
+            float deletionProbability = 0.05f, float editProbability = 0.15f,
             int currentDepth = 0, int maxDepth = 3)
         {
             var comments = new List<Comment>();
@@ -478,6 +483,8 @@ namespace TeamTaskManager.Helpers
                 var rCommenter = projectUsers[Random.Shared.Next(projectUsers.Count)].User;
                 var rCreatedAt = parentComment.CreatedAt.AddHours(Random.Shared.Next(1, 24));
                 var rWasDeleted = Random.Shared.NextDouble() < deletionProbability;
+                var rWasEdited = rWasDeleted || (Random.Shared.NextDouble() < editProbability);
+                var rUpdatedAt = rWasEdited ? rCreatedAt.AddDays(Random.Shared.Next(1, 10)) : rCreatedAt;
 
                 var reply = new Comment
                 {
@@ -485,7 +492,7 @@ namespace TeamTaskManager.Helpers
                     Commenter = rCommenter,
                     Text = rText,
                     CreatedAt = rCreatedAt,
-                    UpdatedAt = rCreatedAt,
+                    UpdatedAt = rUpdatedAt,
                     IsDeleted = rWasDeleted,
                     ParentComment = parentComment
                 };

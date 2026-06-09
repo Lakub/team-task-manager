@@ -47,6 +47,8 @@ namespace TeamTaskManager.Services
                 ? await _context.Users.FindAsync(assigneeId.Value)
                 : null;
 
+            var now = DateTime.UtcNow;
+
             var task = new Task
             {
                 Title = title,
@@ -58,8 +60,8 @@ namespace TeamTaskManager.Services
                 Assignee = assignee,
                 Project = project!,
                 PerProjectId = maxPerProjectId + 1,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = now,
+                UpdatedAt = now,
                 IsDeleted = false
             };
 
@@ -104,14 +106,16 @@ namespace TeamTaskManager.Services
             var commenter = await _context.Users.FindAsync(commenterId);
             var task = await _context.Tasks.FindAsync(taskId);
 
+            var now = DateTime.UtcNow;
+
             var comment = new Comment
             {
                 Text = text,
                 Task = task!,
                 Commenter = commenter!,
                 ParentCommentId = parentCommentId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = now,
+                UpdatedAt = now,
                 IsDeleted = false
             };
 
@@ -126,6 +130,7 @@ namespace TeamTaskManager.Services
             if (comment == null || comment.IsDeleted)
                 throw new Exception("Comment not found");
             comment.IsDeleted = true;
+            comment.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
 

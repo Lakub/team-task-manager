@@ -45,21 +45,24 @@
                                         x:Name="GhostTarget">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="70"/>
                                                 <ColumnDefinition Width="80"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <Ellipse Grid.Column="0" Width="8" Height="8" VerticalAlignment="Center" Fill="{Binding StatusColor}" Margin="0,0,8,0"/>
 
-                                            <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Grid.Column="1" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+
+                                            <Border Grid.Column="2" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
                                             </Border>
 
-                                            <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
-                                            <Button Grid.Column="3" Content="&#xE711;" FontFamily="Segoe MDL2 Assets"
+                                            <Button Grid.Column="4" Content="&#xE711;" FontFamily="Segoe MDL2 Assets"
                                                     Style="{StaticResource ActionButtonStyle}" ToolTip="Usuń ze sprintu"
                                                     Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
                                                     Visibility="{Binding DataContext.CanEditSprint, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -92,21 +95,24 @@
                                         x:Name="GhostTarget">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="70"/>
                                                 <ColumnDefinition Width="80"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="0" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <Ellipse Grid.Column="0" Width="8" Height="8" VerticalAlignment="Center" Fill="{Binding StatusColor}" Margin="0,0,8,0"/>
 
-                                            <Border Grid.Column="1" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Grid.Column="1" Text="{Binding KeyAndTitle}" FontFamily="Segoe UI" FontSize="13" Foreground="#1F2937" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+
+                                            <Border Grid.Column="2" Background="{Binding TypeBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding TypeDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding TypeBadgeFg}"/>
                                             </Border>
 
-                                            <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
-                                            <Button Grid.Column="3" Content="&#xE710;" FontFamily="Segoe MDL2 Assets"
+                                            <Button Grid.Column="4" Content="&#xE710;" FontFamily="Segoe MDL2 Assets"
                                                 Style="{StaticResource ActionButtonStyle}" ToolTip="Dodaj do sprintu"
                                                 Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
                                                 Visibility="{Binding DataContext.CanEditSprint, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>

@@ -20,15 +20,16 @@ namespace TeamTaskManager.ViewModels
         public string Key { get; set; } = "";
         public int PerProjectId { get; set; } = 0;
         public string KeyAndTitle => $"{Key} - {Title}";
-        public TaskType Type { get; set; }
-        public TaskPriority Priority { get; set; }
+
         public TaskStatus Status { get; set; }
+        public Brush StatusColor => StyleHelper.GetTaskStatusColor(Status);
 
-        public string TypeDisplay => Type.ToString();
+        public TaskPriority Priority { get; set; }
         public string PriorityDisplay => Priority.ToString();
-
         public Brush PriorityColor => StyleHelper.GetTaskPriorityColor(Priority);
 
+        public TaskType Type { get; set; }
+        public string TypeDisplay => Type.ToString();
         public Brush TypeBadgeBg => StyleHelper.GetTaskTypeStyle(Type).Bg;
         public Brush TypeBadgeFg => StyleHelper.GetTaskTypeStyle(Type).Fg;
     }

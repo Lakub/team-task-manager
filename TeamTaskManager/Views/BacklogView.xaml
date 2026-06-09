@@ -59,8 +59,8 @@
 
                                             <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
-                                            <Button Grid.Column="3" Content="-"
-                                                    Style="{StaticResource ActionButtonStyle}"
+                                            <Button Grid.Column="3" Content="&#xE711;" FontFamily="Segoe MDL2 Assets"
+                                                    Style="{StaticResource ActionButtonStyle}" ToolTip="Usuń ze sprintu"
                                                     Command="{Binding DataContext.RemoveFromSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
                                                     Visibility="{Binding DataContext.CanEditSprint, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         </Grid>
@@ -106,8 +106,8 @@
 
                                             <TextBlock Grid.Column="2" Text="{Binding PriorityDisplay}" FontFamily="Segoe UI" FontSize="12" Foreground="{Binding PriorityColor}" VerticalAlignment="Center"/>
 
-                                            <Button Grid.Column="3" Content="+"
-                                                Style="{StaticResource ActionButtonStyle}"
+                                            <Button Grid.Column="3" Content="&#xE710;" FontFamily="Segoe MDL2 Assets"
+                                                Style="{StaticResource ActionButtonStyle}" ToolTip="Dodaj do sprintu"
                                                 Command="{Binding DataContext.MoveToSprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
                                                 Visibility="{Binding DataContext.CanEditSprint, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         </Grid>

@@ -2,13 +2,10 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using TeamTaskManager.Helpers;
-using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
 using TeamTaskManager.Views;
@@ -23,40 +20,24 @@ namespace TeamTaskManager.ViewModels
         public string Key { get; set; } = "";
         public int PerProjectId { get; set; } = 0;
         public string KeyAndTitle => $"{Key} - {Title}";
-        public TaskType Type { get; set; }
-        public TaskPriority Priority { get; set; }
+
         public TaskStatus Status { get; set; }
+        public Brush StatusColor => StyleHelper.GetTaskStatusColor(Status);
 
-        public string TypeDisplay => Type.ToString();
+        public TaskPriority Priority { get; set; }
         public string PriorityDisplay => Priority.ToString();
+        public Brush PriorityColor => StyleHelper.GetTaskPriorityColor(Priority);
 
-        public Brush PriorityColor => Priority switch
-        {
-            TaskPriority.High => new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C)),
-            TaskPriority.Medium => new SolidColorBrush(Color.FromRgb(0xB4, 0x53, 0x09)),
-            _ => new SolidColorBrush(Color.FromRgb(0x06, 0x5F, 0x46))
-        };
-
-        public Brush TypeBadgeBg => Type switch
-        {
-            TaskType.Bug => new SolidColorBrush(Color.FromRgb(0xFE, 0xF2, 0xF2)),       // czerwony
-            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0xF3, 0xE8, 0xFF)),   // fioletowy
-            TaskType.Task => new SolidColorBrush(Color.FromRgb(0xEF, 0xF6, 0xFF)),      // niebieski
-            _ => new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0))                   // szary
-        };
-        public Brush TypeBadgeFg => Type switch
-        {
-            TaskType.Bug => new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C)),       // czerwony
-            TaskType.Feature => new SolidColorBrush(Color.FromRgb(0x8B, 0x5C, 0xF6)),   // fioletowy
-            TaskType.Task => new SolidColorBrush(Color.FromRgb(0x1D, 0x4E, 0xD8)),      // niebieski
-            _ => new SolidColorBrush(Color.FromRgb(0x2B, 0x2B, 0x2B))                   // szary
-        };
+        public TaskType Type { get; set; }
+        public string TypeDisplay => Type.ToString();
+        public Brush TypeBadgeBg => StyleHelper.GetTaskTypeStyle(Type).Bg;
+        public Brush TypeBadgeFg => StyleHelper.GetTaskTypeStyle(Type).Fg;
     }
 
-    public partial class BacklogViewModel : INotifyPropertyChanged
+    public partial class BacklogViewModel : ObservableObject
     {
         private readonly IBacklogService _backlogService;
-        private readonly int _sprintId;
+        private readonly int? _sprintId;
         private readonly int _projectId;
 
         public Action<BacklogTaskItem>? OnTaskSelected { get; set; }
@@ -80,7 +61,7 @@ namespace TeamTaskManager.ViewModels
         public ObservableCollection<BacklogTaskItem> SprintTasks { get; } = new();
         public ObservableCollection<BacklogTaskItem> BacklogTasks { get; } = new();
 
-        public BacklogViewModel(IBacklogService backlogService, int sprintId, int projectId)
+        public BacklogViewModel(IBacklogService backlogService, int projectId, int? sprintId)
         {
             _backlogService = backlogService;
             _sprintId = sprintId;
@@ -95,15 +76,6 @@ namespace TeamTaskManager.ViewModels
 
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            var sprint = await _backlogService.GetSprintAsync(_sprintId);
-            if (sprint != null)
-            {
-                SprintName = sprint.Name;
-                IsActive = sprint.Status == SprintStatus.Active;
-                IsPlanned = sprint.Status == SprintStatus.Planned;
-                HasSprint = true;
-            }
-
             var project = await _backlogService.GetProjectAsync(_projectId);
             if (project != null)
             {
@@ -113,32 +85,51 @@ namespace TeamTaskManager.ViewModels
                                                               && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
             }
 
+            if (_sprintId.HasValue)
+            {
+                var sprint = await _backlogService.GetSprintAsync(_sprintId.Value);
+                if (sprint != null)
+                {
+                    SprintName = sprint.Name;
+                    IsActive = sprint.Status == SprintStatus.Active;
+                    IsPlanned = sprint.Status == SprintStatus.Planned;
+                    HasSprint = true;
+                }
+            }
+
             OnPropertyChanged(string.Empty);
             await LoadTasksAsync();
         }
 
         private async System.Threading.Tasks.Task LoadTasksAsync()
         {
-            var sprintTasks = await _backlogService.GetActiveSprintTasksAsync(_sprintId);
             SprintTasks.Clear();
-            foreach (var t in sprintTasks)
+
+            if (_sprintId.HasValue)
             {
-                SprintTasks.Add(new BacklogTaskItem
+                var sprintTasks = await _backlogService.GetActiveSprintTasksAsync(_sprintId.Value);
+                foreach (var t in sprintTasks)
                 {
-                    TaskId = t.Id,
-                    Title = t.Title,
-                    PerProjectId = t.PerProjectId,
-                    Key = $"{ProjectKey}-{t.PerProjectId}",
-                    Type = t.Type,
-                    Priority = t.Priority,
-                    Status = t.Status
-                });
+                    SprintTasks.Add(new BacklogTaskItem
+                    {
+                        TaskId = t.Id,
+                        Title = t.Title,
+                        PerProjectId = t.PerProjectId,
+                        Key = $"{ProjectKey}-{t.PerProjectId}",
+                        Type = t.Type,
+                        Priority = t.Priority,
+                        Status = t.Status
+                    });
+                }
             }
 
             var backlogTasks = await _backlogService.GetBacklogTasksAsync(_projectId);
             BacklogTasks.Clear();
             foreach (var t in backlogTasks)
             {
+                // nie pokazujemy taskow, ktore sa juz w sprincie
+                if (SprintTasks.Any(st => st.TaskId == t.Id)) continue;
+
                 BacklogTasks.Add(new BacklogTaskItem
                 {
                     TaskId = t.Id,
@@ -156,6 +147,8 @@ namespace TeamTaskManager.ViewModels
 
         public async System.Threading.Tasks.Task MoveToSprint(BacklogTaskItem? item)
         {
+            if (!_sprintId.HasValue) return;
+
             if (!CanEditSprint)
             {
                 MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -167,12 +160,14 @@ namespace TeamTaskManager.ViewModels
             // czy jest juz w sprincie
             if (SprintTasks.Any(t => t.TaskId == item.TaskId)) return;
 
-            await _backlogService.AddTaskToSprintAsync(_sprintId, item.TaskId);
+            await _backlogService.AddTaskToSprintAsync(_sprintId.Value, item.TaskId);
             await LoadTasksAsync();
         }
 
         public async System.Threading.Tasks.Task RemoveFromSprint(BacklogTaskItem? item)
         {
+            if (!_sprintId.HasValue) return;
+
             if (!CanEditSprint)
             {
                 MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -181,13 +176,15 @@ namespace TeamTaskManager.ViewModels
 
             if (item == null) return;
 
-            await _backlogService.RemoveTaskFromSprintAsync(_sprintId, item.TaskId);
+            await _backlogService.RemoveTaskFromSprintAsync(_sprintId.Value, item.TaskId);
             await LoadTasksAsync();
         }
 
         private void OpenSprintReport()
         {
-            var reportView = new SprintReportView(_sprintId, _projectId);
+            if (!_sprintId.HasValue) return;
+
+            var reportView = new SprintReportView(_sprintId.Value, _projectId);
             WeakReferenceMessenger.Default.Send(new NavigationMessage(reportView));
         }
 
@@ -210,8 +207,5 @@ namespace TeamTaskManager.ViewModels
         {
             if (item != null) OnTaskSelected?.Invoke(item);
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? n = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 }

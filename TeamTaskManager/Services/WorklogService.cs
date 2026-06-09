@@ -33,6 +33,8 @@ namespace TeamTaskManager.Services
             var user = await _context.Users.FindAsync(userId) ?? throw new Exception("User not found");
             var task = await _context.Tasks.FindAsync(taskId) ?? throw new Exception("Task not found");
 
+            var now = DateTime.UtcNow;
+
             var worklog = new Worklog
             {
                 Description = description,
@@ -41,7 +43,8 @@ namespace TeamTaskManager.Services
                 TimeSpent = timeSpent,
                 Task = task,
                 User = user,
-                LoggedAt = DateTime.UtcNow,
+                LoggedAt = now,
+                UpdatedAt = now,
                 IsDeleted = false
             };
 
@@ -59,6 +62,7 @@ namespace TeamTaskManager.Services
             worklog.StartTime = startTime;
             worklog.TimeSpentText = timeSpentText;
             worklog.TimeSpent = timeSpent;
+            worklog.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return worklog;

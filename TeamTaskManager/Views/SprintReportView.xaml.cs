@@ -15,7 +15,6 @@ namespace TeamTaskManager.Views
             var dbContext = new AppDbContext();
             DataContext = new SprintReportViewModel(
                 new SprintService(dbContext),
-                new UserService(dbContext),
                 sprintId,
                 projectId);
 
@@ -26,25 +25,6 @@ namespace TeamTaskManager.Views
         {
             if (DataContext is SprintReportViewModel vm)
             {
-                vm.OnTaskSelected = item =>
-                {
-                    if (item != null)
-                    {
-                        var taskDetailWindow = new TaskDetailsWindow(item.TaskId);
-                        taskDetailWindow.ShowDialog();
-                    }
-                };
-
-                vm.OnTeamMemberSelected = item =>
-                {
-                    if (item != null)
-                    {
-                        MessageBox.Show($"User: {item.FullName}", "User Profile Window", MessageBoxButton.OK, MessageBoxImage.Information);
-                        //var userProfileWindow = new UserProfileWindow(item.Id);
-                        //userProfileWindow.ShowDialog();
-                    }
-                };
-
                 await vm.InitializeAsync();
             }
         }

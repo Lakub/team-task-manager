@@ -2,18 +2,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Policy;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Navigation;
 using TeamTaskManager.Helpers;
-using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
 using TeamTaskManager.Views;
@@ -21,47 +14,10 @@ using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
 
 namespace TeamTaskManager.ViewModels
 {
-    public class SprintItem : ObservableObject
-    {
-        public int Id { get; set;  }
-        public string SprintName { get; set; } = "";
-        public string CreatorName { get; set; } = "";
-        public string CreatorInitials => string.Join("", CreatorName.Split(' ').Select(n => n[0])).ToUpper();
-        public Brush CreatorAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
-        public Brush CreatorAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public bool IsActive { get; set; }
-        public Visibility DaysRemainingVisibility => IsActive ? Visibility.Visible : Visibility.Collapsed;
-        public bool IsPlanned { get; set; }
-        public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
-        public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
-        public string EndDateStr => EndDate.ToString("dd.MM.yyyy");
-        public int DaysRemaining => Math.Max(0, (EndDate - DateTime.Today).Days);
-        public int TotalTasks { get; set; }
-        public int DoneTasks { get; set; }
-        public int RemainingTasks => Math.Max(0, TotalTasks - DoneTasks);
-        public double ProgressPercent => TotalTasks == 0 ? 0 : (double)DoneTasks / TotalTasks * 100;
-        public string ProgressText => $"{DoneTasks} / {TotalTasks} zadań ukończonych ({ProgressPercent:0}%)";
-    }
-
     public partial class SprintsOverviewViewModel : ObservableObject
     {
         private readonly IProjectService _projectService;
-        public ICommand OpenSprintReportCommand { get; }
-        public ICommand CreateSprintCommand { get; }
-
         private int _projectId;
-
-        public bool CanManageProject { get; set; }
-
-        public string ProjectName { get; set; } = "";
-
-        private ObservableCollection<SprintItem> _sprints = new();
-        public ObservableCollection<SprintItem> Sprints {
-            get => _sprints;
-            set { _sprints = value; OnPropertyChanged(); }
-        }
 
         public SprintsOverviewViewModel(IProjectService projectService, int projectId)
         {
@@ -70,7 +26,6 @@ namespace TeamTaskManager.ViewModels
 
             OpenSprintReportCommand = new RelayCommand<SprintItem>(OpenSprintReport);
             CreateSprintCommand = new RelayCommand(CreateSprint);
-
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
@@ -93,6 +48,19 @@ namespace TeamTaskManager.ViewModels
             await LoadSprintsAsync();
         }
 
+
+        // uprawnienia
+        public bool CanManageProject { get; set; }
+
+
+        // dane projektu
+        public string ProjectName { get; set; } = "";
+
+
+        // sprinty
+        public ObservableCollection<SprintItem> Sprints { get; } = new();
+        public bool HasSprints => Sprints.Any();
+
         public async System.Threading.Tasks.Task LoadSprintsAsync()
         {
             var (project, sprints) = await _projectService.GetSprintsByProjectIdAsync(_projectId);
@@ -105,18 +73,17 @@ namespace TeamTaskManager.ViewModels
 
             ProjectName = project.Name;
 
-            _sprints.Clear();
+            Sprints.Clear();
             foreach (var s in sprints)
             {
-                _sprints.Add(new SprintItem
+                Sprints.Add(new SprintItem
                 {
                     Id = s.Id,
                     SprintName = s.Name,
                     CreatorName = s.Creator.FullName,
                     StartDate = s.StartDate,
                     EndDate = s.EndDate,
-                    IsActive = s.Status == SprintStatus.Active,
-                    IsPlanned = s.Status == SprintStatus.Planned,
+                    Status = s.Status,
                     DoneTasks = s.SprintTasks.Count(st => st.Task.Status == TaskStatus.Closed && !st.RemovedAt.HasValue),
                     TotalTasks = s.SprintTasks.Count(st => !st.RemovedAt.HasValue)
                 });
@@ -125,6 +92,9 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
         }
 
+
+        // otwieranie raportu
+        public ICommand OpenSprintReportCommand { get; }
         private void OpenSprintReport(SprintItem? sprintItem)
         {
             if (sprintItem == null) return;
@@ -133,6 +103,9 @@ namespace TeamTaskManager.ViewModels
             WeakReferenceMessenger.Default.Send(new NavigationMessage(reportView));
         }
 
+
+        // tworzenie sprintu
+        public ICommand CreateSprintCommand { get; }
         private void CreateSprint()
         {
             if (!CanManageProject)
@@ -148,4 +121,40 @@ namespace TeamTaskManager.ViewModels
             }
         }
     }
+
+    public class SprintItem : ObservableObject
+    {
+        // sprint
+        public int Id { get; set; }
+        public string SprintName { get; set; } = "";
+
+        // tworca
+        public string CreatorName { get; set; } = "";
+        public string CreatorInitials => string.Join("", CreatorName.Split(' ').Select(n => n[0])).ToUpper();
+        public Brush CreatorAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
+        public Brush CreatorAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
+
+        // daty
+        public DateTime StartDate { get; set; }
+        public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
+        public DateTime EndDate { get; set; }
+        public string EndDateStr => EndDate.ToString("dd.MM.yyyy");
+        public int DaysRemaining => Math.Max(0, (EndDate - DateTime.Today).Days);
+
+        // status
+        public SprintStatus Status { get; set; }
+        public string StatusText => StyleHelper.GetSprintStatusDisplay(Status);
+        public Brush StatusBg => StyleHelper.GetSprintStatusStyle(Status).Bg;
+        public Brush StatusFg => StyleHelper.GetSprintStatusStyle(Status).Fg;
+        public bool IsActive => Status == SprintStatus.Active;
+        public bool IsPlanned => Status == SprintStatus.Planned;
+
+        // progres
+        public int TotalTasks { get; set; }
+        public int DoneTasks { get; set; }
+        public int RemainingTasks => Math.Max(0, TotalTasks - DoneTasks);
+        public double ProgressPercent => TotalTasks == 0 ? 0 : (double)DoneTasks / TotalTasks * 100;
+        public string ProgressText => $"{DoneTasks} / {TotalTasks} zadań ukończonych ({ProgressPercent:0}%)";
+    }
+
 }

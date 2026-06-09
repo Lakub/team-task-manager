@@ -16,15 +16,15 @@ namespace TeamTaskManager.Views
 
         private bool _isDragging = false;
 
-        public BacklogView(int sprintId, int projectId)
+        public BacklogView(int projectId, int? sprintId = null)
         {
             InitializeComponent();
 
             var dbContext = new AppDbContext();
             DataContext = new BacklogViewModel(
                 new BacklogService(dbContext),
-                sprintId,
-                projectId);
+                projectId,
+                sprintId);
 
             Loaded += BacklogView_Loaded;
         }

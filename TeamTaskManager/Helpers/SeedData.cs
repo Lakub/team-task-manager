@@ -86,7 +86,9 @@ namespace TeamTaskManager.Helpers
             float commentDeletionProbability = 0.1f,
 
             // worklogi
-            float worklogByManagerProbability = 0.2f)
+            float worklogByManagerProbability = 0.2f,
+            float worklogDeletionProbability = 0.05f,
+            float worklogEditProbability = 0.15f)
         {
             context.Database.EnsureCreated();
 
@@ -388,6 +390,9 @@ namespace TeamTaskManager.Helpers
                                 var wlStartTime = sCreatedAt.AddDays(Random.Shared.Next(1, 12)).AddHours(Random.Shared.Next(1, 24));
                                 var wlTimeSpent = TimeSpan.FromHours(Random.Shared.Next(1, 8));
                                 var wlLoggedAt = wlStartTime.Add(wlTimeSpent).AddHours(Random.Shared.Next(0, 3));
+                                var wlWasDeleted = Random.Shared.NextDouble() < worklogDeletionProbability;
+                                var wlWasEdited = wlWasDeleted || (Random.Shared.NextDouble() < worklogEditProbability);
+                                var wlUpdatedAt = wlWasEdited ? wlLoggedAt.AddDays(Random.Shared.Next(1, 10)) : wlLoggedAt;
 
                                 worklogs.Add(new Worklog
                                 {
@@ -396,7 +401,9 @@ namespace TeamTaskManager.Helpers
                                     Description = wlDescription,
                                     StartTime = wlStartTime,
                                     TimeSpent = wlTimeSpent,
-                                    LoggedAt = wlLoggedAt
+                                    LoggedAt = wlLoggedAt,
+                                    UpdatedAt = wlUpdatedAt,
+                                    IsDeleted = wlWasDeleted
                                 });
                             }
                         }

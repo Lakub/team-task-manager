@@ -135,6 +135,7 @@ namespace TeamTaskManager.Services
             if (worklog == null || worklog.IsDeleted)
                 throw new Exception("Worklog not found");
             worklog.IsDeleted = true;
+            worklog.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
     }

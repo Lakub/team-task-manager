@@ -377,13 +377,13 @@ namespace TeamTaskManager.ViewModels
 
         // kolorki i tekst dla typu, statusu i priorytetu
         public string TypeDisplay => Type.ToString();
-        public Brush TypeBadgeBg => StyleHelper.GetTypeStyle(Type).Bg;
-        public Brush TypeBadgeFg => StyleHelper.GetTypeStyle(Type).Fg;
+        public Brush TypeBadgeBg => StyleHelper.GetTaskTypeStyle(Type).Bg;
+        public Brush TypeBadgeFg => StyleHelper.GetTaskTypeStyle(Type).Fg;
 
         public string PriorityDisplay => Priority.ToString();
-        public Brush PriorityColor => StyleHelper.GetPriorityColor(Priority);
+        public Brush PriorityColor => StyleHelper.GetTaskPriorityColor(Priority);
 
-        public Brush StatusColor => StyleHelper.GetStatusColor(Status);
+        public Brush StatusColor => StyleHelper.GetTaskStatusColor(Status);
 
         public string ScopeBadgeText => StyleHelper.GetScopeDisplay(Scope);
         public Brush ScopeBadgeBg => StyleHelper.GetScopeStyle(Scope).Bg;

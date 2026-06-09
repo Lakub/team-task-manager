@@ -6,28 +6,28 @@ namespace TeamTaskManager.Helpers
 {
     public static class StyleHelper
     {
-        private static readonly Dictionary<TaskType, (Brush Bg, Brush Fg)> TypeStyles = new()
+        private static readonly Dictionary<TaskType, (Brush Bg, Brush Fg)> TaskTypeStyles = new()
         {
             { TaskType.Bug,     (CreateFrozenBrush(0xFE, 0xF2, 0xF2), CreateFrozenBrush(0xB9, 0x1C, 0x1C)) }, // czerwony
             { TaskType.Feature, (CreateFrozenBrush(0xEF, 0xF6, 0xFF), CreateFrozenBrush(0x1D, 0x4E, 0xD8)) }, // niebieski
             { TaskType.Task,    (CreateFrozenBrush(0xF3, 0xE8, 0xFF), CreateFrozenBrush(0x8B, 0x5C, 0xF6)) }  // fioletowy
         };
 
-        private static readonly Dictionary<TaskStatus, (Brush Bg, Brush Fg)> StatusStyles = new()
+        private static readonly Dictionary<TaskStatus, (Brush Bg, Brush Fg)> TaskStatusStyles = new()
         {
             { TaskStatus.Closed,     (CreateFrozenBrush(0xD1, 0xFA, 0xE5), CreateFrozenBrush(0x06, 0x5F, 0x46)) }, // zielony
             { TaskStatus.InProgress, (CreateFrozenBrush(0xDB, 0xEB, 0xFF), CreateFrozenBrush(0x1D, 0x4E, 0xD8)) }, // niebieski
             { TaskStatus.Open,       (CreateFrozenBrush(0xF3, 0xF4, 0xF6), CreateFrozenBrush(0x37, 0x41, 0x51)) }  // szary
         };
 
-        private static readonly Dictionary<TaskStatus, Brush> StatusColors = new()
+        private static readonly Dictionary<TaskStatus, Brush> TaskStatusColors = new()
         {
             { TaskStatus.Closed,     CreateFrozenBrush(0x10, 0xB9, 0x81) }, // zielony
             { TaskStatus.InProgress, CreateFrozenBrush(0x60, 0xA5, 0xFA) }, // niebieski
             { TaskStatus.Open,       CreateFrozenBrush(0xD1, 0xD5, 0xDB) }  // szary
         };
 
-        private static readonly Dictionary<TaskPriority, Brush> PriorityColors = new()
+        private static readonly Dictionary<TaskPriority, Brush> TaskPriorityColors = new()
         {
             { TaskPriority.High,   CreateFrozenBrush(0xB9, 0x1C, 0x1C) }, // czerwony
             { TaskPriority.Medium, CreateFrozenBrush(0xB4, 0x53, 0x09) }, // pomaranczowy
@@ -45,30 +45,30 @@ namespace TeamTaskManager.Helpers
         private static readonly Brush DefaultStyleFg = CreateFrozenBrush(0x2B, 0x2B, 0x2B);
         private static readonly Brush DefaultColor = CreateFrozenBrush(0xD1, 0xD5, 0xDB);
 
-        public static (Brush Bg, Brush Fg) GetTypeStyle(TaskType? type)
+        public static (Brush Bg, Brush Fg) GetTaskTypeStyle(TaskType? type)
         {
-            if (type.HasValue && TypeStyles.TryGetValue(type.Value, out var style))
+            if (type.HasValue && TaskTypeStyles.TryGetValue(type.Value, out var style))
                 return style;
             return (DefaultStyleBg, DefaultStyleFg);
         }
 
-        public static (Brush Bg, Brush Fg) GetStatusStyle(TaskStatus? status)
+        public static (Brush Bg, Brush Fg) GetTaskStatusStyle(TaskStatus? status)
         {
-            if (status.HasValue && StatusStyles.TryGetValue(status.Value, out var style))
+            if (status.HasValue && TaskStatusStyles.TryGetValue(status.Value, out var style))
                 return style;
             return (DefaultStyleBg, DefaultStyleFg);
         }
 
-        public static Brush GetStatusColor(TaskStatus? status)
+        public static Brush GetTaskStatusColor(TaskStatus? status)
         {
-            if (status.HasValue && StatusColors.TryGetValue(status.Value, out var color))
+            if (status.HasValue && TaskStatusColors.TryGetValue(status.Value, out var color))
                 return color;
             return DefaultColor;
         }
 
-        public static Brush GetPriorityColor(TaskPriority? priority)
+        public static Brush GetTaskPriorityColor(TaskPriority? priority)
         {
-            if (priority.HasValue && PriorityColors.TryGetValue(priority.Value, out var color))
+            if (priority.HasValue && TaskPriorityColors.TryGetValue(priority.Value, out var color))
                 return color;
             return DefaultColor;
         }
@@ -80,7 +80,7 @@ namespace TeamTaskManager.Helpers
             return (DefaultStyleBg, DefaultStyleFg);
         }
 
-        public static string GetStatusDisplay(TaskStatus? status) => status switch
+        public static string GetTaskStatusDisplay(TaskStatus? status) => status switch
         {
             TaskStatus.Closed => "Zamknięte",
             TaskStatus.InProgress => "W trakcie",

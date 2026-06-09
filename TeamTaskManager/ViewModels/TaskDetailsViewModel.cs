@@ -93,15 +93,15 @@ namespace TeamTaskManager.ViewModels
 
         // kolorki i tekst dla typu, statusu i priorytetu
         public string TypeDisplay => _task?.Type.ToString() ?? string.Empty;
-        public Brush TypeBadgeBg => StyleHelper.GetTypeStyle(_task?.Type).Bg;
-        public Brush TypeBadgeFg => StyleHelper.GetTypeStyle(_task?.Type).Fg;
+        public Brush TypeBadgeBg => StyleHelper.GetTaskTypeStyle(_task?.Type).Bg;
+        public Brush TypeBadgeFg => StyleHelper.GetTaskTypeStyle(_task?.Type).Fg;
 
-        public string StatusDisplay => StyleHelper.GetStatusDisplay(_task?.Status);
-        public Brush StatusBadgeBg => StyleHelper.GetStatusStyle(_task?.Status).Bg;
-        public Brush StatusBadgeFg => StyleHelper.GetStatusStyle(_task?.Status).Fg;
+        public string StatusDisplay => StyleHelper.GetTaskStatusDisplay(_task?.Status);
+        public Brush StatusBadgeBg => StyleHelper.GetTaskStatusStyle(_task?.Status).Bg;
+        public Brush StatusBadgeFg => StyleHelper.GetTaskStatusStyle(_task?.Status).Fg;
 
         public string PriorityDisplay => _task?.Priority.ToString() ?? string.Empty;
-        public Brush PriorityColor => StyleHelper.GetPriorityColor(_task?.Priority);
+        public Brush PriorityColor => StyleHelper.GetTaskPriorityColor(_task?.Priority);
 
         // assignee i reporter
         public string AssigneeName => _task?.Assignee?.FullName ?? "Nieprzypisane";
@@ -110,8 +110,7 @@ namespace TeamTaskManager.ViewModels
         public Brush AssigneeAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
 
         public string ReporterName => _task?.Reporter?.FullName ?? "Nieprzypisane";
-        public string ReporterInitials => string.IsNullOrWhiteSpace(_task?.Reporter?.FullName) ? "?"
-                                          : string.Concat(_task.Reporter.FullName.Split(' ').Select(n => n[0])).ToUpper();
+        public string ReporterInitials => StyleHelper.GetInitials(_task?.Reporter?.FullName);
         public Brush ReporterAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush ReporterAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
 

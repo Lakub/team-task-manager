@@ -27,10 +27,10 @@ namespace TeamTaskManager.ViewModels
         public string TypeDisplay => Type.ToString();
         public string PriorityDisplay => Priority.ToString();
 
-        public Brush PriorityColor => StyleHelper.GetPriorityColor(Priority);
+        public Brush PriorityColor => StyleHelper.GetTaskPriorityColor(Priority);
 
-        public Brush TypeBadgeBg => StyleHelper.GetTypeStyle(Type).Bg;
-        public Brush TypeBadgeFg => StyleHelper.GetTypeStyle(Type).Fg;
+        public Brush TypeBadgeBg => StyleHelper.GetTaskTypeStyle(Type).Bg;
+        public Brush TypeBadgeFg => StyleHelper.GetTaskTypeStyle(Type).Fg;
     }
 
     public partial class BacklogViewModel : ObservableObject

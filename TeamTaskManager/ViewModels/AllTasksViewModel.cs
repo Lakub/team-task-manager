@@ -1,13 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using TeamTaskManager.Helpers;
-using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
 using TeamTaskManager.Views;
@@ -15,18 +11,103 @@ using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
 
 namespace TeamTaskManager.ViewModels
 {
-    public partial class AllTasksViewModel : INotifyPropertyChanged
+    public partial class AllTasksViewModel : ObservableObject
     {
         private readonly IAllTasksService _allTasksService;
         private readonly IBacklogService _backlogService;
         private readonly int _projectId;
 
-        public ICommand CreateTaskCommand { get; }
-        public ICommand SelectTaskCommand { get; }
-        public ICommand ToggleSortCommand { get; }
-        public ICommand OpenTaskInWindowCommand { get; }
+        public AllTasksViewModel(IAllTasksService allTasksService, IBacklogService backlogService, int projectId)
+        {
+            _allTasksService = allTasksService;
+            _backlogService = backlogService;
+            _projectId = projectId;
 
-        public bool CanManageProject { get; private set; }
+            CreateTaskCommand = new RelayCommand(CreateTask);
+            SelectTaskCommand = new RelayCommand<BacklogTaskItem?>(SelectTask);
+            ToggleSortCommand = new RelayCommand(() => SortAscending = !SortAscending);
+            OpenTaskInWindowCommand = new RelayCommand<BacklogTaskItem?>(OpenTaskInWindow);
+        }
+
+        public async System.Threading.Tasks.Task InitializeAsync()
+        {
+            var project = await _backlogService.GetProjectAsync(_projectId);
+            if (project != null)
+            {
+                ProjectKey = project.Key;
+                CanManageProject = UserHelper.HasAdminPowers() ||
+                    project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
+                        && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
+            }
+
+            OnPropertyChanged(nameof(CanManageProject));
+            await LoadTasksAsync();
+        }
+
+        public string ProjectKey { get; set; } = string.Empty;
+
+
+        // otwieranie taska
+        public ICommand OpenTaskInWindowCommand { get; }
+        private void OpenTaskInWindow(BacklogTaskItem? item)
+        {
+            if (item == null) return;
+            var win = new TaskDetailsWindow(item.TaskId);
+            win.Show();
+        }
+
+
+        // wybieranie taska
+        public event Action<BacklogTaskItem?>? SelectedTaskChanged;
+
+        private BacklogTaskItem? _selectedTask;
+        public BacklogTaskItem? SelectedTask
+        {
+            get => _selectedTask;
+            set
+            {
+                _selectedTask = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasSelectedTask));
+                OnPropertyChanged(nameof(SelectedTaskId));
+                SelectedTaskChanged?.Invoke(_selectedTask);
+            }
+        }
+
+        public int? SelectedTaskId => _selectedTask?.TaskId;
+        public bool HasSelectedTask => _selectedTask != null;
+
+        public ICommand SelectTaskCommand { get; }
+        public void SelectTask(BacklogTaskItem? item)
+        {
+            if (item == null) return;
+            SelectedTask = item;
+        }
+
+
+        // taski
+        private List<BacklogTaskItem> _allTasks = new();
+
+        public async System.Threading.Tasks.Task LoadTasksAsync()
+        {
+            var tasks = await _allTasksService.GetAllProjectTasksAsync(_projectId);
+            _allTasks = tasks.Select(t => new BacklogTaskItem
+            {
+                TaskId = t.Id,
+                Title = t.Title,
+                PerProjectId = t.PerProjectId,
+                Key = $"{ProjectKey}-{t.PerProjectId}",
+                Type = t.Type,
+                Priority = t.Priority,
+                Status = t.Status
+            }).ToList();
+
+            ApplyFilterSort();
+        }
+
+
+        // filtrowanie i sortowanie
+        public ObservableCollection<BacklogTaskItem> FilteredTasks { get; } = new();
 
         private string _selectedFilter = "All";
         public string SelectedFilter
@@ -58,73 +139,7 @@ namespace TeamTaskManager.ViewModels
             new() { Label = "Niski priorytet", Value = "Low" },
         };
 
-        private List<BacklogTaskItem> _allTasks = new();
-        public ObservableCollection<BacklogTaskItem> FilteredTasks { get; } = new();
-
-        private BacklogTaskItem? _selectedTask;
-        public BacklogTaskItem? SelectedTask
-        {
-            get => _selectedTask;
-            set
-            {
-                _selectedTask = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(HasSelectedTask));
-                OnPropertyChanged(nameof(SelectedTaskId));
-                SelectedTaskChanged?.Invoke(_selectedTask);
-            }
-        }
-
-        public bool HasSelectedTask => _selectedTask != null;
-        public int? SelectedTaskId => _selectedTask?.TaskId;
-
-        public event Action<BacklogTaskItem?>? SelectedTaskChanged;
-
-        private string _projectKey = "";
-
-        public AllTasksViewModel(IAllTasksService allTasksService, IBacklogService backlogService, int projectId)
-        {
-            _allTasksService = allTasksService;
-            _backlogService = backlogService;
-            _projectId = projectId;
-
-            CreateTaskCommand = new RelayCommand(CreateTask);
-            SelectTaskCommand = new RelayCommand<BacklogTaskItem?>(item => SelectedTask = item);
-            ToggleSortCommand = new RelayCommand(() => SortAscending = !SortAscending);
-            OpenTaskInWindowCommand = new RelayCommand<BacklogTaskItem?>(OpenTaskInWindow);
-        }
-
-        public async System.Threading.Tasks.Task InitializeAsync()
-        {
-            var project = await _backlogService.GetProjectAsync(_projectId);
-            if (project != null)
-            {
-                _projectKey = project.Key;
-                CanManageProject = UserHelper.HasAdminPowers() ||
-                    project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
-                        && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
-            }
-
-            OnPropertyChanged(nameof(CanManageProject));
-            await LoadTasksAsync();
-        }
-
-        public async System.Threading.Tasks.Task LoadTasksAsync()
-        {
-            var tasks = await _allTasksService.GetAllProjectTasksAsync(_projectId);
-            _allTasks = tasks.Select(t => new BacklogTaskItem
-            {
-                TaskId = t.Id,
-                Title = t.Title,
-                PerProjectId = t.PerProjectId,
-                Key = $"{_projectKey}-{t.PerProjectId}",
-                Type = t.Type,
-                Priority = t.Priority,
-                Status = t.Status
-            }).ToList();
-
-            ApplyFilterSort();
-        }
+        public ICommand ToggleSortCommand { get; }
 
         private void ApplyFilterSort()
         {
@@ -155,6 +170,11 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(nameof(FilteredTasks));
         }
 
+
+        // tworzenie taskow
+        public bool CanManageProject { get; private set; }
+        public ICommand CreateTaskCommand { get; }
+
         private void CreateTask()
         {
             if (!CanManageProject)
@@ -169,16 +189,5 @@ namespace TeamTaskManager.ViewModels
                 _ = LoadTasksAsync();
             }
         }
-
-        private void OpenTaskInWindow(BacklogTaskItem? item)
-        {
-            if (item == null) return;
-            var win = new TaskDetailsWindow(item.TaskId);
-            win.Show();
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? n = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 }

@@ -104,7 +104,7 @@
                                                     <TextBlock Grid.Column="2" Text="{Binding StartedAtStr}" Foreground="#9CA3AF"
                                                                ToolTip="{Binding DateToolTipStr}" Margin="0,0,10,0" VerticalAlignment="Center"/>
                                                     <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,8,0" VerticalAlignment="Center"
-                                                                Visibility="{Binding IsOwner, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                Visibility="{Binding CanEdit, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Edytuj"
                                                                 Command="{Binding DataContext.EditWorklogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                             <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#9CA3AF"/>
@@ -194,7 +194,7 @@
                                                                Visibility="{Binding WasEdited, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                                                     <StackPanel Orientation="Horizontal" Grid.Column="5" Margin="0,0,8,0" VerticalAlignment="Center"
-                                                                Visibility="{Binding IsOwner, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                Visibility="{Binding CanEdit, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Edytuj"
                                                                 Command="{Binding DataContext.EditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                             <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
@@ -285,7 +285,7 @@
                                                                                    Visibility="{Binding WasEdited, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                                                                         <StackPanel Orientation="Horizontal" Grid.Column="5" Margin="0,0,8,0" VerticalAlignment="Center"
-                                                                                    Visibility="{Binding IsOwner, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                                    Visibility="{Binding CanEdit, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                             <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Edytuj"
                                                                                     Command="{Binding DataContext.EditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                                                 <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>

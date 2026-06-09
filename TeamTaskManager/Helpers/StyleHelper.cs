@@ -40,6 +40,13 @@ namespace TeamTaskManager.Helpers
             { ScopeChange.Descoped, (CreateFrozenBrush(0xFE, 0xE2, 0xE2), CreateFrozenBrush(0x99, 0x1B, 0x1B)) }  // czerwony
         };
 
+        private static readonly Dictionary<SprintStatus, (Brush Bg, Brush Fg)> SprintStatusStyles = new()
+        {
+            { SprintStatus.Active,    (CreateFrozenBrush(0xD1, 0xFA, 0xE5), CreateFrozenBrush(0x06, 0x5F, 0x46)) }, // zielony
+            { SprintStatus.Planned,   (CreateFrozenBrush(0xDB, 0xEA, 0xFE), CreateFrozenBrush(0x1E, 0x40, 0xAF)) }, // niebieski
+            { SprintStatus.Completed, (CreateFrozenBrush(0xE5, 0xE7, 0xEB), CreateFrozenBrush(0x4B, 0x55, 0x63)) }  // szary
+        };
+
         // fallbacki
         private static readonly Brush DefaultStyleBg = CreateFrozenBrush(0xF3, 0xF4, 0xF6);
         private static readonly Brush DefaultStyleFg = CreateFrozenBrush(0x2B, 0x2B, 0x2B);
@@ -80,6 +87,28 @@ namespace TeamTaskManager.Helpers
             return (DefaultStyleBg, DefaultStyleFg);
         }
 
+        public static (Brush Bg, Brush Fg) GetSprintStatusStyle(SprintStatus? status)
+        {
+            if (status.HasValue && SprintStatusStyles.TryGetValue(status.Value, out var style))
+                return style;
+            return (DefaultStyleBg, DefaultStyleFg);
+        }
+
+        public static string GetTaskTypeDisplay(TaskType? type) => type switch
+        {
+            TaskType.Task => "Zadanie",
+            TaskType.Bug => "Błąd",
+            TaskType.Feature => "Funkcja",
+            _ => string.Empty
+        };
+        public static string GetTaskPriorityDisplay(TaskPriority? priority) => priority switch
+        {
+            TaskPriority.Low => "Niski",
+            TaskPriority.Medium => "Średni",
+            TaskPriority.High => "Wysoki",
+            _ => string.Empty
+        };
+
         public static string GetTaskStatusDisplay(TaskStatus? status) => status switch
         {
             TaskStatus.Closed => "Zamknięte",
@@ -92,6 +121,13 @@ namespace TeamTaskManager.Helpers
         {
             ScopeChange.Added => "+dodane",
             ScopeChange.Descoped => "descoped",
+            _ => string.Empty
+        };
+        public static string GetSprintStatusDisplay(SprintStatus? status) => status switch
+        {
+            SprintStatus.Active => "W toku",
+            SprintStatus.Planned => "Planowany",
+            SprintStatus.Completed => "Zakończony",
             _ => string.Empty
         };
 

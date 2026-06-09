@@ -191,8 +191,8 @@ namespace TeamTaskManager.ViewModels
         {
             get
             {
-                if (_task?.Worklogs == null || !_task.Worklogs.Any()) return "0h";
-                var totalHours = _task?.Worklogs.Sum(w => w.TimeSpent.TotalHours);
+                if (Worklogs == null || !Worklogs.Any()) return "0h";
+                var totalHours = Worklogs.Sum(w => w.TimeSpent.TotalHours);
                 return $"{totalHours:0.#}h";
             }
         }
@@ -401,6 +401,7 @@ namespace TeamTaskManager.ViewModels
         public string CreatedAtStr => _model.LoggedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
         public string CreatedAtFullStr => "Utworzono: " + CreatedAtStr;
         public string StartedAtStr => _model.StartTime.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
+        public TimeSpan TimeSpent => _model.TimeSpent;
         public string TimeSpentStr => $"{_model.TimeSpent.TotalHours:0.#}h";
 
         // avatar

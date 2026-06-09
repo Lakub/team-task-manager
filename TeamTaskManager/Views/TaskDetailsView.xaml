@@ -379,7 +379,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="Czas pracy:" Foreground="#6B7280" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="{Binding TotalTimeSpent}" Foreground="#1F2937" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding TotalTimeSpent}" FontWeight="Medium" Foreground="#1F2937" VerticalAlignment="Center"/>
                             </Grid>
                         </StackPanel>
                     </Border>

@@ -49,17 +49,16 @@ namespace TeamTaskManager.Services
 
         public async Task<List<Task>> GetBacklogTasksAsync(int projectId)
         {
-            var activeSprintTaskIds = await _context.SprintTasks
-                .Where(st => st.Sprint.Status == SprintStatus.Active    // tylko z aktywnego sprintu
-                          && st.RemovedAt == null)                      // tylko nieusuniete ze sprintu
+            var sprintTaskIds = await _context.SprintTasks
+                .Where(st => st.Sprint.ProjectId == projectId && st.RemovedAt == null)
                 .Select(st => st.TaskId)
                 .ToListAsync();
 
             return await _context.Tasks
                 .Where(t => t.ProjectId == projectId
-                         && !t.IsDeleted                            // tylko nieusuniete
-                         && t.Status != TaskStatus.Closed           // tylko otwarte lub w trakcie
-                         && !activeSprintTaskIds.Contains(t.Id))    // tylko te poza aktywnym sprintem
+                         && !t.IsDeleted                    // tylko nieusuniete
+                         && t.Status != TaskStatus.Closed   // tylko otwarte lub w trakcie
+                         && !sprintTaskIds.Contains(t.Id))  // tylko te, ktore nie sa w zadnym sprincie
                 .ToListAsync();
         }
 

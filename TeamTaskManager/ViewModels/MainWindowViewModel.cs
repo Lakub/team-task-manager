@@ -36,7 +36,7 @@ namespace TeamTaskManager.ViewModels
                     CurrentSprintView => new CurrentSprintView(ActiveSprint?.Id ?? -1),
                     SprintsOverviewView => new SprintsOverviewView(SelectedProject?.Id ?? -1),
                     SprintReportView => SelectedProject != null ? new SprintReportView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
-                    BacklogView => SelectedProject != null ? new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject.Id) : CurrentView,
+                    BacklogView => SelectedProject != null ? new BacklogView(SelectedProject.Id, ActiveSprint?.Id) : CurrentView,
                     AllTasksView => SelectedProject != null ? new AllTasksView(SelectedProject.Id) : CurrentView,
                     WikiMainView => SelectedProject != null ? new WikiMainView(SelectedProject.Id) : CurrentView,
                     _ => CurrentView
@@ -121,7 +121,7 @@ namespace TeamTaskManager.ViewModels
                     return;
                 }
 
-                CurrentView = new BacklogView(ActiveSprint?.Id ?? -1, SelectedProject?.Id ?? -1);
+                CurrentView = new BacklogView(SelectedProject?.Id ?? -1, ActiveSprint?.Id);
             });
 
             ShowAllTasksCommand = new RelayCommand(() =>

@@ -56,7 +56,7 @@ namespace TeamTaskManager.ViewModels
     public partial class BacklogViewModel : INotifyPropertyChanged
     {
         private readonly IBacklogService _backlogService;
-        private readonly int _sprintId;
+        private readonly int? _sprintId;
         private readonly int _projectId;
 
         public Action<BacklogTaskItem>? OnTaskSelected { get; set; }
@@ -80,7 +80,7 @@ namespace TeamTaskManager.ViewModels
         public ObservableCollection<BacklogTaskItem> SprintTasks { get; } = new();
         public ObservableCollection<BacklogTaskItem> BacklogTasks { get; } = new();
 
-        public BacklogViewModel(IBacklogService backlogService, int sprintId, int projectId)
+        public BacklogViewModel(IBacklogService backlogService, int projectId, int? sprintId)
         {
             _backlogService = backlogService;
             _sprintId = sprintId;
@@ -95,15 +95,6 @@ namespace TeamTaskManager.ViewModels
 
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            var sprint = await _backlogService.GetSprintAsync(_sprintId);
-            if (sprint != null)
-            {
-                SprintName = sprint.Name;
-                IsActive = sprint.Status == SprintStatus.Active;
-                IsPlanned = sprint.Status == SprintStatus.Planned;
-                HasSprint = true;
-            }
-
             var project = await _backlogService.GetProjectAsync(_projectId);
             if (project != null)
             {
@@ -113,14 +104,29 @@ namespace TeamTaskManager.ViewModels
                                                               && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
             }
 
+            if (_sprintId.HasValue)
+            {
+                var sprint = await _backlogService.GetSprintAsync(_sprintId.Value);
+            if (sprint != null)
+            {
+                SprintName = sprint.Name;
+                IsActive = sprint.Status == SprintStatus.Active;
+                IsPlanned = sprint.Status == SprintStatus.Planned;
+                HasSprint = true;
+            }
+            }
+
             OnPropertyChanged(string.Empty);
             await LoadTasksAsync();
         }
 
         private async System.Threading.Tasks.Task LoadTasksAsync()
         {
-            var sprintTasks = await _backlogService.GetActiveSprintTasksAsync(_sprintId);
             SprintTasks.Clear();
+
+            if (_sprintId.HasValue)
+            {
+                var sprintTasks = await _backlogService.GetActiveSprintTasksAsync(_sprintId.Value);
             foreach (var t in sprintTasks)
             {
                 SprintTasks.Add(new BacklogTaskItem
@@ -134,11 +140,15 @@ namespace TeamTaskManager.ViewModels
                     Status = t.Status
                 });
             }
+            }
 
             var backlogTasks = await _backlogService.GetBacklogTasksAsync(_projectId);
             BacklogTasks.Clear();
             foreach (var t in backlogTasks)
             {
+                // nie pokazujemy taskow, ktore sa juz w sprincie
+                if (SprintTasks.Any(st => st.TaskId == t.Id)) continue;
+
                 BacklogTasks.Add(new BacklogTaskItem
                 {
                     TaskId = t.Id,
@@ -156,6 +166,8 @@ namespace TeamTaskManager.ViewModels
 
         public async System.Threading.Tasks.Task MoveToSprint(BacklogTaskItem? item)
         {
+            if (!_sprintId.HasValue) return;
+
             if (!CanEditSprint)
             {
                 MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -167,12 +179,14 @@ namespace TeamTaskManager.ViewModels
             // czy jest juz w sprincie
             if (SprintTasks.Any(t => t.TaskId == item.TaskId)) return;
 
-            await _backlogService.AddTaskToSprintAsync(_sprintId, item.TaskId);
+            await _backlogService.AddTaskToSprintAsync(_sprintId.Value, item.TaskId);
             await LoadTasksAsync();
         }
 
         public async System.Threading.Tasks.Task RemoveFromSprint(BacklogTaskItem? item)
         {
+            if (!_sprintId.HasValue) return;
+
             if (!CanEditSprint)
             {
                 MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -181,13 +195,15 @@ namespace TeamTaskManager.ViewModels
 
             if (item == null) return;
 
-            await _backlogService.RemoveTaskFromSprintAsync(_sprintId, item.TaskId);
+            await _backlogService.RemoveTaskFromSprintAsync(_sprintId.Value, item.TaskId);
             await LoadTasksAsync();
         }
 
         private void OpenSprintReport()
         {
-            var reportView = new SprintReportView(_sprintId, _projectId);
+            if (!_sprintId.HasValue) return;
+
+            var reportView = new SprintReportView(_sprintId.Value, _projectId);
             WeakReferenceMessenger.Default.Send(new NavigationMessage(reportView));
         }
 

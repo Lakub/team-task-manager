@@ -247,7 +247,7 @@ namespace TeamTaskManager.ViewModels
                 if (targetSprint == null)
                 {
                     MessageBox.Show("Brak sprintów w projekcie.");
-                    var backlogView = new BacklogView(-1, _projectId);
+                    var backlogView = new BacklogView(_projectId);
                     WeakReferenceMessenger.Default.Send(new NavigationMessage(backlogView));
                     return;
                 }
@@ -434,7 +434,7 @@ namespace TeamTaskManager.ViewModels
 
         private void OpenSprintBacklog()
         {
-            var backlogView = new BacklogView(_sprintId, _projectId);
+            var backlogView = new BacklogView(_projectId, _sprintId);
             WeakReferenceMessenger.Default.Send(new NavigationMessage(backlogView));
         }
 

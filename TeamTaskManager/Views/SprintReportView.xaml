@@ -327,8 +327,8 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal" Grid.Column="0">
                             <TextBlock Text="ZADANIA SPRINTU" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center"/>
-                            <Button Style="{StaticResource ActionButtonStyle}" Command="{Binding OpenSprintBacklogCommand}" Visibility="{Binding CanEditSprint, Converter={StaticResource BoolToVisibilityConverter}}"
-                                    Padding="3,0,3,0" Margin="2,0,0,0" Content="✎" FontFamily="Segoe UI Symbol" FontSize="14"/>
+                            <Button Style="{StaticResource IconActionButtonStyle}" Command="{Binding OpenSprintBacklogCommand}"
+                                    Margin="5,0,0,0" FontSize="14" FontFamily="Segoe MDL2 Assets" Content="&#xEA37;" ToolTip="Otwórz backlog sprintu"/>
                         </StackPanel>
                         <Grid Grid.Column="1">
                             <Grid.ColumnDefinitions>

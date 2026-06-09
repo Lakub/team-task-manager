@@ -69,10 +69,6 @@ namespace TeamTaskManager.ViewModels
             IsActive = sprint.Status == SprintStatus.Active;
             IsPlanned = sprint.Status == SprintStatus.Planned;
 
-            CanManageProject = UserHelper.HasAdminPowers() ||
-                               sprint.Project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
-                                                           && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
-
             _allTaskItems.Clear();
             foreach (var st in sprintTasks)
             {
@@ -107,10 +103,6 @@ namespace TeamTaskManager.ViewModels
         public bool IsActive { get; set; }
         public bool IsPlanned { get; set; }
         public string StatusText => IsActive ? "W toku" : IsPlanned ? "Planowany" : "Zakończony";
-
-        // uprawnienia
-        public bool CanManageProject { get; set; }
-        public bool CanEditSprint => (IsPlanned || IsActive) && CanManageProject;
 
 
         // metryki

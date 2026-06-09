@@ -173,12 +173,14 @@ namespace TeamTaskManager.ViewModels
 
         // assignee i reporter
         public string AssigneeName => _task?.Assignee?.FullName ?? "Nieprzypisane";
-        public string AssigneeInitials => string.IsNullOrWhiteSpace(_task?.Assignee?.FullName) ? "?" : string.Concat(_task.Assignee.FullName.Split(' ').Select(n => n[0])).ToUpper();
+        public string AssigneeInitials => string.IsNullOrWhiteSpace(_task?.Assignee?.FullName) ? "?"
+                                          : string.Concat(_task.Assignee.FullName.Split(' ').Select(n => n[0])).ToUpper();
         public Brush AssigneeAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush AssigneeAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
 
         public string ReporterName => _task?.Reporter?.FullName ?? "Nieprzypisane";
-        public string ReporterInitials => string.IsNullOrWhiteSpace(_task?.Reporter?.FullName) ? "?" : string.Concat(_task.Reporter.FullName.Split(' ').Select(n => n[0])).ToUpper();
+        public string ReporterInitials => string.IsNullOrWhiteSpace(_task?.Reporter?.FullName) ? "?"
+                                          : string.Concat(_task.Reporter.FullName.Split(' ').Select(n => n[0])).ToUpper();
         public Brush ReporterAvatarBg { get; set; } = new SolidColorBrush(Color.FromRgb(224, 231, 255));
         public Brush ReporterAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
 
@@ -332,7 +334,8 @@ namespace TeamTaskManager.ViewModels
                 return;
             }
 
-            if (MessageBox.Show("Czy na pewno chcesz usunąć ten komentarz?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (MessageBox.Show("Czy na pewno chcesz usunąć ten komentarz?", "Potwierdzenie",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 return;
 
             await _taskService.DeleteTaskCommentAsync(commentItem.Id);
@@ -361,7 +364,8 @@ namespace TeamTaskManager.ViewModels
         }
 
         public string Content => _model.IsDeleted ? "" : _model.Text;
-        public string DisplayName => _model.IsDeleted ? "Nieznany Użytkownik" : (_model.Commenter?.FullName ?? "Nieznany Użytkownik");
+        public string DisplayName => _model.IsDeleted ? "Nieznany Użytkownik"
+                                     : (_model.Commenter?.FullName ?? "Nieznany Użytkownik");
         public bool IsDeleted => _model.IsDeleted;
         // pokazujemy usuniete tylko wtedy, gdy maja jakas nieusunieta odpowiedz
         public bool ShowDetails => !IsDeleted || (_model.Replies != null && _model.Replies.Any(r => !r.IsDeleted));

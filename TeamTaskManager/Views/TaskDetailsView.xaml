@@ -44,11 +44,11 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="2*" MinWidth="210" MaxWidth="400"/>
             </Grid.ColumnDefinitions>
 
-            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Padding="0,0,5,0">
                 <StackPanel>
                     <Border Style="{StaticResource Card}" Margin="0,0,0,15">
                         <StackPanel>
@@ -360,48 +360,68 @@
                 </StackPanel>
             </ScrollViewer>
 
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center"
+                          Background="#F3F4F6" Cursor="SizeWE" ResizeBehavior="PreviousAndNext"/>
+
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <Border Style="{StaticResource Card}" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="SZCZEGÓŁY" Style="{StaticResource SectionTitle}" Margin="0,0,0,15"/>
-
-                            <Grid Margin="0,0,0,12">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="70"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Status:" Foreground="#6B7280" VerticalAlignment="Center"/>
-                                <Border Grid.Column="1" Background="{Binding StatusBadgeBg}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left">
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.ColumnSpan="2" 
+                                       Text="SZCZEGÓŁY" Style="{StaticResource SectionTitle}" Margin="0,0,0,15"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Status:" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,0,12"/>
+                                <Border Grid.Row="1" Grid.Column="1" Background="{Binding StatusBadgeBg}" CornerRadius="10"
+                                        Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,12">
                                     <TextBlock Text="{Binding StatusDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding StatusBadgeFg}" FontWeight="Medium"/>
                                 </Border>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Priorytet:" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,0,12"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding PriorityDisplay}" Foreground="{Binding PriorityColor}"
+                                           FontWeight="Medium" VerticalAlignment="Center" Margin="0,0,0,12"/>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Sprint:" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,0,12"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SprintName}" FontWeight="Medium"
+                                           VerticalAlignment="Center" Margin="0,0,0,12" TextTrimming="CharacterEllipsis"/>
+
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Czas pracy:" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding TotalTimeSpent}" FontWeight="Medium" Foreground="#1F2937" VerticalAlignment="Center"/>
                             </Grid>
 
-                            <Grid Margin="0,0,0,12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Priorytet:" Foreground="#6B7280" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="{Binding PriorityDisplay}" Foreground="{Binding PriorityColor}" FontWeight="Medium" VerticalAlignment="Center"/>
-                            </Grid>
+                            <Separator Margin="0,25,0,15" Background="#E5E7EB"/>
 
-                            <Grid Margin="0,0,0,12">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="70"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Sprint:" Foreground="#6B7280" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="{Binding SprintName}" FontWeight="Medium" VerticalAlignment="Center"/>
-                            </Grid>
 
-                            <Grid Margin="0,0,0,12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Czas pracy:" Foreground="#6B7280" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="{Binding TotalTimeSpent}" FontWeight="Medium" Foreground="#1F2937" VerticalAlignment="Center"/>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Utworzono:" Foreground="#9CA3AF" VerticalAlignment="Center" Margin="0,0,0,4"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CreatedAtStr}" Foreground="#9CA3AF"
+                                           VerticalAlignment="Center" Margin="0,0,0,4" TextTrimming="CharacterEllipsis"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Zmieniono:" Foreground="#9CA3AF" VerticalAlignment="Center" Margin="0,0,0,4"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding UpdatedAtStr}" Foreground="#9CA3AF"
+                                           VerticalAlignment="Center" Margin="0,0,0,4" TextTrimming="CharacterEllipsis"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -413,39 +433,19 @@
                             <TextBlock Text="Przypisane do" Foreground="#9CA3AF" FontSize="11" Margin="0,0,0,4"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                                 <Border Background="{Binding AssigneeAvatarBg}" CornerRadius="15" Width="30" Height="30" HorizontalAlignment="Left" Margin="0,0,10,0">
-                                    <TextBlock Text="{Binding AssigneeInitials}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="{Binding AssigneeAvatarFg}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding AssigneeInitials}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{Binding AssigneeAvatarFg}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="{Binding AssigneeName}" Foreground="#1F2937" VerticalAlignment="Center" FontWeight="Medium"/>
                             </StackPanel>
 
                             <TextBlock Text="Zgłaszający" Foreground="#9CA3AF" FontSize="11" Margin="0,0,0,4"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                 <Border Background="{Binding ReporterAvatarBg}" CornerRadius="15" Width="30" Height="30" HorizontalAlignment="Left" Margin="0,0,10,0">
-                                    <TextBlock Text="{Binding ReporterInitials}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold" Foreground="{Binding ReporterAvatarFg}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding ReporterInitials}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{Binding ReporterAvatarFg}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="{Binding ReporterName}" Foreground="#1F2937" VerticalAlignment="Center" FontWeight="Medium"/>
-                            </StackPanel>
-
-                            <Separator Margin="0,5,0,15" Background="#E5E7EB"/>
-
-                            <StackPanel>
-                                <Grid Margin="0,0,0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="90"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Utworzono:" Foreground="#9CA3AF"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding CreatedAtStr}" Foreground="#9CA3AF"/>
-                                </Grid>
-
-                                <Grid Margin="0,0,0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="90"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Zmieniono:" Foreground="#9CA3AF"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding UpdatedAtStr}" Foreground="#9CA3AF"/>
-                                </Grid>
                             </StackPanel>
                         </StackPanel>
                     </Border>

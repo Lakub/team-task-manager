@@ -366,6 +366,10 @@ namespace TeamTaskManager.ViewModels
         // pokazujemy usuniete tylko wtedy, gdy maja jakas nieusunieta odpowiedz
         public bool ShowDetails => !IsDeleted || (_model.Replies != null && _model.Replies.Any(r => !r.IsDeleted));
         public bool IsOwner => !IsDeleted && _model.CommenterId == App.CurrentUser?.Id;
+        public bool WasEdited => _model.UpdatedAt > _model.CreatedAt;
+        public string EditInformation => IsDeleted ? "(Usunięto)" : "(Edytowano)";
+        public string UpdatedAtStr => (IsDeleted ? "Usunięto: " : "Zmieniono: ")
+                                      + _model.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
         public int Id => _model.Id;
         public DateTime CreatedAt => _model.CreatedAt;
         public string CreatedAtStr => _model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
@@ -399,7 +403,10 @@ namespace TeamTaskManager.ViewModels
         public bool IsOwner => _model.UserId == App.CurrentUser?.Id;
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
         public string CreatedAtStr => _model.LoggedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
-        public string CreatedAtFullStr => "Utworzono: " + CreatedAtStr;
+        public bool WasEdited => _model.UpdatedAt > _model.LoggedAt;
+        public string UpdatedAtStr => _model.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
+        public string DateToolTipStr => "Utworzono: " + CreatedAtStr
+                                        + (WasEdited ? "\nZmieniono: " + UpdatedAtStr : "");
         public string StartedAtStr => _model.StartTime.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
         public TimeSpan TimeSpent => _model.TimeSpent;
         public string TimeSpentStr => $"{_model.TimeSpent.TotalHours:0.#}h";

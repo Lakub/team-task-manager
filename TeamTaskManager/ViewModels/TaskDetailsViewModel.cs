@@ -32,6 +32,7 @@ namespace TeamTaskManager.ViewModels
 
             AddCommentCommand = new AsyncRelayCommand(AddCommentAsync);
             DeleteCommentCommand = new AsyncRelayCommand<CommentItem>(DeleteCommentAsync);
+            EditCommentCommand = new AsyncRelayCommand<CommentItem>(EditCommentAsync);
             AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
             CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
             LogWorkCommand = new RelayCommand(LogWork);
@@ -92,6 +93,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand DeleteWorklogCommand { get; }
         public ICommand EditWorklogCommand { get; }
         public ICommand AddCommentCommand { get; }
+        public ICommand EditCommentCommand { get; }
         public ICommand DeleteCommentCommand { get; }
         public ICommand AddReplyCommand { get; }
         public ICommand CancelReplyCommand { get; }
@@ -321,6 +323,21 @@ namespace TeamTaskManager.ViewModels
 
             NewCommentContent = string.Empty;
             OnPropertyChanged(nameof(NewCommentContent));
+
+            await LoadCommentsAsync();
+        }
+
+        private async System.Threading.Tasks.Task EditCommentAsync(CommentItem? commentItem)
+        {
+            if (commentItem == null) return;
+            if (!commentItem.IsOwner)
+            {
+                MessageBox.Show("Możesz modyfikować tylko własne komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            //await _taskService.EditTaskCommentAsync(commentItem.Id,
+            MessageBox.Show("edytowanie");
 
             await LoadCommentsAsync();
         }

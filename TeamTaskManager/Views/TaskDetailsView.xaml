@@ -175,6 +175,7 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
@@ -192,8 +193,12 @@
                                                                VerticalAlignment="Center" ToolTip="{Binding UpdatedAtStr}" FontStyle="Italic"
                                                                Visibility="{Binding WasEdited, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                                                    <StackPanel Orientation="Horizontal" Grid.Column="4" Margin="0,0,8,0"
+                                                    <StackPanel Orientation="Horizontal" Grid.Column="5" Margin="0,0,8,0" VerticalAlignment="Center"
                                                                 Visibility="{Binding IsOwner, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Edytuj"
+                                                                Command="{Binding DataContext.EditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                            <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+                                                        </Button>
                                                         <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Usuń"
                                                                 Command="{Binding DataContext.DeleteCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                             <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
@@ -261,11 +266,12 @@
                                                                             <ColumnDefinition Width="Auto"/>
                                                                             <ColumnDefinition Width="Auto"/>
                                                                             <ColumnDefinition Width="Auto"/>
+                                                                            <ColumnDefinition Width="Auto"/>
                                                                             <ColumnDefinition Width="*"/>
                                                                             <ColumnDefinition Width="Auto"/>
                                                                         </Grid.ColumnDefinitions>
                                                                         <Border Grid.Column="0" Background="{Binding AvatarBg}" CornerRadius="9"
-                                                                                Width="18" Height="18" Margin="0,0,5,0">
+                                                                                Width="18" Height="18" Margin="0,0,5,0" VerticalAlignment="Center">
                                                                             <TextBlock Text="{Binding Initials}" FontFamily="Segoe UI" FontSize="8"
                                                                                        FontWeight="SemiBold" Foreground="{Binding AvatarFg}"
                                                                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -278,8 +284,12 @@
                                                                                    VerticalAlignment="Center" ToolTip="{Binding UpdatedAtStr}" FontStyle="Italic"
                                                                                    Visibility="{Binding WasEdited, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                                                                        <StackPanel Orientation="Horizontal" Grid.Column="4" Margin="0,0,8,0"
+                                                                        <StackPanel Orientation="Horizontal" Grid.Column="5" Margin="0,0,8,0" VerticalAlignment="Center"
                                                                                     Visibility="{Binding IsOwner, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                            <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Edytuj"
+                                                                                    Command="{Binding DataContext.EditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                                                <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+                                                                            </Button>
                                                                             <Button Style="{StaticResource IconActionButtonStyle}" CommandParameter="{Binding}" ToolTip="Usuń"
                                                                                     Command="{Binding DataContext.DeleteCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                                                 <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>

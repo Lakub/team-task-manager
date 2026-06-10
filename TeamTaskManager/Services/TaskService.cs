@@ -30,8 +30,7 @@ namespace TeamTaskManager.Services
 
         System.Threading.Tasks.Task DeleteTaskWorklogAsync(int worklogId);
 
-        System.Threading.Tasks.Task UpdateTaskTitleAsync(int taskId, string newTitle);
-        System.Threading.Tasks.Task UpdateTaskAssigneeAsync(int taskId, int? userId);
+        System.Threading.Tasks.Task UpdateTaskAssigneeAsync(int taskId, int? newAssigneeId);
 
     }
 
@@ -176,16 +175,6 @@ namespace TeamTaskManager.Services
             await _context.SaveChangesAsync();
         }
 
-        public async System.Threading.Tasks.Task UpdateTaskTitleAsync(int taskId, string newTitle)
-        {
-            var task = await _context.Tasks.FindAsync(taskId);
-            if (task == null || task.IsDeleted)
-                throw new Exception("Task not found");
-            task.Title = newTitle;
-            task.UpdatedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-        }
-
         public async System.Threading.Tasks.Task DeleteTaskAsync(int taskId)
         {
             var task = await _context.Tasks.FindAsync(taskId);
@@ -196,13 +185,13 @@ namespace TeamTaskManager.Services
             await _context.SaveChangesAsync();
         }
 
-        public async System.Threading.Tasks.Task UpdateTaskAssigneeAsync(int taskId, int? userId)
+        public async System.Threading.Tasks.Task UpdateTaskAssigneeAsync(int taskId, int? newAssigneeId)
         {
             var task = await _context.Tasks.FindAsync(taskId);
             if (task == null || task.IsDeleted)
                 throw new Exception("Task not found");
 
-            task.AssigneeId = userId;
+            task.AssigneeId = newAssigneeId;
             task.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }

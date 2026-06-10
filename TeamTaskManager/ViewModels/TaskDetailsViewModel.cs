@@ -204,9 +204,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand CancelEditCommentCommand { get; }
         private async System.Threading.Tasks.Task EditCommentAsync(CommentItem? commentItem)
         {
-            if (commentItem == null) return;
-            if (commentItem.IsDeleted) return;
-            if (!commentItem.CanEdit) return;
+            if (commentItem == null || commentItem.IsDeleted || !commentItem.CanEdit) return;
 
             if (commentItem.IsBeingEdited)
             {
@@ -257,9 +255,7 @@ namespace TeamTaskManager.ViewModels
         public ICommand DeleteCommentCommand { get; }
         private async System.Threading.Tasks.Task DeleteCommentAsync(CommentItem? commentItem)
         {
-            if (commentItem == null) return;
-            if (commentItem.IsDeleted) return;
-            if (!commentItem.CanEdit) return;
+            if (commentItem == null || commentItem.IsDeleted || !commentItem.CanEdit) return;
 
             if (MessageBox.Show("Czy na pewno chcesz usunąć ten komentarz?", "Potwierdzenie",
                 MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
@@ -279,8 +275,7 @@ namespace TeamTaskManager.ViewModels
 
         private async System.Threading.Tasks.Task AddReplyAsync(CommentItem? commentItem)
         {
-            if (commentItem == null) return;
-            if (commentItem.IsDeleted) return;
+            if (commentItem == null || commentItem.IsDeleted) return;
 
             if (commentItem.IsBeingRepliedTo)
             {
@@ -359,12 +354,7 @@ namespace TeamTaskManager.ViewModels
 
         private void EditWorklog(WorklogItem? worklogItem)
         {
-            if (worklogItem == null) return;
-            if (!worklogItem.CanEdit)
-            {
-                MessageBox.Show("Możesz modyfikować tylko własne wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            if (worklogItem == null || !worklogItem.CanEdit) return;
 
             var editWorklogWindow = new EditWorklogWindow(worklogItem.Id);
             if (editWorklogWindow.ShowDialog() == true)
@@ -375,12 +365,7 @@ namespace TeamTaskManager.ViewModels
 
         private async System.Threading.Tasks.Task DeleteWorklogAsync(WorklogItem? worklogItem)
         {
-            if (worklogItem == null) return;
-            if (!worklogItem.CanEdit)
-            {
-                MessageBox.Show("Możesz usuwać tylko własne wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            if (worklogItem == null || !worklogItem.CanEdit) return;
 
             if (MessageBox.Show("Czy na pewno chcesz usunąć ten wpis?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 return;

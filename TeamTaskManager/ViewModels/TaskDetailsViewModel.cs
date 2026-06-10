@@ -198,6 +198,7 @@ namespace TeamTaskManager.ViewModels
             await LoadCommentsAsync();
         }
 
+        private CommentItem? _activeEditItem;
         public string EditCommentContent { get; set; } = string.Empty;
         public ICommand EditCommentCommand { get; }
         public ICommand CancelEditCommentCommand { get; }
@@ -215,10 +216,10 @@ namespace TeamTaskManager.ViewModels
                     return;
                 }
 
-                EditCommentContent = EditCommentContent.Trim();
-                await _taskService.EditTaskCommentAsync(commentItem.Id, EditCommentContent);
+                await _taskService.EditTaskCommentAsync(commentItem.Id, EditCommentContent.Trim());
 
                 commentItem.IsBeingEdited = false;
+                _activeEditItem = null;
                 EditCommentContent = string.Empty;
                 OnPropertyChanged(nameof(EditCommentContent));
 
@@ -226,22 +227,16 @@ namespace TeamTaskManager.ViewModels
                 return;
             }
 
-            foreach (var item in Comments)
+            if (_activeEditItem != null && _activeEditItem != commentItem)
             {
-                foreach (var reply in item.Replies)
-                {
-                    if (reply.IsBeingEdited)
-                    {
-                        // potwierdzenie czy anulowac edytowanie innego
-                        if (MessageBox.Show("Inny komentarz jest aktualnie edytowany. Czy chcesz anulować jego edycję i rozpocząć edycję tego komentarza?", "Potwierdzenie",
-                            MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
-                            return;
-                    }
-                    reply.IsBeingEdited = false;
-                }
-                item.IsBeingEdited = false;
+                if (_activeEditItem.Content != EditCommentContent &&
+                    MessageBox.Show("Edytujesz już inny komentarz. Czy chcesz anulować tę edycję?", "Potwierdzenie",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    return;
+                _activeEditItem.IsBeingEdited = false;
             }
 
+            _activeEditItem = commentItem;
             commentItem.IsBeingEdited = true;
             EditCommentContent = commentItem.Content;
 
@@ -253,6 +248,7 @@ namespace TeamTaskManager.ViewModels
             if (commentItem == null) return;
 
             commentItem.IsBeingEdited = false;
+            _activeEditItem = null;
 
             EditCommentContent = string.Empty;
             OnPropertyChanged(nameof(EditCommentContent));
@@ -276,6 +272,7 @@ namespace TeamTaskManager.ViewModels
 
 
         // odpowiedzi
+        private CommentItem? _activeReplyItem;
         public string NewReplyContent { get; set; } = string.Empty;
         public ICommand AddReplyCommand { get; }
         public ICommand CancelReplyCommand { get; }
@@ -306,11 +303,17 @@ namespace TeamTaskManager.ViewModels
 
             foreach (var item in Comments)
             {
-                item.IsBeingRepliedTo = false;
                 foreach (var reply in item.Replies)
                 {
+                    if (item.IsBeingRepliedTo || reply.IsBeingRepliedTo)
+                    {
+                        if (MessageBox.Show("Odpowiadasz już na inny komentarz. Czy chcesz anulować odpowiedź?", "Potwierdzenie",
+                            MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                            return;
+                    }
                     reply.IsBeingRepliedTo = false;
                 }
+                item.IsBeingRepliedTo = false;
             }
 
             commentItem.IsBeingRepliedTo = true;

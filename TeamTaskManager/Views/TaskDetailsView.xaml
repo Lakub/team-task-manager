@@ -329,15 +329,45 @@
 
                                                                     <!-- tresc -->
                                                                     <StackPanel Visibility="{Binding IsDeleted, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                                                        <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
-                                                                            <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"
-                                                                                       Loaded="ItemText_Loaded" SizeChanged="ItemText_SizeChanged"/>
-                                                                        </Border>
-                                                                        <Button Style="{StaticResource InlineSeeMoreButtonStyle}" Content="{Binding ToggleTextLabel}"
-                                                                                Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right"
-                                                                                Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                                        <!-- faktyczna tresc -->
+                                                                        <Grid Visibility="{Binding IsBeingEdited, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                                            <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
+                                                                                <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"
+                                                                                           Loaded="ItemText_Loaded" SizeChanged="ItemText_SizeChanged"/>
+                                                                            </Border>
+                                                                            <Button Style="{StaticResource InlineSeeMoreButtonStyle}" Content="{Binding ToggleTextLabel}"
+                                                                                    Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right" FontSize="11"
+                                                                                    Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                                        </Grid>
+
+                                                                        <!-- edytowanie -->
+                                                                        <Grid Visibility="{Binding IsBeingEdited, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                            <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,55,10">
+                                                                                <TextBox Text="{Binding DataContext.EditCommentContent, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
+                                                                                         Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
+                                                                                         VerticalScrollBarVisibility="Auto" helpers:FocusHelper.IsFocused="{Binding IsBeingEdited}">
+                                                                                    <TextBox.InputBindings>
+                                                                                        <KeyBinding Key="Enter" Modifiers="Control" CommandParameter="{Binding}"
+                                                                                                    Command="{Binding DataContext.EditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                                                        <KeyBinding Key="Escape" CommandParameter="{Binding}"
+                                                                                                    Command="{Binding DataContext.CancelEditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                                                    </TextBox.InputBindings>
+                                                                                </TextBox>
+                                                                            </Border>
+                                                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,8,8">
+                                                                                <Button Style="{StaticResource ActionButtonStyle}" Margin="0,0,4,0" Padding="5,3" CommandParameter="{Binding}"
+                                                                                        Command="{Binding DataContext.CancelEditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                                        ToolTip="Anuluj">
+                                                                                    <TextBlock Text="&#xE10A;" FontFamily="Segoe MDL2 Assets" FontSize="10" FontWeight="Bold"/>
+                                                                                </Button>
+                                                                                <Button Style="{StaticResource ActionButtonStyle}" Padding="5,3" CommandParameter="{Binding}" ToolTip="Zapisz zmiany"
+                                                                                        Command="{Binding DataContext.EditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                                                    <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" FontWeight="Bold"/>
+                                                                                </Button>
+                                                                            </StackPanel>
+                                                                        </Grid>
                                                                     </StackPanel>
-                                                                    
+
                                                                     <!-- usuniety -->
                                                                     <TextBlock Margin="0,0,0,15"
                                                                                Visibility="{Binding IsDeleted, Converter={StaticResource BoolToVisibilityConverter}}"

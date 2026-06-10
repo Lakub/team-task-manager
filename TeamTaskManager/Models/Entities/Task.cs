@@ -26,7 +26,6 @@ namespace TeamTaskManager.Models.Entities
         public int ReporterId { get; set; }
         public virtual required User Reporter { get; set; }
 
-        // MOZE DEPRECATED BO CHYBA SPRINTTASK WYSTARCZA
         // zlecony do
         public int? AssigneeId { get; set; }
         public virtual User? Assignee { get; set; }
@@ -35,11 +34,6 @@ namespace TeamTaskManager.Models.Entities
         public int? ParentTaskId { get; set; }
         public virtual Task? ParentTask { get; set; }
         public virtual ICollection<Task> SubTasks { get; set; } = new List<Task>();
-
-        // DEPRECATED BO JEST SPRINTTASK
-        // sprint
-        public int? SprintId { get; set; }
-        public virtual Sprint? Sprint { get; set; }
 
         // projekt
         public int ProjectId { get; set; }

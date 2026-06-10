@@ -89,7 +89,7 @@ namespace TeamTaskManager.ViewModels
             var sprintTasks = await _context.SprintTasks
                 .Include(st => st.Task).ThenInclude(t => t.Project)
                 .Include(st => st.Assignee)
-                .Where(st => st.SprintId == _sprintId && !st.IsDeleted && st.RemovedAt == null)
+                .Where(st => st.SprintId == _sprintId && st.RemovedAt == null)
                 .ToListAsync();
 
             TodoTasks.Clear();

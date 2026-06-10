@@ -22,7 +22,6 @@ namespace TeamTaskManager.Models.Entities
         // to w raporcie sprintu 2 bedzie, ze byl nieskonczony,
         // pomimo ze sam task jest juz skonczony
         public TaskStatus Status { get; set; }
-        public bool IsDeleted { get; set; } = false;
 
         // ostatni assignee, adekwatnie do Status
         public int? AssigneeId { get; set; }

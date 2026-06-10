@@ -66,14 +66,9 @@ namespace TeamTaskManager.Services
 
         public async System.Threading.Tasks.Task AddTaskToSprintAsync(int sprintId, int taskId)
         {
-            var sprint = await _context.Sprints.FirstOrDefaultAsync(s => s.Id == sprintId);
-            var task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);
-            var addedBy = App.CurrentUser;
-
-            if (sprint == null || task == null || addedBy == null)
-            {
-                throw new InvalidOperationException("Sprint, Task, or AddedBy user not found.");
-            }
+            var sprint = await _context.Sprints.FirstOrDefaultAsync(s => s.Id == sprintId) ?? throw new Exception("Sprint not found.");
+            var task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == taskId) ?? throw new Exception("Task not found.");
+            var addedBy = App.CurrentUser ?? throw new InvalidOperationException("Brak zalogowanego użytkownika.");
 
             var sprintTask = new SprintTask
             {

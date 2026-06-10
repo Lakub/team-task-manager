@@ -21,6 +21,7 @@ namespace TeamTaskManager.Services
             int taskId, string title, string description,
             TaskType type, TaskPriority priority,
             int? assigneeId);
+        System.Threading.Tasks.Task DeleteTaskAsync(int taskId);
 
         System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
             string text, int taskId, int commenterId, int? parentCommentId);
@@ -181,6 +182,16 @@ namespace TeamTaskManager.Services
             if (task == null || task.IsDeleted)
                 throw new Exception("Task not found");
             task.Title = newTitle;
+            task.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task DeleteTaskAsync(int taskId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null || task.IsDeleted)
+                throw new Exception("Task not found");
+            task.IsDeleted = true;
             task.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }

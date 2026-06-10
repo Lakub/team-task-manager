@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using TeamTaskManager.Helpers;
 using TeamTaskManager.Models.Entities;
+using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
 using TeamTaskManager.Views;
 using Task = TeamTaskManager.Models.Entities.Task;
@@ -52,6 +53,12 @@ namespace TeamTaskManager.ViewModels
                 return;
             }
 
+            var project = _task.Project;
+
+            CanManageProject = UserHelper.HasAdminPowers() ||
+                project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
+                    && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
+
             await LoadCommentsAsync();
             await LoadWorklogsAsync();
 
@@ -60,12 +67,13 @@ namespace TeamTaskManager.ViewModels
 
 
         // edytowanie i usuwanie
+        public bool CanManageProject { get; private set; }
         public event Action<int>? TaskUpdated;
         public ICommand EditTaskCommand { get; }
         public ICommand DeleteTaskCommand { get; }
         private async System.Threading.Tasks.Task EditTaskAsync()
         {
-            if (_task == null) return;
+            if (_task == null || !CanManageProject) return;
 
             var editTaskWindow = new EditTaskWindow(TaskId);
             if (editTaskWindow.ShowDialog() == true)
@@ -77,7 +85,7 @@ namespace TeamTaskManager.ViewModels
 
         private void DeleteTask()
         {
-
+            if (_task == null || !CanManageProject) return;
         }
 
         // otwierania w nowym oknie

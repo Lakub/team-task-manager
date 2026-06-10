@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Models.Enums;
@@ -14,6 +12,7 @@ namespace TeamTaskManager.Services
         System.Threading.Tasks.Task<Task?> GetTaskByIdAsync(int taskId);
         System.Threading.Tasks.Task<List<Worklog>> GetWorklogsByTaskIdAsync(int taskId);
         System.Threading.Tasks.Task<List<Comment>> GetNonReplyCommentsByTaskIdAsync(int taskId);
+
         System.Threading.Tasks.Task<Task> CreateTaskAsync(
             string title, string description,
             TaskType type, TaskPriority priority,
@@ -22,12 +21,16 @@ namespace TeamTaskManager.Services
             int taskId, string title, string description,
             TaskType type, TaskPriority priority,
             int? assigneeId);
+
         System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
             string text, int taskId, int commenterId, int? parentCommentId);
         System.Threading.Tasks.Task DeleteTaskCommentAsync(int commentId);
         System.Threading.Tasks.Task EditTaskCommentAsync(int commentId, string newText);
-        System.Threading.Tasks.Task UpdateTaskTitleAsync(int taskId, string newTitle);
+
         System.Threading.Tasks.Task DeleteTaskWorklogAsync(int worklogId);
+
+        System.Threading.Tasks.Task UpdateTaskTitleAsync(int taskId, string newTitle);
+        System.Threading.Tasks.Task UpdateTaskAssigneeAsync(int taskId, int? userId);
 
     }
 
@@ -103,6 +106,7 @@ namespace TeamTaskManager.Services
                 .Include(t => t.Assignee)
                 .Include(t => t.Project)
                     .ThenInclude(p => p.ProjectUsers)
+                        .ThenInclude(pu => pu.User)
                 .Include(t => t.SprintTasks)
                     .ThenInclude(st => st.Sprint)
                 .FirstOrDefaultAsync(t => t.Id == taskId && !t.IsDeleted);
@@ -177,6 +181,17 @@ namespace TeamTaskManager.Services
             if (task == null || task.IsDeleted)
                 throw new Exception("Task not found");
             task.Title = newTitle;
+            task.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task UpdateTaskAssigneeAsync(int taskId, int? userId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null || task.IsDeleted)
+                throw new Exception("Task not found");
+
+            task.AssigneeId = userId;
             task.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }

@@ -502,18 +502,25 @@
 
                             <TextBlock Text="Przypisane do" Foreground="#9CA3AF" FontSize="11" Margin="0,0,0,4"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                                <Border Background="{Binding AssigneeAvatarBg}" CornerRadius="15" Width="30" Height="30" HorizontalAlignment="Left" Margin="0,0,10,0">
+                                <Border Background="{Binding AssigneeAvatarBg}" CornerRadius="15" Width="30" Height="30" HorizontalAlignment="Left" Margin="0,0,10,0"
+                                        Visibility="{Binding IsUnassigned, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                     <TextBlock Text="{Binding AssigneeInitials}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
-                                               Foreground="{Binding AssigneeAvatarFg}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                Foreground="{Binding AssigneeAvatarFg}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Text="{Binding AssigneeName}" Foreground="#1F2937" VerticalAlignment="Center" FontWeight="Medium"/>
+
+                                <TextBlock Text="{Binding AssigneeName}" Foreground="#1F2937" VerticalAlignment="Center" FontWeight="Medium"
+                                            Visibility="{Binding CanManageProject, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                <ComboBox ItemsSource="{Binding ProjectUsers}" SelectedItem="{Binding SelectedAssignee}"
+                                            Visibility="{Binding CanManageProject, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            DisplayMemberPath="FullName" MinWidth="120" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             </StackPanel>
 
                             <TextBlock Text="Zgłaszający" Foreground="#9CA3AF" FontSize="11" Margin="0,0,0,4"/>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                 <Border Background="{Binding ReporterAvatarBg}" CornerRadius="15" Width="30" Height="30" HorizontalAlignment="Left" Margin="0,0,10,0">
                                     <TextBlock Text="{Binding ReporterInitials}" FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
-                                               Foreground="{Binding ReporterAvatarFg}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                           Foreground="{Binding ReporterAvatarFg}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="{Binding ReporterName}" Foreground="#1F2937" VerticalAlignment="Center" FontWeight="Medium"/>
                             </StackPanel>

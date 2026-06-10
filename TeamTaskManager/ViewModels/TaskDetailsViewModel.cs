@@ -11,6 +11,7 @@ using TeamTaskManager.Services;
 using TeamTaskManager.Views;
 using Task = TeamTaskManager.Models.Entities.Task;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
+using User = TeamTaskManager.Models.Entities.User;
 
 namespace TeamTaskManager.ViewModels
 {
@@ -58,6 +59,22 @@ namespace TeamTaskManager.ViewModels
             CanManageProject = UserHelper.HasAdminPowers() ||
                 project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
                     && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
+
+            _isInitializingAssignee = true;
+            ProjectUsers.Clear();
+            var unassigned = new User { Id = -1, FullName = "Nieprzypisane" };
+            ProjectUsers.Add(unassigned);
+            if (project?.ProjectUsers != null)
+            {
+                foreach (var pu in project.ProjectUsers.Where(pu => pu.User != null))
+                {
+                    ProjectUsers.Add(pu.User);
+                }
+            }
+
+            SelectedAssignee = ProjectUsers.Where(pu => pu.Id == _task?.Assignee?.Id).FirstOrDefault() ?? unassigned;
+
+            _isInitializingAssignee = false;
 
             await LoadCommentsAsync();
             await LoadWorklogsAsync();
@@ -162,6 +179,39 @@ namespace TeamTaskManager.ViewModels
             }
         }
 
+
+        // przypisywanie
+        public ObservableCollection<User> ProjectUsers { get; } = new();
+
+        private async System.Threading.Tasks.Task ChangeAssigneeAsync(int? userId)
+        {
+            if (_task == null) return;
+
+            await _taskService.UpdateTaskAssigneeAsync(TaskId, userId);
+            await InitializeAsync();
+        }
+
+        // aby inf loopa nie bylo
+        private bool _isInitializingAssignee;
+
+        private User? _selectedAssignee;
+        public User? SelectedAssignee
+        {
+            get => _selectedAssignee;
+            set
+            {
+                if (_selectedAssignee != value)
+                {
+                    _selectedAssignee = value;
+                    OnPropertyChanged(nameof(SelectedAssignee));
+                    if (!_isInitializingAssignee)
+                    {
+                        int? userId = (value == null || value.Id == -1) ? null : value.Id;
+                        _ = ChangeAssigneeAsync(userId);
+                    }
+                }
+            }
+        }
 
         // komentarze
         public ObservableCollection<CommentItem> Comments { get; } = new();

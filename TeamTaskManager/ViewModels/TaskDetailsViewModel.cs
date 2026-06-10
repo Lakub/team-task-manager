@@ -26,7 +26,9 @@ namespace TeamTaskManager.ViewModels
 
             AddCommentCommand = new AsyncRelayCommand(AddCommentAsync);
             DeleteCommentCommand = new AsyncRelayCommand<CommentItem>(DeleteCommentAsync);
+
             EditCommentCommand = new AsyncRelayCommand<CommentItem>(EditCommentAsync);
+            CancelEditCommentCommand = new RelayCommand<CommentItem>(CancelEditComment);
 
             AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
             CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
@@ -132,16 +134,6 @@ namespace TeamTaskManager.ViewModels
 
         // komentarze
         public ObservableCollection<CommentItem> Comments { get; } = new();
-        public bool HasNoComments => Comments.Where(c => !c.IsDeleted).Count() == 0;
-
-        // automatyczne focusowanie pola tekstu po kliknieciu dodawania komentarza
-        [ObservableProperty]
-        private bool _focusCommentInput;
-
-        public string NewCommentContent { get; set; } = string.Empty;
-        public ICommand AddCommentCommand { get; }
-        public ICommand EditCommentCommand { get; }
-        public ICommand DeleteCommentCommand { get; }
 
         private async System.Threading.Tasks.Task LoadCommentsAsync()
         {
@@ -160,6 +152,7 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
         }
 
+        public bool HasNoComments => Comments.Where(c => !c.IsDeleted).Count() == 0;
         // bool zwraca czy ma jakiekolwiek nieusuniete odpowiedzi
         private bool AggregateReplies(Comment comment, ObservableCollection<CommentItem> collection)
         {
@@ -181,6 +174,12 @@ namespace TeamTaskManager.ViewModels
             return hasNonDeletedDescendants;
         }
 
+        // automatyczne focusowanie pola tekstu po kliknieciu dodawania komentarza
+        [ObservableProperty]
+        private bool _focusCommentInput;
+
+        public string NewCommentContent { get; set; } = string.Empty;
+        public ICommand AddCommentCommand { get; }
         private async System.Threading.Tasks.Task AddCommentAsync()
         {
             if (string.IsNullOrWhiteSpace(NewCommentContent))
@@ -199,29 +198,72 @@ namespace TeamTaskManager.ViewModels
             await LoadCommentsAsync();
         }
 
+        public string EditCommentContent { get; set; } = string.Empty;
+        public ICommand EditCommentCommand { get; }
+        public ICommand CancelEditCommentCommand { get; }
         private async System.Threading.Tasks.Task EditCommentAsync(CommentItem? commentItem)
         {
             if (commentItem == null) return;
-            if (!commentItem.CanEdit)
+            if (commentItem.IsDeleted) return;
+            if (!commentItem.CanEdit) return;
+
+            if (commentItem.IsBeingEdited)
             {
-                MessageBox.Show("Możesz modyfikować tylko własne komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (string.IsNullOrWhiteSpace(EditCommentContent))
+                {
+                    MessageBox.Show("Treść komentarza nie może być pusta.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                EditCommentContent = EditCommentContent.Trim();
+                await _taskService.EditTaskCommentAsync(commentItem.Id, EditCommentContent);
+
+                commentItem.IsBeingEdited = false;
+                EditCommentContent = string.Empty;
+                OnPropertyChanged(nameof(EditCommentContent));
+
+                await LoadCommentsAsync();
                 return;
             }
 
-            //await _taskService.EditTaskCommentAsync(commentItem.Id,
-            MessageBox.Show("edytowanie");
+            foreach (var item in Comments)
+            {
+                foreach (var reply in item.Replies)
+                {
+                    if (reply.IsBeingEdited)
+                    {
+                        // potwierdzenie czy anulowac edytowanie innego
+                        if (MessageBox.Show("Inny komentarz jest aktualnie edytowany. Czy chcesz anulować jego edycję i rozpocząć edycję tego komentarza?", "Potwierdzenie",
+                            MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                            return;
+                    }
+                    reply.IsBeingEdited = false;
+                }
+                item.IsBeingEdited = false;
+            }
 
-            await LoadCommentsAsync();
+            commentItem.IsBeingEdited = true;
+            EditCommentContent = commentItem.Content;
+
+            OnPropertyChanged(nameof(EditCommentContent));
         }
 
+        private void CancelEditComment(CommentItem? commentItem)
+        {
+            if (commentItem == null) return;
+
+            commentItem.IsBeingEdited = false;
+
+            EditCommentContent = string.Empty;
+            OnPropertyChanged(nameof(EditCommentContent));
+        }
+
+        public ICommand DeleteCommentCommand { get; }
         private async System.Threading.Tasks.Task DeleteCommentAsync(CommentItem? commentItem)
         {
             if (commentItem == null) return;
-            if (!commentItem.CanEdit)
-            {
-                MessageBox.Show("Możesz usuwać tylko własne komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            if (commentItem.IsDeleted) return;
+            if (!commentItem.CanEdit) return;
 
             if (MessageBox.Show("Czy na pewno chcesz usunąć ten komentarz?", "Potwierdzenie",
                 MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
@@ -241,6 +283,7 @@ namespace TeamTaskManager.ViewModels
         private async System.Threading.Tasks.Task AddReplyAsync(CommentItem? commentItem)
         {
             if (commentItem == null) return;
+            if (commentItem.IsDeleted) return;
 
             if (commentItem.IsBeingRepliedTo)
             {
@@ -270,11 +313,8 @@ namespace TeamTaskManager.ViewModels
                 }
             }
 
-            if (commentItem != null)
-            {
-                commentItem.IsBeingRepliedTo = true;
-                NewReplyContent = $"@{commentItem.DisplayName} ";
-            }
+            commentItem.IsBeingRepliedTo = true;
+            NewReplyContent = $"@{commentItem.DisplayName} ";
 
             OnPropertyChanged(nameof(NewReplyContent));
         }
@@ -366,7 +406,7 @@ namespace TeamTaskManager.ViewModels
         public string DisplayName => _model.IsDeleted ? "Nieznany Użytkownik"
                                      : (_model.Commenter?.FullName ?? "Nieznany Użytkownik");
 
-        public bool CanEdit => !IsDeleted && _model.CommenterId == App.CurrentUser?.Id;
+        // widocznosc
         public bool IsDeleted => _model.IsDeleted;
         // pokazujemy usuniete tylko wtedy, gdy maja jakas nieusunieta odpowiedz
         [ObservableProperty]
@@ -376,19 +416,21 @@ namespace TeamTaskManager.ViewModels
         public DateTime CreatedAt => _model.CreatedAt;
         public string CreatedAtStr => _model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
 
+
+        // edytowanie
         public bool WasEdited => _model.UpdatedAt > _model.CreatedAt;
         public string EditInformation => IsDeleted ? "(Usunięto)" : "(Edytowano)";
         public string UpdatedAtStr => (IsDeleted ? "Usunięto: " : "Zmieniono: ")
                                       + _model.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
 
+        public bool CanEdit => !IsDeleted && _model.CommenterId == App.CurrentUser?.Id;
+        [ObservableProperty]
+        private bool _isBeingEdited;
+
         // odpowiedzi
         public ObservableCollection<CommentItem> Replies { get; set; } = new();
+        [ObservableProperty]
         private bool _isBeingRepliedTo;
-        public bool IsBeingRepliedTo
-        {
-            get => _isBeingRepliedTo;
-            set { if (_isBeingRepliedTo != value) { _isBeingRepliedTo = value; OnPropertyChanged(); } }
-        }
 
         // te kolorki to przydaloby sie na przyszlosc od usera uzaleznic aby bylo troche radosci i stymulacji w szarym zyciu programisty
         public string Initials => StyleHelper.GetInitials(DisplayName);

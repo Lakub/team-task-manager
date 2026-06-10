@@ -32,6 +32,7 @@ namespace TeamTaskManager.ViewModels
         public int UserId { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string LastLogin { get; set; } = string.Empty;
 
         private OrgRole _role;
         public OrgRole Role
@@ -43,17 +44,20 @@ namespace TeamTaskManager.ViewModels
         public string RoleLabel => Role switch { OrgRole.HeadAdmin => "HeadAdmin", OrgRole.Admin => "Admin", _ => "User" };
         public bool CanPromote => Role == OrgRole.User;
         public bool CanDemote  => Role == OrgRole.Admin;
+        public bool CanDelete  => Role != OrgRole.HeadAdmin && UserId != App.CurrentUser?.Id;
 
         public ICommand PromoteCommand { get; }
         public ICommand DemoteCommand  { get; }
+        public ICommand DeleteCommand  { get; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void Notify(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
-        public UserRoleRow(Action<UserRoleRow, OrgRole> onChange)
+        public UserRoleRow(Action<UserRoleRow, OrgRole> onChange, Action<UserRoleRow> onDelete)
         {
             PromoteCommand = new RelayCommand(() => onChange(this, OrgRole.Admin));
             DemoteCommand  = new RelayCommand(() => onChange(this, OrgRole.User));
+            DeleteCommand  = new RelayCommand(() => onDelete(this));
         }
     }
 
@@ -72,37 +76,83 @@ namespace TeamTaskManager.ViewModels
 
     public class TaskRow
     {
+        public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string ProjectName { get; set; } = string.Empty;
         public string StatusLabel { get; set; } = string.Empty;
         public string PriorityLabel { get; set; } = string.Empty;
         public string ReporterName { get; set; } = string.Empty;
         public string CreatedAt { get; set; } = string.Empty;
+        public ICommand DeleteCommand { get; }
+
+        public TaskRow(Action<TaskRow> onDelete)
+        {
+            DeleteCommand = new RelayCommand(() => onDelete(this));
+        }
     }
 
-    public class SprintRow
+    public class SprintRow : INotifyPropertyChanged
     {
+        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string ProjectName { get; set; } = string.Empty;
-        public string StatusLabel { get; set; } = string.Empty;
         public string StartDate { get; set; } = string.Empty;
         public string EndDate { get; set; } = string.Empty;
+
+        private SprintStatus _status;
+        public SprintStatus Status
+        {
+            get => _status;
+            set { _status = value; Notify(nameof(Status)); Notify(nameof(StatusLabel)); Notify(nameof(CanActivate)); Notify(nameof(CanComplete)); }
+        }
+
+        public string StatusLabel => Status switch { SprintStatus.Active => "Aktywny", SprintStatus.Completed => "Ukończony", _ => "Planowany" };
+        public bool CanActivate => Status == SprintStatus.Planned;
+        public bool CanComplete => Status == SprintStatus.Active;
+
+        public ICommand ActivateCommand { get; }
+        public ICommand CompleteCommand { get; }
+        public ICommand DeleteCommand   { get; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void Notify(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
+
+        public SprintRow(Action<SprintRow, SprintStatus> onChangeStatus, Action<SprintRow> onDelete)
+        {
+            ActivateCommand = new RelayCommand(() => onChangeStatus(this, SprintStatus.Active));
+            CompleteCommand = new RelayCommand(() => onChangeStatus(this, SprintStatus.Completed));
+            DeleteCommand   = new RelayCommand(() => onDelete(this));
+        }
     }
 
     public class CommentRow
     {
+        public int Id { get; set; }
         public string AuthorName { get; set; } = string.Empty;
         public string TaskTitle { get; set; } = string.Empty;
         public string TextPreview { get; set; } = string.Empty;
         public string CreatedAt { get; set; } = string.Empty;
+        public ICommand DeleteCommand { get; }
+
+        public CommentRow(Action<CommentRow> onDelete)
+        {
+            DeleteCommand = new RelayCommand(() => onDelete(this));
+        }
     }
 
     public class WorklogRow
     {
+        public int Id { get; set; }
         public string UserName { get; set; } = string.Empty;
         public string TaskTitle { get; set; } = string.Empty;
         public string TimeSpent { get; set; } = string.Empty;
         public string LoggedAt { get; set; } = string.Empty;
+        public ICommand DeleteCommand { get; }
+
+        public WorklogRow(Action<WorklogRow> onDelete)
+        {
+            DeleteCommand = new RelayCommand(() => onDelete(this));
+        }
     }
 
     public class AttachmentRow
@@ -198,9 +248,9 @@ namespace TeamTaskManager.ViewModels
         public ICommand ShowCommentsCommand    { get; }
         public ICommand ShowWorklogsCommand    { get; }
         public ICommand ShowAttachmentsCommand { get; }
-        public ICommand ShowDocsCommand  { get; }
-        public ICommand EditProjectCommand { get; }
-        public ICommand RemoveProjectCommand { get; }
+        public ICommand ShowDocsCommand        { get; }
+        public ICommand EditProjectCommand     { get; }
+        public ICommand RemoveProjectCommand   { get; }
 
         public HeadAdminPanelViewModel()
         {
@@ -214,25 +264,22 @@ namespace TeamTaskManager.ViewModels
             ShowAttachmentsCommand = new RelayCommand(() => { LoadAttachments(); CurrentPanel = AdminPanel.Attachments; });
             ShowDocsCommand        = new RelayCommand(() => { LoadDocs();        CurrentPanel = AdminPanel.Docs; });
             EditProjectCommand = new RelayCommand<ProjectRow>((row) => {
-                Models.Entities.Project? SelectedProject;
+                Models.Entities.Project? selectedProject;
                 using (var ctx = new AppDbContext())
                 {
-                    SelectedProject = ctx.Projects.FirstOrDefault(e => e.Id == row.Id);
-                    if (SelectedProject == null) return;
-                    SelectedProject.ProjectUsers = ctx.ProjectUsers.Where(e => e.ProjectId == SelectedProject.Id).ToList();
+                    selectedProject = ctx.Projects.FirstOrDefault(e => e.Id == row.Id);
+                    if (selectedProject == null) return;
+                    selectedProject.ProjectUsers = ctx.ProjectUsers.Where(e => e.ProjectId == selectedProject.Id).ToList();
                 }
-                var editProjectWindow = new CreateProjectWindow(true, SelectedProject); 
+                var editProjectWindow = new CreateProjectWindow(true, selectedProject);
                 if (editProjectWindow.ShowDialog() == true)
-                {
                     LoadProjects();
-                }
             });
             RemoveProjectCommand = new RelayCommand<ProjectRow>(async (row) => {
-                Models.Entities.Project? SelectedProject;
                 var ctx = new AppDbContext();
                 var project = await ctx.Projects.FirstOrDefaultAsync(e => e.Id == row.Id);
-                if(project == null) return;
-                if (MessageBox.Show("Czy napewno usunąć projekt?", "",MessageBoxButton.YesNoCancel) == MessageBoxResult.Yes)
+                if (project == null) return;
+                if (MessageBox.Show("Czy napewno usunąć projekt?", "", MessageBoxButton.YesNoCancel) == MessageBoxResult.Yes)
                 {
                     project.IsDeleted = true;
                     ctx.Projects.Update(project);
@@ -273,7 +320,14 @@ namespace TeamTaskManager.ViewModels
 
             UserList.Clear();
             foreach (var u in ctx.Users.Where(u => !u.IsDeleted).OrderBy(u => u.FullName).ToList())
-                UserList.Add(new UserRoleRow(ChangeUserRole) { UserId = u.Id, FullName = u.FullName, Email = u.Email, Role = u.OrgRole });
+                UserList.Add(new UserRoleRow(ChangeUserRole, DeleteUser)
+                {
+                    UserId    = u.Id,
+                    FullName  = u.FullName,
+                    Email     = u.Email,
+                    Role      = u.OrgRole,
+                    LastLogin = u.LastLogin.HasValue ? u.LastLogin.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm") : "Nigdy"
+                });
 
             int tOpen   = ctx.Tasks.Count(t => !t.IsDeleted && t.Status == Models.Enums.TaskStatus.Open);
             int tInProg = ctx.Tasks.Count(t => !t.IsDeleted && t.Status == Models.Enums.TaskStatus.InProgress);
@@ -283,13 +337,7 @@ namespace TeamTaskManager.ViewModels
             TaskSlices.Add(new PieSlice { Label = "W toku",    Value = tInProg, Color = new SolidColorBrush(Color.FromRgb(0xF5, 0x9E, 0x0B)) });
             TaskSlices.Add(new PieSlice { Label = "Zamknięte", Value = tClosed, Color = new SolidColorBrush(Color.FromRgb(0x10, 0xB9, 0x81)) });
 
-            int sPlanned   = ctx.Sprints.Count(s => !s.IsDeleted && s.Status == SprintStatus.Planned);
-            int sActive    = ctx.Sprints.Count(s => !s.IsDeleted && s.Status == SprintStatus.Active);
-            int sCompleted = ctx.Sprints.Count(s => !s.IsDeleted && s.Status == SprintStatus.Completed);
-            SprintSlices.Clear();
-            SprintSlices.Add(new PieSlice { Label = "Planowane",  Value = sPlanned,   Color = new SolidColorBrush(Color.FromRgb(0x94, 0xA3, 0xB8)) });
-            SprintSlices.Add(new PieSlice { Label = "Aktywne",    Value = sActive,    Color = new SolidColorBrush(Color.FromRgb(0x3B, 0x82, 0xF6)) });
-            SprintSlices.Add(new PieSlice { Label = "Ukończone",  Value = sCompleted, Color = new SolidColorBrush(Color.FromRgb(0x10, 0xB9, 0x81)) });
+            RefreshSprintSlices();
         }
 
         private void ChangeUserRole(UserRoleRow row, OrgRole newRole)
@@ -300,6 +348,19 @@ namespace TeamTaskManager.ViewModels
             user.OrgRole = newRole;
             ctx.SaveChanges();
             row.Role = newRole;
+        }
+
+        private void DeleteUser(UserRoleRow row)
+        {
+            if (!row.CanDelete) return;
+            if (MessageBox.Show($"Czy napewno usunąć konto użytkownika \"{row.FullName}\"?\nOperacja jest nieodwracalna.", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+            using var ctx = new AppDbContext();
+            var user = ctx.Users.FirstOrDefault(u => u.Id == row.UserId);
+            if (user == null || user.OrgRole == OrgRole.HeadAdmin) return;
+            user.IsDeleted = true;
+            ctx.SaveChanges();
+            UserList.Remove(row);
+            UsersCount--;
         }
 
         // ─── Lazy loaders ────────────────────────────────────────────────────────
@@ -323,7 +384,7 @@ namespace TeamTaskManager.ViewModels
             foreach (var r in rows)
                 ProjectList.Add(new ProjectRow
                 {
-                    Name = r.Name, Key = r.Key, OwnerName = r.OwnerName, Id=r.Id,
+                    Name = r.Name, Key = r.Key, OwnerName = r.OwnerName, Id = r.Id,
                     MembersCount = r.MembersCount, TasksCount = r.TasksCount,
                     CreatedAt = r.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
                 });
@@ -336,6 +397,7 @@ namespace TeamTaskManager.ViewModels
                 .Where(t => !t.IsDeleted)
                 .Select(t => new
                 {
+                    t.Id,
                     t.Title,
                     ProjectName  = t.Project.Name,
                     t.Status,
@@ -347,8 +409,9 @@ namespace TeamTaskManager.ViewModels
                 .ToList();
             TaskList.Clear();
             foreach (var r in rows)
-                TaskList.Add(new TaskRow
+                TaskList.Add(new TaskRow(DeleteTask)
                 {
+                    Id           = r.Id,
                     Title        = r.Title,
                     ProjectName  = r.ProjectName,
                     StatusLabel  = r.Status switch
@@ -375,6 +438,7 @@ namespace TeamTaskManager.ViewModels
                 .Where(s => !s.IsDeleted)
                 .Select(s => new
                 {
+                    s.Id,
                     s.Name,
                     ProjectName = s.Project.Name,
                     s.Status,
@@ -385,18 +449,14 @@ namespace TeamTaskManager.ViewModels
                 .ToList();
             SprintList.Clear();
             foreach (var r in rows)
-                SprintList.Add(new SprintRow
+                SprintList.Add(new SprintRow(ChangeSprintStatus, DeleteSprint)
                 {
+                    Id          = r.Id,
                     Name        = r.Name,
                     ProjectName = r.ProjectName,
-                    StatusLabel = r.Status switch
-                    {
-                        SprintStatus.Active    => "Aktywny",
-                        SprintStatus.Completed => "Ukończony",
-                        _                      => "Planowany"
-                    },
-                    StartDate = r.StartDate.ToLocalTime().ToString("dd.MM.yyyy"),
-                    EndDate   = r.EndDate.ToLocalTime().ToString("dd.MM.yyyy")
+                    Status      = r.Status,
+                    StartDate   = r.StartDate.ToLocalTime().ToString("dd.MM.yyyy"),
+                    EndDate     = r.EndDate.ToLocalTime().ToString("dd.MM.yyyy")
                 });
         }
 
@@ -407,6 +467,7 @@ namespace TeamTaskManager.ViewModels
                 .Where(c => !c.IsDeleted)
                 .Select(c => new
                 {
+                    c.Id,
                     AuthorName = c.Commenter.FullName,
                     TaskTitle  = c.Task.Title,
                     c.Text,
@@ -416,8 +477,9 @@ namespace TeamTaskManager.ViewModels
                 .ToList();
             CommentList.Clear();
             foreach (var r in rows)
-                CommentList.Add(new CommentRow
+                CommentList.Add(new CommentRow(DeleteComment)
                 {
+                    Id          = r.Id,
                     AuthorName  = r.AuthorName,
                     TaskTitle   = r.TaskTitle,
                     TextPreview = r.Text.Length > 70 ? r.Text[..70] + "…" : r.Text,
@@ -432,6 +494,7 @@ namespace TeamTaskManager.ViewModels
                 .Where(w => !w.IsDeleted)
                 .Select(w => new
                 {
+                    w.Id,
                     UserName  = w.User.FullName,
                     TaskTitle = w.Task.Title,
                     w.TimeSpent,
@@ -443,8 +506,9 @@ namespace TeamTaskManager.ViewModels
             foreach (var r in rows)
             {
                 var ts = r.TimeSpent;
-                WorklogList.Add(new WorklogRow
+                WorklogList.Add(new WorklogRow(DeleteWorklog)
                 {
+                    Id        = r.Id,
                     UserName  = r.UserName,
                     TaskTitle = r.TaskTitle,
                     TimeSpent = ts.TotalHours >= 1 ? $"{(int)ts.TotalHours}g {ts.Minutes}m" : $"{ts.Minutes}m",
@@ -498,6 +562,80 @@ namespace TeamTaskManager.ViewModels
                     ProjectName = r.ProjectName,
                     UpdatedAt   = r.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy")
                 });
+        }
+
+        // ─── Action handlers ─────────────────────────────────────────────────────
+
+        private void ChangeSprintStatus(SprintRow row, SprintStatus newStatus)
+        {
+            using var ctx = new AppDbContext();
+            var sprint = ctx.Sprints.FirstOrDefault(s => s.Id == row.Id);
+            if (sprint == null) return;
+            sprint.Status = newStatus;
+            ctx.SaveChanges();
+            row.Status = newStatus;
+            RefreshSprintSlices();
+        }
+
+        private void DeleteSprint(SprintRow row)
+        {
+            if (MessageBox.Show($"Czy napewno usunąć sprint \"{row.Name}\"?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+            using var ctx = new AppDbContext();
+            var sprint = ctx.Sprints.FirstOrDefault(s => s.Id == row.Id);
+            if (sprint == null) return;
+            sprint.IsDeleted = true;
+            ctx.SaveChanges();
+            SprintList.Remove(row);
+            SprintsCount--;
+            RefreshSprintSlices();
+        }
+
+        private void DeleteTask(TaskRow row)
+        {
+            if (MessageBox.Show($"Czy napewno usunąć task \"{row.Title}\"?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+            using var ctx = new AppDbContext();
+            var task = ctx.Tasks.FirstOrDefault(t => t.Id == row.Id);
+            if (task == null) return;
+            task.IsDeleted = true;
+            ctx.SaveChanges();
+            TaskList.Remove(row);
+            TasksCount--;
+        }
+
+        private void DeleteComment(CommentRow row)
+        {
+            if (MessageBox.Show("Czy napewno usunąć ten komentarz?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+            using var ctx = new AppDbContext();
+            var comment = ctx.Comments.FirstOrDefault(c => c.Id == row.Id);
+            if (comment == null) return;
+            comment.IsDeleted = true;
+            ctx.SaveChanges();
+            CommentList.Remove(row);
+            CommentsCount--;
+        }
+
+        private void DeleteWorklog(WorklogRow row)
+        {
+            if (MessageBox.Show("Czy napewno usunąć ten wpis czasu pracy?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+            using var ctx = new AppDbContext();
+            var worklog = ctx.Worklogs.FirstOrDefault(w => w.Id == row.Id);
+            if (worklog == null) return;
+            worklog.IsDeleted = true;
+            ctx.SaveChanges();
+            WorklogList.Remove(row);
+            WorklogsCount--;
+        }
+
+        private void RefreshSprintSlices()
+        {
+            using var ctx = new AppDbContext();
+            int sPlanned   = ctx.Sprints.Count(s => !s.IsDeleted && s.Status == SprintStatus.Planned);
+            int sActive    = ctx.Sprints.Count(s => !s.IsDeleted && s.Status == SprintStatus.Active);
+            int sCompleted = ctx.Sprints.Count(s => !s.IsDeleted && s.Status == SprintStatus.Completed);
+            SprintSlices.Clear();
+            SprintSlices.Add(new PieSlice { Label = "Planowane",  Value = sPlanned,   Color = new SolidColorBrush(Color.FromRgb(0x94, 0xA3, 0xB8)) });
+            SprintSlices.Add(new PieSlice { Label = "Aktywne",    Value = sActive,    Color = new SolidColorBrush(Color.FromRgb(0x3B, 0x82, 0xF6)) });
+            SprintSlices.Add(new PieSlice { Label = "Ukończone",  Value = sCompleted, Color = new SolidColorBrush(Color.FromRgb(0x10, 0xB9, 0x81)) });
         }
     }
 }

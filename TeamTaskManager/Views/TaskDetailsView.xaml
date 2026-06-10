@@ -220,7 +220,7 @@
                                                     </StackPanel>
 
                                                     <!-- edytowanie -->
-                                                    <StackPanel Visibility="{Binding IsBeingEdited, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <Grid Visibility="{Binding IsBeingEdited, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,55,10">
                                                             <TextBox Text="{Binding DataContext.EditCommentContent, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                                                                      Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
@@ -234,9 +234,8 @@
                                                             </TextBox>
                                                         </Border>
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,8,8">
-                                                            <Button Style="{StaticResource ActionButtonStyle}" Margin="0,0,4,0" Padding="5,3" CommandParameter="{Binding}"
-                                                                    Command="{Binding DataContext.CancelEditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                    ToolTip="Anuluj">
+                                                            <Button Style="{StaticResource ActionButtonStyle}" Margin="0,0,4,0" Padding="5,3" CommandParameter="{Binding}" ToolTip="Anuluj"
+                                                                    Command="{Binding DataContext.CancelEditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                                 <TextBlock Text="&#xE10A;" FontFamily="Segoe MDL2 Assets" FontSize="10" FontWeight="Bold"/>
                                                             </Button>
                                                             <Button Style="{StaticResource ActionButtonStyle}" Padding="5,3" CommandParameter="{Binding}" ToolTip="Zapisz zmiany"
@@ -244,7 +243,7 @@
                                                                 <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" FontWeight="Bold"/>
                                                             </Button>
                                                         </StackPanel>
-                                                    </StackPanel>
+                                                    </Grid>
                                                 </StackPanel>
                             
                                                 <!-- usuniety -->
@@ -341,7 +340,7 @@
                                                                         </StackPanel>
 
                                                                         <!-- edytowanie -->
-                                                                        <StackPanel Visibility="{Binding IsBeingEdited, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                        <Grid Visibility="{Binding IsBeingEdited, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                             <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,55,10">
                                                                                 <TextBox Text="{Binding DataContext.EditCommentContent, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                                                                                          Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
@@ -355,9 +354,8 @@
                                                                                 </TextBox>
                                                                             </Border>
                                                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,8,8">
-                                                                                <Button Style="{StaticResource ActionButtonStyle}" Margin="0,0,4,0" Padding="5,3" CommandParameter="{Binding}"
-                                                                                        Command="{Binding DataContext.CancelEditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                                        ToolTip="Anuluj">
+                                                                                <Button Style="{StaticResource ActionButtonStyle}" Margin="0,0,4,0" Padding="5,3" CommandParameter="{Binding}" ToolTip="Anuluj"
+                                                                                        Command="{Binding DataContext.CancelEditCommentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                                                     <TextBlock Text="&#xE10A;" FontFamily="Segoe MDL2 Assets" FontSize="10" FontWeight="Bold"/>
                                                                                 </Button>
                                                                                 <Button Style="{StaticResource ActionButtonStyle}" Padding="5,3" CommandParameter="{Binding}" ToolTip="Zapisz zmiany"
@@ -365,7 +363,7 @@
                                                                                     <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" FontWeight="Bold"/>
                                                                                 </Button>
                                                                             </StackPanel>
-                                                                        </StackPanel>
+                                                                        </Grid>
                                                                     </StackPanel>
 
                                                                     <!-- usuniety -->

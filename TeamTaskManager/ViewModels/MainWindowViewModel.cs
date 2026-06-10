@@ -41,8 +41,12 @@ namespace TeamTaskManager.ViewModels
                     WikiMainView => SelectedProject != null ? new WikiMainView(SelectedProject.Id) : CurrentView,
                     _ => CurrentView
                 };
+                if(allTeamMembersWindow!=null && allTeamMembersWindow.IsLoaded)
+                    allTeamMembersWindow.SetFromProject(value);
             }
         }
+
+        TeamMembersWindow allTeamMembersWindow;
 
         [ObservableProperty]
         private Sprint? activeSprint;
@@ -100,7 +104,17 @@ namespace TeamTaskManager.ViewModels
 
             ShowTeamMembersCommand = new RelayCommand(() =>
                 {
-                    new TeamMembersWindow(SelectedProject).ShowDialog();
+                    if(allTeamMembersWindow==null){
+                        allTeamMembersWindow = new TeamMembersWindow(SelectedProject);
+                        allTeamMembersWindow.Show();
+                    }
+                    if (allTeamMembersWindow.IsLoaded)
+                        allTeamMembersWindow.Focus();
+                    else
+                    {
+                        allTeamMembersWindow = new TeamMembersWindow(SelectedProject);
+                        allTeamMembersWindow.Show();
+                    }
                 });
 
             ShowWikiCommand = new RelayCommand(() =>

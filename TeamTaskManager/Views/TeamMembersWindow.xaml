@@ -7,24 +7,29 @@
         mc:Ignorable="d"
         Title="TeamMembersWindow" Height="450" Width="250">
     <Grid>
-        <StackPanel Orientation="Vertical">
-            <DockPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0">
                 <Label DockPanel.Dock="Left"  FontSize="13">Filtruj po imieniu:</Label>
                 <TextBox VerticalAlignment="Center" Background="WhiteSmoke" DockPanel.Dock="Right" FontSize="13" x:Name="UserNameFilterBox" TextChanged="Filter"></TextBox>
             </DockPanel>
-            <ItemsControl x:Name="UsersTable">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Style="{StaticResource PrimaryButtonStyle}" Click="CopyEmail" Tag="{Binding}" HorizontalAlignment="Left" Height="50" Margin="0 0 0 5">
-                            <DockPanel HorizontalAlignment="Left">
-                                <Ellipse DockPanel.Dock="Left" VerticalAlignment="Center" Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
-                                <TextBlock DockPanel.Dock="Bottom" VerticalAlignment="Center" Text="Naciśnij, aby skopiować adres email" Foreground="LightBlue" FontSize="10"/>
-                                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="{Binding FullName}" FontSize="13"/>
-                            </DockPanel>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+                <ItemsControl x:Name="UsersTable">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource PrimaryButtonStyle}" Click="CopyEmail" Tag="{Binding}" HorizontalAlignment="Left" Height="50" Margin="0 0 0 5">
+                                <DockPanel HorizontalAlignment="Left">
+                                    <Ellipse DockPanel.Dock="Left" VerticalAlignment="Center" Width="28" Height="28" Fill="#9CA3AF" Margin="0 0 8 0"/>
+                                    <TextBlock DockPanel.Dock="Bottom" VerticalAlignment="Center" Text="Naciśnij, aby skopiować adres email" Foreground="LightBlue" FontSize="10"/>
+                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="{Binding FullName}" FontSize="13"/>
+                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" Text="{Binding Role}" FontSize="9"/>
+                                </DockPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
     </Grid>
 </Window>

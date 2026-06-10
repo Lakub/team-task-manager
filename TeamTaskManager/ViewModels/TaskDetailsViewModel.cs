@@ -16,13 +16,12 @@ namespace TeamTaskManager.ViewModels
     public partial class TaskDetailsViewModel : ExpandableTextItem
     {
         private readonly ITaskService _taskService;
-        private readonly int _taskId;
-        private Task? _task;
+        public int TaskId { get; private set; }
 
         public TaskDetailsViewModel(ITaskService taskService, int taskId) : base(lineHeight: 22, maxLines: 4)
         {
             _taskService = taskService;
-            _taskId = taskId;
+            TaskId = taskId;
 
             EditTaskCommand = new AsyncRelayCommand(EditTaskAsync);
             DeleteTaskCommand = new RelayCommand(DeleteTask);
@@ -42,9 +41,10 @@ namespace TeamTaskManager.ViewModels
             EditWorklogCommand = new RelayCommand<WorklogItem>(EditWorklog);
         }
 
+        private Task? _task;
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            _task = await _taskService.GetTaskByIdAsync(_taskId);
+            _task = await _taskService.GetTaskByIdAsync(TaskId);
 
             if (_task == null)
             {
@@ -58,14 +58,20 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
         }
 
+
+        // edytowanie i usuwanie
+        public event Action<int>? TaskUpdated;
         public ICommand EditTaskCommand { get; }
         public ICommand DeleteTaskCommand { get; }
         private async System.Threading.Tasks.Task EditTaskAsync()
         {
-            var editTaskWindow = new EditTaskWindow(_taskId);
+            if (_task == null) return;
+
+            var editTaskWindow = new EditTaskWindow(TaskId);
             if (editTaskWindow.ShowDialog() == true)
             {
                 await InitializeAsync();
+                TaskUpdated?.Invoke(TaskId);
             }
         }
 
@@ -79,7 +85,7 @@ namespace TeamTaskManager.ViewModels
         public bool IsPoppedOut { get; set; } = false;
         private void PopOut()
         {
-            var window = new TaskDetailsWindow(_taskId);
+            var window = new TaskDetailsWindow(TaskId);
             window.Show();
         }
 
@@ -154,7 +160,7 @@ namespace TeamTaskManager.ViewModels
 
         private async System.Threading.Tasks.Task LoadCommentsAsync()
         {
-            var comments = await _taskService.GetNonReplyCommentsByTaskIdAsync(_taskId);
+            var comments = await _taskService.GetNonReplyCommentsByTaskIdAsync(TaskId);
             Comments.Clear();
             foreach (var comment in comments.OrderByDescending(c => c.CreatedAt))
             {
@@ -207,7 +213,7 @@ namespace TeamTaskManager.ViewModels
             }
 
             NewCommentContent = NewCommentContent.Trim();
-            await _taskService.CreateTaskCommentAsync(NewCommentContent, _taskId, App.CurrentUser!.Id, null);
+            await _taskService.CreateTaskCommentAsync(NewCommentContent, TaskId, App.CurrentUser!.Id, null);
 
             NewCommentContent = string.Empty;
             OnPropertyChanged(nameof(NewCommentContent));
@@ -302,7 +308,7 @@ namespace TeamTaskManager.ViewModels
                     return;
                 }
 
-                await _taskService.CreateTaskCommentAsync(NewReplyContent.Trim(), _taskId, App.CurrentUser!.Id, commentItem.Id);
+                await _taskService.CreateTaskCommentAsync(NewReplyContent.Trim(), TaskId, App.CurrentUser!.Id, commentItem.Id);
 
                 commentItem.IsBeingRepliedTo = false;
                 _activeReplyItem = null;
@@ -350,7 +356,7 @@ namespace TeamTaskManager.ViewModels
 
         private async System.Threading.Tasks.Task LoadWorklogsAsync()
         {
-            var worklogs = await _taskService.GetWorklogsByTaskIdAsync(_taskId);
+            var worklogs = await _taskService.GetWorklogsByTaskIdAsync(TaskId);
             Worklogs.Clear();
             foreach (var worklog in worklogs.OrderByDescending(w => w.LoggedAt))
             {
@@ -362,7 +368,7 @@ namespace TeamTaskManager.ViewModels
 
         private void LogWork()
         {
-            var createWorklogWindow = new CreateWorklogWindow(_taskId);
+            var createWorklogWindow = new CreateWorklogWindow(TaskId);
             if (createWorklogWindow.ShowDialog() == true)
             {
                 _ = LoadWorklogsAsync();

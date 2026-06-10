@@ -35,8 +35,24 @@ namespace TeamTaskManager.Views
                 return;
             }
 
+            if (TaskDetailPanel.DataContext is TaskDetailsViewModel currentVm && currentVm.TaskId == item.TaskId)
+            {
+                return;
+            }
+
             var dbContext = new AppDbContext();
             var detailVm = new TaskDetailsViewModel(new TaskService(dbContext), item.TaskId);
+
+            detailVm.TaskUpdated += async (taskId) =>
+            {
+                if (_vm != null)
+                {
+                    await _vm.LoadTasksAsync();
+                    // wybieramy ponownie ten sam
+                    _vm.SelectedTask = _vm.FilteredTasks.FirstOrDefault(t => t.TaskId == taskId);
+                }
+            };
+
             TaskDetailPanel.DataContext = detailVm;
 
             _ = detailVm.InitializeAsync();

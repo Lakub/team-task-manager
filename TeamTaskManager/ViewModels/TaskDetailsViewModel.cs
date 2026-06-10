@@ -290,10 +290,10 @@ namespace TeamTaskManager.ViewModels
                     return;
                 }
 
-                NewReplyContent = NewReplyContent.Trim();
-                await _taskService.CreateTaskCommentAsync(NewReplyContent, _taskId, App.CurrentUser!.Id, commentItem.Id);
+                await _taskService.CreateTaskCommentAsync(NewReplyContent.Trim(), _taskId, App.CurrentUser!.Id, commentItem.Id);
 
                 commentItem.IsBeingRepliedTo = false;
+                _activeReplyItem = null;
                 NewReplyContent = string.Empty;
                 OnPropertyChanged(nameof(NewReplyContent));
 
@@ -301,21 +301,16 @@ namespace TeamTaskManager.ViewModels
                 return;
             }
 
-            foreach (var item in Comments)
+            if (_activeReplyItem != null && _activeReplyItem != commentItem)
             {
-                foreach (var reply in item.Replies)
-                {
-                    if (item.IsBeingRepliedTo || reply.IsBeingRepliedTo)
-                    {
-                        if (MessageBox.Show("Odpowiadasz już na inny komentarz. Czy chcesz anulować odpowiedź?", "Potwierdzenie",
-                            MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
-                            return;
-                    }
-                    reply.IsBeingRepliedTo = false;
-                }
-                item.IsBeingRepliedTo = false;
+                if (NewReplyContent != $"@{_activeReplyItem.DisplayName} " &&
+                    MessageBox.Show("Odpowiadasz już inny komentarz. Czy chcesz anulować tę odpowiedź?", "Potwierdzenie",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    return;
+                _activeReplyItem.IsBeingRepliedTo = false;
             }
 
+            _activeReplyItem = commentItem;
             commentItem.IsBeingRepliedTo = true;
             NewReplyContent = $"@{commentItem.DisplayName} ";
 
@@ -327,6 +322,7 @@ namespace TeamTaskManager.ViewModels
             if (commentItem == null) return;
 
             commentItem.IsBeingRepliedTo = false;
+            _activeReplyItem = null;
 
             NewReplyContent = string.Empty;
             OnPropertyChanged(nameof(NewReplyContent));

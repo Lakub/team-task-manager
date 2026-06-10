@@ -41,8 +41,8 @@ namespace TeamTaskManager.Services
                 StartTime = startTime,
                 TimeSpentText = timeSpentText,
                 TimeSpent = timeSpent,
-                Task = task,
-                User = user,
+                TaskId = taskId,
+                UserId = userId,
                 LoggedAt = now,
                 UpdatedAt = now,
                 IsDeleted = false

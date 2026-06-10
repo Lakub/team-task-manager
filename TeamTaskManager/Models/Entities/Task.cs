@@ -24,7 +24,7 @@ namespace TeamTaskManager.Models.Entities
 
         // zgloszone przez
         public int ReporterId { get; set; }
-        public virtual required User Reporter { get; set; }
+        public virtual User Reporter { get; set; } = null!;
 
         // zlecony do
         public int? AssigneeId { get; set; }
@@ -37,7 +37,7 @@ namespace TeamTaskManager.Models.Entities
 
         // projekt
         public int ProjectId { get; set; }
-        public virtual required Project Project { get; set; }
+        public virtual Project Project { get; set; } = null!;
 
         // worklogi
         public virtual ICollection<Worklog> Worklogs { get; set; } = new List<Worklog>();

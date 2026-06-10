@@ -39,7 +39,7 @@ namespace TeamTaskManager.Services
                     .ThenInclude(t => t.Worklogs)
                         .ThenInclude(w => w.User)
                 .Include(st => st.Task)
-                    .ThenInclude(t => t.Assignee)
+                .Include(st => st.Assignee)
                 .Where(st => st.SprintId == sprintId)
                 .ToListAsync();
 

@@ -48,14 +48,9 @@ namespace TeamTaskManager.Services
             TaskType type, TaskPriority priority,
             int projectId, int reporterId, int? assigneeId)
         {
-            var reporter = await _context.Users.FindAsync(reporterId) ?? throw new Exception("Reporter not found");
-            var project = await _context.Projects.FindAsync(projectId) ?? throw new Exception("Project not found");
             var maxPerProjectId = await _context.Tasks
                 .Where(t => t.ProjectId == projectId)
                 .MaxAsync(t => (int?)t.PerProjectId) ?? 0;
-            User? assignee = assigneeId.HasValue
-                ? await _context.Users.FindAsync(assigneeId.Value)
-                : null;
 
             var now = DateTime.UtcNow;
 
@@ -66,9 +61,9 @@ namespace TeamTaskManager.Services
                 Type = type,
                 Priority = priority,
                 Status = TaskStatus.Open,
-                Reporter = reporter!,
-                Assignee = assignee,
-                Project = project!,
+                ReporterId = reporterId,
+                AssigneeId = assigneeId,
+                ProjectId = projectId,
                 PerProjectId = maxPerProjectId + 1,
                 CreatedAt = now,
                 UpdatedAt = now,
@@ -85,7 +80,10 @@ namespace TeamTaskManager.Services
             TaskType type, TaskPriority priority,
             int? assigneeId)
         {
-            var task = await _context.Tasks.FindAsync(taskId) ?? throw new Exception("Task not found");
+            var task = await _context.Tasks
+                .Include(t => t.SprintTasks)
+                    .ThenInclude(st => st.Sprint)
+                .FirstOrDefaultAsync(t => t.Id == taskId) ?? throw new Exception("Task not found");
 
             task.Title = title;
             task.Description = description;
@@ -93,6 +91,12 @@ namespace TeamTaskManager.Services
             task.Priority = priority;
             task.AssigneeId = assigneeId;
             task.UpdatedAt = DateTime.UtcNow;
+
+            // aktualizujemy wszystkie nieusuniete sprinttaski z aktywnych i planowanych sprintow
+            foreach (var st in task.SprintTasks.Where(st => st.RemovedAt == null && st.Sprint.Status != SprintStatus.Completed))
+            {
+                st.AssigneeId = assigneeId;
+            }
 
             await _context.SaveChangesAsync();
             return task;
@@ -134,16 +138,13 @@ namespace TeamTaskManager.Services
         public async System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
             string text, int taskId, int commenterId, int? parentCommentId)
         {
-            var commenter = await _context.Users.FindAsync(commenterId);
-            var task = await _context.Tasks.FindAsync(taskId);
-
             var now = DateTime.UtcNow;
 
             var comment = new Comment
             {
                 Text = text,
-                Task = task!,
-                Commenter = commenter!,
+                TaskId = taskId,
+                CommenterId = commenterId,
                 ParentCommentId = parentCommentId,
                 CreatedAt = now,
                 UpdatedAt = now,
@@ -187,11 +188,22 @@ namespace TeamTaskManager.Services
 
         public async System.Threading.Tasks.Task UpdateTaskAssigneeAsync(int taskId, int? newAssigneeId)
         {
-            var task = await _context.Tasks.FindAsync(taskId);
+            var task = await _context.Tasks
+                .Include(t => t.SprintTasks)
+                    .ThenInclude(st => st.Sprint)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
             if (task == null || task.IsDeleted)
                 throw new Exception("Task not found");
 
             task.AssigneeId = newAssigneeId;
+
+            // aktualizujemy wszystkie nieusuniete sprinttaski z aktywnych i planowanych sprintow
+            foreach (var st in task.SprintTasks.Where(st => st.RemovedAt == null && st.Sprint.Status != SprintStatus.Completed))
+            {
+                st.AssigneeId = newAssigneeId;
+            }
+
             task.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }

@@ -13,11 +13,11 @@ namespace TeamTaskManager.Models.Entities
 
         // task
         public int TaskId { get; set; }
-        public virtual required Task Task { get; set; }
+        public virtual Task Task { get; set; } = null!;
 
         // autor
         public int CommenterId { get; set; }
-        public virtual required User Commenter { get; set; }
+        public virtual User Commenter { get; set; } = null!;
 
         // odpowiedzi
         public int? ParentCommentId { get; set; }

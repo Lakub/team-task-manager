@@ -210,9 +210,13 @@ namespace TeamTaskManager.ViewModels
                 {
                     App.CurrentUser = login.LoggedInUser;
                     App.IsLoggingOut = false;
-                    var main = new MainWindow();
-                    main.Closed += (s, args) => { if (!App.IsLoggingOut) System.Windows.Application.Current.Shutdown(); };
-                    main.Show();
+
+                    System.Windows.Window next = App.CurrentUser?.OrgRole == Models.Enums.OrgRole.HeadAdmin
+                        ? new HeadAdminWindow()
+                        : new MainWindow();
+
+                    next.Closed += (s, args) => { if (!App.IsLoggingOut) System.Windows.Application.Current.Shutdown(); };
+                    next.Show();
                 }
                 else
                 {

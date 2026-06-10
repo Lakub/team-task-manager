@@ -36,6 +36,7 @@ namespace TeamTaskManager.Services
         public async Task<(Project Project, List<Sprint> Sprints)> GetSprintsByProjectIdAsync(int projectId)
         {
             var project = await _context.Projects
+                .Include(p => p.ProjectUsers)
                 .FirstOrDefaultAsync(p => p.Id == projectId);
 
             var sprints = await _context.Sprints

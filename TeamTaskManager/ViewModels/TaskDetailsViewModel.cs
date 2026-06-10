@@ -24,6 +24,10 @@ namespace TeamTaskManager.ViewModels
             _taskService = taskService;
             _taskId = taskId;
 
+            EditTaskCommand = new AsyncRelayCommand(EditTaskAsync);
+            DeleteTaskCommand = new RelayCommand(DeleteTask);
+            PopOutCommand = new RelayCommand(PopOut);
+
             AddCommentCommand = new AsyncRelayCommand(AddCommentAsync);
             DeleteCommentCommand = new AsyncRelayCommand<CommentItem>(DeleteCommentAsync);
 
@@ -36,8 +40,6 @@ namespace TeamTaskManager.ViewModels
             LogWorkCommand = new RelayCommand(LogWork);
             DeleteWorklogCommand = new AsyncRelayCommand<WorklogItem>(DeleteWorklogAsync);
             EditWorklogCommand = new RelayCommand<WorklogItem>(EditWorklog);
-
-            PopOutCommand = new RelayCommand(PopOut);
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
@@ -50,12 +52,27 @@ namespace TeamTaskManager.ViewModels
                 return;
             }
 
-            OnPropertyChanged(string.Empty);
-
             await LoadCommentsAsync();
             await LoadWorklogsAsync();
+
+            OnPropertyChanged(string.Empty);
         }
 
+        public ICommand EditTaskCommand { get; }
+        public ICommand DeleteTaskCommand { get; }
+        private async System.Threading.Tasks.Task EditTaskAsync()
+        {
+            var editTaskWindow = new EditTaskWindow(_taskId);
+            if (editTaskWindow.ShowDialog() == true)
+            {
+                await InitializeAsync();
+            }
+        }
+
+        private void DeleteTask()
+        {
+
+        }
 
         // otwierania w nowym oknie
         public ICommand PopOutCommand { get; }

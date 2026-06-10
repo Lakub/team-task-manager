@@ -30,14 +30,24 @@
                     </StackPanel>
                     <TextBlock Text="{Binding Title}" FontFamily="Segoe UI" FontSize="26" FontWeight="SemiBold" Foreground="#1F2937" TextWrapping="Wrap"/>
                 </StackPanel>
-                
-                <Button Grid.Column="1" Style="{StaticResource ActionButtonStyle}"
-                        Command="{Binding PopOutCommand}"
-                        Visibility="{Binding IsPoppedOut, Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                        ToolTip="Otwórz w osobnym oknie" VerticalAlignment="Top" Margin="8,0,0,0"
-                        Padding="6,4" Width="32" Height="28">
-                    <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
-                </Button>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="8,0,0,0">
+                    <Button Style="{StaticResource ActionButtonStyle}" Command="{Binding PopOutCommand}"
+                            Visibility="{Binding IsPoppedOut, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                            ToolTip="Otwórz w osobnym oknie" Padding="6,4" Width="32" Height="28" Margin="0,0,4,0">
+                        <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                    </Button>
+                    
+                    <Button Style="{StaticResource ActionButtonStyle}" Command="{Binding EditTaskCommand}"
+                            ToolTip="Edytuj zadanie" Padding="6,4" Width="32" Height="28" Margin="0,0,4,0">
+                        <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                    </Button>
+
+                    <Button Style="{StaticResource ActionButtonStyle}" Command="{Binding DeleteTaskCommand}"
+                            ToolTip="Usuń zadanie" Padding="6,4" Width="32" Height="28">
+                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Border>
 

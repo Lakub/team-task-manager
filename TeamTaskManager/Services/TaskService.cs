@@ -18,11 +18,17 @@ namespace TeamTaskManager.Services
             string title, string description,
             TaskType type, TaskPriority priority,
             int projectId, int reporterId, int? assigneeId);
+        System.Threading.Tasks.Task<Task> EditTaskAsync(
+            int taskId, string title, string description,
+            TaskType type, TaskPriority priority,
+            int? assigneeId);
         System.Threading.Tasks.Task<Comment> CreateTaskCommentAsync(
             string text, int taskId, int commenterId, int? parentCommentId);
         System.Threading.Tasks.Task DeleteTaskCommentAsync(int commentId);
         System.Threading.Tasks.Task EditTaskCommentAsync(int commentId, string newText);
+        System.Threading.Tasks.Task UpdateTaskTitleAsync(int taskId, string newTitle);
         System.Threading.Tasks.Task DeleteTaskWorklogAsync(int worklogId);
+
     }
 
     public class TaskService : ITaskService
@@ -39,8 +45,8 @@ namespace TeamTaskManager.Services
             TaskType type, TaskPriority priority,
             int projectId, int reporterId, int? assigneeId)
         {
-            var reporter = await _context.Users.FindAsync(reporterId);
-            var project = await _context.Projects.FindAsync(projectId);
+            var reporter = await _context.Users.FindAsync(reporterId) ?? throw new Exception("Reporter not found");
+            var project = await _context.Projects.FindAsync(projectId) ?? throw new Exception("Project not found");
             var maxPerProjectId = await _context.Tasks
                 .Where(t => t.ProjectId == projectId)
                 .MaxAsync(t => (int?)t.PerProjectId) ?? 0;
@@ -71,9 +77,28 @@ namespace TeamTaskManager.Services
             return task;
         }
 
+        public async System.Threading.Tasks.Task<Task> EditTaskAsync(
+            int taskId, string title, string description,
+            TaskType type, TaskPriority priority,
+            int? assigneeId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId) ?? throw new Exception("Task not found");
+
+            task.Title = title;
+            task.Description = description;
+            task.Type = type;
+            task.Priority = priority;
+            task.AssigneeId = assigneeId;
+            task.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return task;
+        }
+
         public async System.Threading.Tasks.Task<Task?> GetTaskByIdAsync(int taskId)
         {
             return await _context.Tasks
+                .AsNoTracking()
                 .Include(t => t.Reporter)
                 .Include(t => t.Assignee)
                 .Include(t => t.Project)
@@ -142,6 +167,16 @@ namespace TeamTaskManager.Services
                 throw new Exception("Comment not found");
             comment.Text = newText;
             comment.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task UpdateTaskTitleAsync(int taskId, string newTitle)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null || task.IsDeleted)
+                throw new Exception("Task not found");
+            task.Title = newTitle;
+            task.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
 

@@ -209,7 +209,7 @@
                                                 <!-- tresc -->
                                                 <StackPanel Visibility="{Binding IsDeleted, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                     <!-- faktyczna tresc -->
-                                                    <Grid Visibility="{Binding IsBeingEdited, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                    <StackPanel Visibility="{Binding IsBeingEdited, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                         <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
                                                             <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"
                                                                    Loaded="ItemText_Loaded" SizeChanged="ItemText_SizeChanged"/>
@@ -217,10 +217,10 @@
                                                         <Button Style="{StaticResource InlineSeeMoreButtonStyle}" Content="{Binding ToggleTextLabel}"
                                                             Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right" FontSize="11"
                                                             Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                    </Grid>
+                                                    </StackPanel>
 
                                                     <!-- edytowanie -->
-                                                    <Grid Visibility="{Binding IsBeingEdited, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <StackPanel Visibility="{Binding IsBeingEdited, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,55,10">
                                                             <TextBox Text="{Binding DataContext.EditCommentContent, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                                                                      Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
@@ -244,7 +244,7 @@
                                                                 <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" FontWeight="Bold"/>
                                                             </Button>
                                                         </StackPanel>
-                                                    </Grid>
+                                                    </StackPanel>
                                                 </StackPanel>
                             
                                                 <!-- usuniety -->
@@ -330,7 +330,7 @@
                                                                     <!-- tresc -->
                                                                     <StackPanel Visibility="{Binding IsDeleted, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                                         <!-- faktyczna tresc -->
-                                                                        <Grid Visibility="{Binding IsBeingEdited, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                                        <StackPanel Visibility="{Binding IsBeingEdited, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                                             <Border MaxHeight="{Binding MaxTextHeight}" ClipToBounds="True">
                                                                                 <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="#4B5563" LineHeight="20"
                                                                                            Loaded="ItemText_Loaded" SizeChanged="ItemText_SizeChanged"/>
@@ -338,10 +338,10 @@
                                                                             <Button Style="{StaticResource InlineSeeMoreButtonStyle}" Content="{Binding ToggleTextLabel}"
                                                                                     Command="{Binding ToggleTextCommand}" HorizontalAlignment="Right" FontSize="11"
                                                                                     Visibility="{Binding TextOverflows, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                                        </Grid>
+                                                                        </StackPanel>
 
                                                                         <!-- edytowanie -->
-                                                                        <Grid Visibility="{Binding IsBeingEdited, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                        <StackPanel Visibility="{Binding IsBeingEdited, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                             <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="10,10,55,10">
                                                                                 <TextBox Text="{Binding DataContext.EditCommentContent, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                                                                                          Background="Transparent" BorderThickness="0" FontSize="12" Foreground="#374151" TextWrapping="Wrap" AcceptsReturn="True"
@@ -365,7 +365,7 @@
                                                                                     <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" FontWeight="Bold"/>
                                                                                 </Button>
                                                                             </StackPanel>
-                                                                        </Grid>
+                                                                        </StackPanel>
                                                                     </StackPanel>
 
                                                                     <!-- usuniety -->

@@ -33,7 +33,7 @@
             </Border>
         </StackPanel>
 
-        <TextBlock Grid.Row="3" Text="{Binding CollisionWarning}" Foreground="#D97706" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,14"
+        <TextBlock Grid.Row="3" Text="{Binding CollisionWarning}" Foreground="#D97706" FontSize="12" TextWrapping="Wrap" Margin="0,14,0,14"
                    Visibility="{Binding HasCollisionWarning, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
         <Grid Grid.Row="5" Margin="0,4,0,0">

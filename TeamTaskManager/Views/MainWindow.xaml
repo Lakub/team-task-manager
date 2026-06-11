@@ -26,7 +26,7 @@
 
             <Border Grid.Row="0" Background="White" CornerRadius="8"
                     Padding="12 0" Margin="0 0 8 8">
-                <TextBlock Text="Sprint X, od: do" Foreground="#6B7280"
+                <TextBlock Text="{Binding ActiveSprint}" Foreground="#6B7280"
                         FontFamily="Segoe UI" FontSize="13" VerticalAlignment="Center"/>
             </Border>
 

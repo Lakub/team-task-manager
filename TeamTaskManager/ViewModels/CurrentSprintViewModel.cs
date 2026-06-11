@@ -1,11 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
-using TeamTaskManager.Models.Enums;
+using TeamTaskManager.Helpers;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
 
 namespace TeamTaskManager.ViewModels
@@ -48,6 +49,17 @@ namespace TeamTaskManager.ViewModels
             {
                 if (item != null) OnTaskSelected?.Invoke(item);
             });
+
+            WeakReferenceMessenger.Default.Register<TaskUpdatedMessage>(this, async (r, m) =>
+            {
+                int updatedTaskId = m.Value;
+
+                bool containsTask = TodoTasks.Any(t => t.TaskId == updatedTaskId) ||
+                                    InProgressTasks.Any(t => t.TaskId == updatedTaskId) ||
+                                    DoneTasks.Any(t => t.TaskId == updatedTaskId);
+
+                if (containsTask) await InitializeAsync();
+            });
         }
 
         public async System.Threading.Tasks.Task MoveTaskAsync(KanbanTaskItem item, TaskStatus newStatus)
@@ -87,6 +99,7 @@ namespace TeamTaskManager.ViewModels
             NoActiveSprint = false;
 
             var sprintTasks = await _context.SprintTasks
+                .AsNoTracking()
                 .Include(st => st.Task).ThenInclude(t => t.Project)
                 .Include(st => st.Assignee)
                 .Where(st => st.SprintId == _sprintId && st.RemovedAt == null)

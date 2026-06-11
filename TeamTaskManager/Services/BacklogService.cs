@@ -42,6 +42,7 @@ namespace TeamTaskManager.Services
         public async Task<List<Task>> GetActiveSprintTasksAsync(int sprintId)
         {
             return await _context.SprintTasks
+                .AsNoTracking()
                 .Include(st => st.Task)
                 .Where(st => st.SprintId == sprintId    // tylko z tego sprintu
                           && st.RemovedAt == null)      // tylko nieusuniete ze sprintu
@@ -57,6 +58,7 @@ namespace TeamTaskManager.Services
                 .ToListAsync();
 
             return await _context.Tasks
+                .AsNoTracking()
                 .Where(t => t.ProjectId == projectId
                          && !t.IsDeleted                    // tylko nieusuniete
                          && t.Status != TaskStatus.Closed   // tylko otwarte lub w trakcie

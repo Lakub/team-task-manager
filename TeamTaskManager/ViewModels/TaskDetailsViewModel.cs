@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -41,6 +42,11 @@ namespace TeamTaskManager.ViewModels
             LogWorkCommand = new RelayCommand(LogWork);
             DeleteWorklogCommand = new AsyncRelayCommand<WorklogItem>(DeleteWorklogAsync);
             EditWorklogCommand = new RelayCommand<WorklogItem>(EditWorklog);
+
+            WeakReferenceMessenger.Default.Register<TaskUpdatedMessage>(this, async (r, m) =>
+            {
+                if (m.Value == TaskId) await InitializeAsync();
+            });
         }
 
         private Task? _task;
@@ -101,7 +107,6 @@ namespace TeamTaskManager.ViewModels
 
         // edytowanie i usuwanie
         public bool CanManageProject { get; private set; }
-        public event Action<int>? TaskUpdated;
         public ICommand EditTaskCommand { get; }
         public ICommand DeleteTaskCommand { get; }
         private async System.Threading.Tasks.Task EditTaskAsync()
@@ -112,7 +117,7 @@ namespace TeamTaskManager.ViewModels
             if (editTaskWindow.ShowDialog() == true)
             {
                 await InitializeAsync();
-                TaskUpdated?.Invoke(TaskId);
+                WeakReferenceMessenger.Default.Send(new TaskUpdatedMessage(TaskId));
             }
         }
 
@@ -206,6 +211,7 @@ namespace TeamTaskManager.ViewModels
             await _taskService.UpdateTaskAssigneeAsync(TaskId, userId);
 
             await InitializeAsync();
+            WeakReferenceMessenger.Default.Send(new TaskUpdatedMessage(TaskId));
         }
 
         // aby inf loopa nie bylo
@@ -266,6 +272,7 @@ namespace TeamTaskManager.ViewModels
             await _taskService.UpdateTaskStatusAsync(TaskId, status);
 
             await InitializeAsync();
+            WeakReferenceMessenger.Default.Send(new TaskUpdatedMessage(TaskId));
         }
 
 

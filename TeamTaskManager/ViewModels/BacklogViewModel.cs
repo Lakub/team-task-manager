@@ -72,6 +72,13 @@ namespace TeamTaskManager.ViewModels
             OpenTaskCommand = new RelayCommand<BacklogTaskItem?>(OpenTask);
             OpenSprintReportCommand = new RelayCommand(OpenSprintReport);
             CreateTaskCommand = new RelayCommand(CreateTask);
+
+            WeakReferenceMessenger.Default.Register<TaskUpdatedMessage>(this, async (r, m) =>
+            {
+                if (SprintTasks.Any(t => t.TaskId == m.Value)
+                || BacklogTasks.Any(t => t.TaskId == m.Value))
+                    await LoadTasksAsync();
+            });
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()

@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
 
 namespace TeamTaskManager.Models.Entities
 {
@@ -16,7 +11,16 @@ namespace TeamTaskManager.Models.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // RELACJA Z PROJEKTEM (Bez 'required', używamy '= null!;')
+       
+        public bool IsDraft { get; set; } = false;
+        public bool IsFavorite { get; set; } = false;
+
+
+        public int? ParentArticleId { get; set; }
+        public virtual WikiArticle? ParentArticle { get; set; }
+        public virtual ICollection<WikiArticle> SubArticles { get; set; } = new List<WikiArticle>();
+
+        
         public int ProjectId { get; set; }
         public virtual Project Project { get; set; } = null!;
 

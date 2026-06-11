@@ -1,10 +1,11 @@
 ﻿<Window x:Class="TeamTaskManager.Views.ArticleEditWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Edytuj stronę" Height="700" Width="800" 
-        WindowStartupLocation="CenterScreen" Background="White">
+        xmlns:md="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+        Title="Edytor Artykułu Wiki" Height="850" Width="1200" 
+        WindowStartupLocation="CenterScreen" Background="#F9FAFB">
 
-    <Grid Margin="25">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -13,55 +14,131 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="{Binding WindowTitle}" FontSize="28" FontWeight="Medium" Margin="0,0,0,20" Foreground="#1F2937"/>
+        <TextBlock Grid.Row="0" Text="{Binding WindowTitle}" FontSize="24" FontWeight="Bold" Margin="0,0,0,15" Foreground="#111827"/>
 
-        <StackPanel Grid.Row="1" Margin="0,0,0,15">
-            <TextBlock Text="Tytuł strony *" FontSize="14" Foreground="#6B7280" Margin="0,0,0,5"/>
-            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8" Height="40">
-                <TextBox x:Name="TitleTextBox" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="16"/>
-            </Border>
-        </StackPanel>
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="2" Margin="0,0,0,15">
-            <TextBlock Text="Tagi (oddzielaj przecinkiem)" FontSize="14" Foreground="#6B7280" Margin="0,0,0,5"/>
-            <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8" Height="40">
-                <TextBox x:Name="TagsTextBox" Text="{Binding TagsText, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="14" Foreground="#10B981"/>
-            </Border>
-        </StackPanel>
-
-        <Grid Grid.Row="3" Margin="0,0,0,20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                <TextBlock Text="Treść (Markdown)" FontSize="14" Foreground="#6B7280" Margin="0,0,15,0" VerticalAlignment="Center"/>
-
-                <Button Content=" B " FontWeight="Bold" Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnBold_Click"/>
-                <Button Content=" I " FontStyle="Italic" Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnItalic_Click"/>
-                <Button Content=" H1 " Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnH1_Click"/>
-                <Button Content=" H2 " Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnH2_Click"/>
-                <Button Content=" Lista " Margin="0,0,5,0" Padding="5,0" Cursor="Hand" Click="BtnList_Click"/>
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <TextBlock Text="Tytuł strony *" FontSize="13" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,5"/>
+                <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="6" Height="38" Background="White">
+                    <TextBox x:Name="TitleTextBox" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="15"/>
+                </Border>
             </StackPanel>
 
-            <Border Grid.Row="1" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8">
-                <TextBox x:Name="ContentTextBox" Text="{Binding Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" Padding="15" FontSize="14" VerticalScrollBarVisibility="Auto" FontFamily="Consolas"/>
-            </Border>
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Tagi (po przecinku)" FontSize="13" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,5"/>
+                <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="6" Height="38" Background="White">
+                    <TextBox x:Name="TagsTextBox" Text="{Binding TagsText, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="10,0" FontSize="14" Foreground="#059669"/>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Szablon:" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,10,0" Foreground="#4B5563"/>
+                <Button Content="API" Command="{Binding ApplyTemplateCommand}" CommandParameter="API" Margin="0,0,5,0" Padding="8,3" Background="#E5E7EB" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="Spotkanie" Command="{Binding ApplyTemplateCommand}" CommandParameter="Meeting" Margin="0,0,5,0" Padding="8,3" Background="#E5E7EB" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="Zgłoszenie błędu" Command="{Binding ApplyTemplateCommand}" CommandParameter="Bug" Margin="0,0,15,0" Padding="8,3" Background="#E5E7EB" BorderThickness="0" Cursor="Hand"/>
+
+                <CheckBox IsChecked="{Binding IsDraft}" Content="Szkic" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#4B5563"/>
+                <CheckBox IsChecked="{Binding IsFavorite}" Content="⭐ Ulubione" VerticalAlignment="Center" Foreground="#4B5563"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Katalog / Rodzic:" VerticalAlignment="Center" Margin="0,0,5,0" FontWeight="SemiBold" Foreground="#4B5563"/>
+                <ComboBox ItemsSource="{Binding AvailableParents}" SelectedItem="{Binding SelectedParent}" DisplayMemberPath="Title" Width="180" Height="28" Background="White"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="3" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <WrapPanel Grid.Row="0" Margin="0,0,0,5" Background="#E5E7EB" TextElement.Foreground="#374151">
+                    <WrapPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Margin" Value="2,2"/>
+                            <Setter Property="Padding" Value="8,4"/>
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="FontWeight" Value="Medium"/>
+                        </Style>
+                    </WrapPanel.Resources>
+
+                    <Button Content=" B " FontWeight="Bold" Click="BtnFormat_Click" Tag="Bold" ToolTip="Pogrubienie (Ctrl+B)"/>
+                    <Button Content=" I " FontStyle="Italic" Click="BtnFormat_Click" Tag="Italic" ToolTip="Kursywa (Ctrl+I)"/>
+                    <Button Content=" S " Click="BtnFormat_Click" Tag="Strike" ToolTip="Przekreślenie"/>
+                    <Separator Width="1" Margin="5,2" Background="#9CA3AF"/>
+
+                    <Button Content=" H1 " Click="BtnFormat_Click" Tag="H1"/>
+                    <Button Content=" H2 " Click="BtnFormat_Click" Tag="H2"/>
+                    <Button Content=" H3 " Click="BtnFormat_Click" Tag="H3"/>
+                    <Separator Width="1" Margin="5,2" Background="#9CA3AF"/>
+
+                    <Button Content=" • Lista " Click="BtnFormat_Click" Tag="List" ToolTip="Lista punktowa"/>
+                    <Button Content=" 1. Lista " Click="BtnFormat_Click" Tag="NumList" ToolTip="Lista numerowana"/>
+                    <Button Content=" ☑ Taski " Click="BtnFormat_Click" Tag="Task" ToolTip="Lista zadań"/>
+                    <Separator Width="1" Margin="5,2" Background="#9CA3AF"/>
+
+                    <Button Content=" 🔗 Link " Click="BtnFormat_Click" Tag="Link" ToolTip="Wstaw link"/>
+                    <Button Content=" 🖼 Obraz " Click="BtnFormat_Click" Tag="Image" ToolTip="Wstaw obrazek"/>
+                    <Button Content=" ” Cytat " Click="BtnFormat_Click" Tag="Quote" ToolTip="Blok cytatu"/>
+                    <Button Content=" { } Kod " Click="BtnFormat_Click" Tag="Code" ToolTip="Blok kodu"/>
+                    <Button Content=" ⊞ Tabela " Click="BtnFormat_Click" Tag="Table" ToolTip="Wstaw tabelę"/>
+                </WrapPanel>
+
+                <Border Grid.Row="1" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Background="White">
+                    <TextBox x:Name="ContentTextBox" Text="{Binding Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" 
+                             Padding="12" FontSize="14" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" Foreground="#1F2937"/>
+                </Border>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#D1D5DB" Margin="5,0"/>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Margin="0,0,0,5" Background="#E5E7EB" Padding="8,4" CornerRadius="4">
+                    <TextBlock Text="Podgląd na żywo" FontWeight="SemiBold" Foreground="#4B5563" HorizontalAlignment="Center"/>
+                </Border>
+
+                <Border Grid.Row="1" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Background="White">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                        <md:MarkdownViewer Markdown="{Binding Content}" Margin="0"/>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
         </Grid>
 
         <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <Button Grid.Column="1" Style="{StaticResource ActionButtonStyle}" Command="{Binding CancelCommand}"
-                    Content="Anuluj" Width="100" Height="40" Margin="0,0,15,0" FontSize="14" FontWeight="SemiBold"/>
-
-            <Button Grid.Column="2" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding SaveCommand}"
-                    Content="Zapisz" Width="120" Height="40" FontSize="14" FontWeight="SemiBold"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Anuluj" Command="{Binding CancelCommand}" Width="100" Height="40" Margin="0,0,10,0" FontSize="14" Background="#F3F4F6" BorderBrush="#D1D5DB" Foreground="#374151" Cursor="Hand"/>
+                <Button Content="Zapisz Artykuł" Command="{Binding SaveCommand}" Width="140" Height="40" FontSize="14" FontWeight="Bold" Background="#2563EB" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>

@@ -111,6 +111,13 @@ namespace TeamTaskManager.Models
                 .WithMany(u => u.CreatedComments)
                 .HasForeignKey(c => c.CommenterId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            
+            modelBuilder.Entity<WikiArticle>()
+                .HasOne(a => a.ParentArticle)
+                .WithMany(a => a.SubArticles)
+                .HasForeignKey(a => a.ParentArticleId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

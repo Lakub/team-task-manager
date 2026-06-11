@@ -68,32 +68,36 @@ namespace TeamTaskManager.ViewModels
 
             // assignee
             _isInitializingAssignee = true;
-            ProjectUsers.Clear();
-            var unassigned = new User { Id = -1, FullName = "Nieprzypisane" };
-            ProjectUsers.Add(unassigned);
-            if (project?.ProjectUsers != null)
+            if (ProjectUsers.Count == 0)
             {
-                foreach (var pu in project.ProjectUsers.Where(pu => pu.User != null))
+                var unassigned = new User { Id = -1, FullName = "Nieprzypisane" };
+                ProjectUsers.Add(unassigned);
+                if (project?.ProjectUsers != null)
                 {
-                    ProjectUsers.Add(pu.User);
+                    foreach (var pu in project.ProjectUsers.Where(pu => pu.User != null))
+                    {
+                        ProjectUsers.Add(pu.User);
+                    }
                 }
             }
+            var currentUnassigned = ProjectUsers.First(u => u.Id == -1);
             SelectedAssignee = _task.AssigneeId == null
-                ? unassigned
-                : ProjectUsers.Where(pu => pu.Id == _task?.Assignee?.Id).FirstOrDefault()
-                ?? unassigned;
+                ? currentUnassigned
+                : ProjectUsers.FirstOrDefault(pu => pu.Id == _task?.Assignee?.Id) ?? currentUnassigned;
             _isInitializingAssignee = false;
 
             // status
             _isInitializingStatus = true;
-            AvailableStatuses.Clear();
-            foreach (TaskStatus statusVal in Enum.GetValues(typeof(TaskStatus)))
+            if (AvailableStatuses.Count == 0)
             {
-                AvailableStatuses.Add(new StatusOption
+                foreach (TaskStatus statusVal in Enum.GetValues(typeof(TaskStatus)))
                 {
-                    Status = statusVal,
-                    DisplayName = StyleHelper.GetTaskStatusDisplay(statusVal)
-                });
+                    AvailableStatuses.Add(new StatusOption
+                    {
+                        Status = statusVal,
+                        DisplayName = StyleHelper.GetTaskStatusDisplay(statusVal)
+                    });
+                }
             }
             SelectedStatus = AvailableStatuses.FirstOrDefault(s => s.Status == _task.Status);
             _isInitializingStatus = false;

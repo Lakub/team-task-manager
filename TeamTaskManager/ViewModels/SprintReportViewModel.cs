@@ -146,7 +146,7 @@ namespace TeamTaskManager.ViewModels
 
 
         // filtrowanie i sortowanie
-        private string _selectedFilter = "All";
+        private string _selectedFilter = "InScope";
         public string SelectedFilter
         {
             get => _selectedFilter;
@@ -165,10 +165,12 @@ namespace TeamTaskManager.ViewModels
         public ObservableCollection<FilterOption> FilterOptions { get; } = new()
         {
             new() { Label = "Wszystkie", Value = "All" },
+            new() { Label = "W zakresie", Value = "InScope" },
+            new() { Label = "Poza zakresem", Value = "Descoped" },
+            new() { Label = "Dodane w trakcie", Value = "AdHoc" },
             new() { Label = "Otwarte", Value = "Open" },
             new() { Label = "W trakcie", Value = "InProgress" },
             new() { Label = "Zamknięte", Value = "Closed" },
-            new() { Label = "Zmiana scope", Value = "Scope" },
             new() { Label = "Błędy", Value = "Bug" },
             new() { Label = "Funkcje", Value = "Feature" },
             new() { Label = "Zadania", Value = "Task" },
@@ -183,15 +185,25 @@ namespace TeamTaskManager.ViewModels
         {
             IEnumerable<SprintTaskItem> result = _allTaskItems;
 
+            result = _selectedFilter == "Descoped" || _selectedFilter == "All"
+                     ? result
+                     : result = result.Where(t => t.Scope != ScopeChange.Descoped);
+
             result = _selectedFilter switch
             {
+                "All" => result,
+                "InScope" => result,
+                "Descoped" => result.Where(t => t.Scope == ScopeChange.Descoped),
+                "AdHoc" => result.Where(t => t.Scope == ScopeChange.Added),
+
                 "Open" => result.Where(t => t.Status == TaskStatus.Open),
                 "InProgress" => result.Where(t => t.Status == TaskStatus.InProgress),
                 "Closed" => result.Where(t => t.Status == TaskStatus.Closed),
-                "Scope" => result.Where(t => t.Scope != ScopeChange.None),
+
                 "Bug" => result.Where(t => t.Type == TaskType.Bug),
                 "Feature" => result.Where(t => t.Type == TaskType.Feature),
                 "Task" => result.Where(t => t.Type == TaskType.Task),
+
                 "High" => result.Where(t => t.Priority == TaskPriority.High),
                 "Medium" => result.Where(t => t.Priority == TaskPriority.Medium),
                 "Low" => result.Where(t => t.Priority == TaskPriority.Low),

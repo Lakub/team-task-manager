@@ -15,7 +15,7 @@ namespace TeamTaskManager.Services
         Task<(Sprint Sprint, List<SprintTask> Tasks)> GetSprintReportDataAsync(int sprintId);
         Task<List<Sprint>> GetAllSprintsAsync();
         Task<List<Sprint>> GetAllSprintsByProjectIdAsync(int projectId);
-        Task<Sprint> CreateSprintAsync(string name, DateTime startDate, DateTime endDate, int projectId, int creatorId);
+        Task<Sprint> CreateSprintAsync(string name, DateTime? startDate, DateTime? endDate, int projectId, int creatorId);
     }
 
     public class SprintService : ISprintService
@@ -39,7 +39,7 @@ namespace TeamTaskManager.Services
                     .ThenInclude(t => t.Worklogs)
                         .ThenInclude(w => w.User)
                 .Include(st => st.Task)
-                    .ThenInclude(t => t.Assignee)
+                .Include(st => st.Assignee)
                 .Where(st => st.SprintId == sprintId)
                 .ToListAsync();
 
@@ -64,7 +64,7 @@ namespace TeamTaskManager.Services
         }
 
         public async Task<Sprint> CreateSprintAsync(
-            string name, DateTime startDate, DateTime endDate,
+            string name, DateTime? startDate, DateTime? endDate,
             int projectId, int creatorId)
         {
             var creator = await _context.Users.FindAsync(creatorId);

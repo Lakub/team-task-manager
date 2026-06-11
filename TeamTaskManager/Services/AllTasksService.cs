@@ -26,6 +26,7 @@ namespace TeamTaskManager.Services
         public async Task<List<Task>> GetAllProjectTasksAsync(int projectId)
         {
             return await _context.Tasks
+                .AsNoTracking()
                 .Where(t => t.ProjectId == projectId && !t.IsDeleted)
                 .OrderBy(t => t.PerProjectId)
                 .ToListAsync();

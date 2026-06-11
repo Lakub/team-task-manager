@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeamTaskManager.Models;
 
@@ -10,9 +11,11 @@ using TeamTaskManager.Models;
 namespace TeamTaskManager.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260610223606_remove-deprecated")]
+    partial class removedeprecated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.25");
@@ -202,7 +205,7 @@ namespace TeamTaskManager.Migrations
                     b.Property<int>("CreatorId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("EndDate")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
@@ -215,7 +218,7 @@ namespace TeamTaskManager.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("StartDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
@@ -417,15 +420,6 @@ namespace TeamTaskManager.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsDraft")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsFavorite")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ParentArticleId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
@@ -437,8 +431,6 @@ namespace TeamTaskManager.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ParentArticleId");
 
                     b.HasIndex("ProjectId");
 
@@ -693,18 +685,11 @@ namespace TeamTaskManager.Migrations
 
             modelBuilder.Entity("TeamTaskManager.Models.Entities.WikiArticle", b =>
                 {
-                    b.HasOne("TeamTaskManager.Models.Entities.WikiArticle", "ParentArticle")
-                        .WithMany("SubArticles")
-                        .HasForeignKey("ParentArticleId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("TeamTaskManager.Models.Entities.Project", "Project")
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ParentArticle");
 
                     b.Navigation("Project");
                 });
@@ -787,11 +772,6 @@ namespace TeamTaskManager.Migrations
                     b.Navigation("UploadedAttachments");
 
                     b.Navigation("Worklogs");
-                });
-
-            modelBuilder.Entity("TeamTaskManager.Models.Entities.WikiArticle", b =>
-                {
-                    b.Navigation("SubArticles");
                 });
 #pragma warning restore 612, 618
         }

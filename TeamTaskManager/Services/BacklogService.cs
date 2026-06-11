@@ -34,12 +34,15 @@ namespace TeamTaskManager.Services
 
         public async Task<Project?> GetProjectAsync(int projectId)
         {
-            return await _context.Projects.Include(p=>p.ProjectUsers).FirstOrDefaultAsync(p => p.Id == projectId);
+            return await _context.Projects
+                .Include(p => p.ProjectUsers)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
         }
 
         public async Task<List<Task>> GetActiveSprintTasksAsync(int sprintId)
         {
             return await _context.SprintTasks
+                .AsNoTracking()
                 .Include(st => st.Task)
                 .Where(st => st.SprintId == sprintId    // tylko z tego sprintu
                           && st.RemovedAt == null)      // tylko nieusuniete ze sprintu
@@ -55,6 +58,7 @@ namespace TeamTaskManager.Services
                 .ToListAsync();
 
             return await _context.Tasks
+                .AsNoTracking()
                 .Where(t => t.ProjectId == projectId
                          && !t.IsDeleted                    // tylko nieusuniete
                          && t.Status != TaskStatus.Closed   // tylko otwarte lub w trakcie
@@ -64,21 +68,15 @@ namespace TeamTaskManager.Services
 
         public async System.Threading.Tasks.Task AddTaskToSprintAsync(int sprintId, int taskId)
         {
-            var sprint = await _context.Sprints.FirstOrDefaultAsync(s => s.Id == sprintId);
-            var task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);
-            var addedBy = App.CurrentUser;
-
-            if (sprint == null || task == null || addedBy == null)
-            {
-                throw new InvalidOperationException("Sprint, Task, or AddedBy user not found.");
-            }
+            var task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == taskId) ?? throw new Exception("Task not found.");
+            var addedBy = App.CurrentUser ?? throw new InvalidOperationException("Brak zalogowanego użytkownika.");
 
             var sprintTask = new SprintTask
             {
-                SprintId = sprint.Id,
-                TaskId = task.Id,
+                SprintId = sprintId,
+                TaskId = taskId,
                 AddedAt = DateTime.UtcNow,
-                AssigneeId = task.Assignee?.Id,
+                AssigneeId = task.AssigneeId,
                 Status = task.Status,
                 AddedById = addedBy.Id
             };

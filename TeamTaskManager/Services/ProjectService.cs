@@ -19,6 +19,8 @@ namespace TeamTaskManager.Services
         Task<List<Project>> GetNonDeletedProjectsWithSprintsByUserIdAsync(int userId);
         System.Threading.Tasks.Task<Project> CreateProjectAsync(string name, string description, User owner, List<(User User, UserRole Role)> members);
         Task<List<Project>> GetAllProjectsWithProjectUsersAsync();
+        System.Threading.Tasks.Task StartSprintAsync(int sprintId, DateTime endDate);
+        System.Threading.Tasks.Task EndSprintAsync(int sprintId);
     }
 
     public class ProjectService : IProjectService
@@ -35,7 +37,8 @@ namespace TeamTaskManager.Services
         }
         public async Task<(Project Project, List<Sprint> Sprints)> GetSprintsByProjectIdAsync(int projectId)
         {
-            var project = await _context.Projects.Include(p=>p.ProjectUsers)
+            var project = await _context.Projects
+                .Include(p => p.ProjectUsers)
                 .FirstOrDefaultAsync(p => p.Id == projectId);
 
             var sprints = await _context.Sprints
@@ -152,5 +155,22 @@ namespace TeamTaskManager.Services
         {
             return await _context.Projects.Include(p => p.ProjectUsers).ToListAsync();
         }
+
+        public async System.Threading.Tasks.Task StartSprintAsync(int sprintId, DateTime endDate)
+        {
+            var sprint = await _context.Sprints.FindAsync(sprintId) ?? throw new Exception("Sprint not found");
+            sprint.StartDate = DateTime.UtcNow;
+            sprint.EndDate = endDate;
+            sprint.Status = SprintStatus.Active;
+            await _context.SaveChangesAsync();
+        }
+        public async System.Threading.Tasks.Task EndSprintAsync(int sprintId)
+        {
+            var sprint = await _context.Sprints.FindAsync(sprintId) ?? throw new Exception("Sprint not found");
+            sprint.Status = SprintStatus.Completed;
+            sprint.EndDate = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

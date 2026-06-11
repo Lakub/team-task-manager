@@ -14,6 +14,8 @@ namespace TeamTaskManager.Services
     {
         Task<(Sprint Sprint, List<SprintTask> Tasks)> GetSprintReportDataAsync(int sprintId);
         Task<List<Sprint>> GetAllSprintsAsync();
+        Task<Sprint?> GetSprintByIdAsync(int sprintId);
+        Task<List<SprintTask>> GetActiveSprintTasksAsync(int sprintId);
         Task<List<Sprint>> GetAllSprintsByProjectIdAsync(int projectId);
         Task<Sprint> CreateSprintAsync(string name, DateTime? startDate, DateTime? endDate, int projectId, int creatorId);
     }
@@ -49,6 +51,22 @@ namespace TeamTaskManager.Services
                 .ToList();
 
             return (sprint!, deduplicated);
+        }
+        public async Task<Sprint?> GetSprintByIdAsync(int sprintId)
+        {
+            return await _context.Sprints
+                .FirstOrDefaultAsync(s => s.Id == sprintId);
+        }
+
+        public async Task<List<SprintTask>> GetActiveSprintTasksAsync(int sprintId)
+        {
+            return await _context.SprintTasks
+                .AsNoTracking()
+                .Include(st => st.Task)
+                    .ThenInclude(t => t.Project)
+                .Include(st => st.Assignee)
+                .Where(st => st.SprintId == sprintId && st.RemovedAt == null)
+                .ToListAsync();
         }
 
         public async Task<List<Sprint>> GetAllSprintsAsync()

@@ -8,6 +8,7 @@ using TeamTaskManager.Models;
 using TeamTaskManager.Models.Entities;
 using TeamTaskManager.Helpers;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
+using TeamTaskManager.Services;
 
 namespace TeamTaskManager.ViewModels
 {
@@ -27,7 +28,8 @@ namespace TeamTaskManager.ViewModels
 
     public partial class CurrentSprintViewModel : ObservableObject
     {
-        private readonly AppDbContext _context;
+        private readonly ISprintService _sprintService;
+        private readonly ITaskService _taskService;
         private readonly int _sprintId;
 
         [ObservableProperty] private string sprintName = string.Empty;
@@ -41,9 +43,10 @@ namespace TeamTaskManager.ViewModels
         public Action<KanbanTaskItem>? OnTaskSelected { get; set; }
         public ICommand OpenTaskCommand { get; }
 
-        public CurrentSprintViewModel(AppDbContext context, int sprintId)
+        public CurrentSprintViewModel(ISprintService sprintService, ITaskService taskService, int sprintId)
         {
-            _context = context;
+            _sprintService = sprintService;
+            _taskService = taskService;
             _sprintId = sprintId;
             OpenTaskCommand = new RelayCommand<KanbanTaskItem?>(item =>
             {
@@ -66,9 +69,7 @@ namespace TeamTaskManager.ViewModels
         {
             if (item.Model.Status == newStatus) return;
 
-            item.Model.Status = newStatus;
-            item.Model.Task.Status = newStatus;
-            await _context.SaveChangesAsync();
+            await _taskService.UpdateTaskStatusAsync(item.TaskId, newStatus);
 
             TodoTasks.Remove(item);
             InProgressTasks.Remove(item);
@@ -91,19 +92,14 @@ namespace TeamTaskManager.ViewModels
                 return;
             }
 
-            var sprint = await _context.Sprints.FirstOrDefaultAsync(s => s.Id == _sprintId);
+            var sprint = await _sprintService.GetSprintByIdAsync(_sprintId);
             if (sprint == null) { HasActiveSprint = false; NoActiveSprint = true; return; }
 
             SprintName = sprint.Name;
             HasActiveSprint = true;
             NoActiveSprint = false;
 
-            var sprintTasks = await _context.SprintTasks
-                .AsNoTracking()
-                .Include(st => st.Task).ThenInclude(t => t.Project)
-                .Include(st => st.Assignee)
-                .Where(st => st.SprintId == _sprintId && st.RemovedAt == null)
-                .ToListAsync();
+            var sprintTasks = await _sprintService.GetActiveSprintTasksAsync(_sprintId);
 
             TodoTasks.Clear();
             InProgressTasks.Clear();

@@ -5,6 +5,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using TeamTaskManager.Helpers;
 using TeamTaskManager.Models;
+using TeamTaskManager.Services;
 using TeamTaskManager.Models.Enums;
 using TeamTaskManager.ViewModels;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
@@ -20,7 +21,10 @@ namespace TeamTaskManager.Views
         public CurrentSprintView(int sprintId = -1)
         {
             InitializeComponent();
-            DataContext = new CurrentSprintViewModel(new AppDbContext(), sprintId);
+            var dbContext = new AppDbContext();
+            var sprintService = new SprintService(dbContext);
+            var taskService = new TaskService(dbContext);
+            DataContext = new CurrentSprintViewModel(sprintService, taskService, sprintId);
             Loaded += CurrentSprintView_Loaded;
         }
 

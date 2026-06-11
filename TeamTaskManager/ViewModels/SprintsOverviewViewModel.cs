@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -26,6 +27,8 @@ namespace TeamTaskManager.ViewModels
 
             OpenSprintReportCommand = new RelayCommand<SprintItem>(OpenSprintReport);
             CreateSprintCommand = new RelayCommand(CreateSprint);
+            StartSprintCommand = new AsyncRelayCommand<SprintItem>(StartSprint);
+            EndSprintCommand = new AsyncRelayCommand<SprintItem>(EndSprint);
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()
@@ -120,6 +123,61 @@ namespace TeamTaskManager.ViewModels
                 _ = LoadSprintsAsync();
             }
         }
+
+
+        // rozpoczynanie sprintu
+        public ICommand StartSprintCommand { get; }
+        private async Task StartSprint(SprintItem? sprintItem)
+        {
+            if (sprintItem == null) return;
+
+            if (!CanManageProject)
+            {
+                MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // czy istnieje już aktywny sprint
+            if (Sprints.Any(s => s.IsActive))
+            {
+                MessageBox.Show("Zakończ aktywny sprint przed rozpoczęciem nowego.", "Aktywny sprint", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var dialog = new StartSprintWindow(_projectId, sprintItem.EndDate);
+            if (dialog.ShowDialog() != true) return;
+
+            if (dialog.SelectedEndDate <= DateTime.Today)
+            {
+                MessageBox.Show("Data zakończenia musi być późniejsza niż dzisiaj.", "Nieprawidłowa data", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            await _projectService.StartSprintAsync(sprintItem.Id, dialog.SelectedEndDate);
+            await LoadSprintsAsync();
+        }
+
+
+        // kończenie sprintu
+        public ICommand EndSprintCommand { get; }
+        private async Task EndSprint(SprintItem? sprintItem)
+        {
+            if (sprintItem == null) return;
+
+            if (!CanManageProject)
+            {
+                MessageBox.Show("Nie masz uprawnień do tej akcji.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var result = MessageBox.Show($"Czy na pewno chcesz zakończyć sprint \"{sprintItem.SprintName}\"?", "Zakończ sprint",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            await _projectService.EndSprintAsync(sprintItem.Id);
+            await LoadSprintsAsync();
+        }
     }
 
     public class SprintItem : ObservableObject
@@ -135,11 +193,11 @@ namespace TeamTaskManager.ViewModels
         public Brush CreatorAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
 
         // daty
-        public DateTime StartDate { get; set; }
-        public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
-        public DateTime EndDate { get; set; }
-        public string EndDateStr => EndDate.ToString("dd.MM.yyyy");
-        public int DaysRemaining => Math.Max(0, (EndDate - DateTime.Today).Days);
+        public DateTime? StartDate { get; set; }
+        public string StartDateStr => StartDate?.ToString("dd.MM.yyyy") ?? "-";
+        public DateTime? EndDate { get; set; }
+        public string EndDateStr => EndDate?.ToString("dd.MM.yyyy") ?? "-";
+        public int DaysRemaining => EndDate.HasValue ? Math.Max(0, ((DateTime)EndDate - DateTime.Today).Days) : 0;
 
         // status
         public SprintStatus Status { get; set; }
@@ -148,6 +206,7 @@ namespace TeamTaskManager.ViewModels
         public Brush StatusFg => StyleHelper.GetSprintStatusStyle(Status).Fg;
         public bool IsActive => Status == SprintStatus.Active;
         public bool IsPlanned => Status == SprintStatus.Planned;
+        public bool IsCompleted => Status == SprintStatus.Completed;
 
         // progres
         public int TotalTasks { get; set; }

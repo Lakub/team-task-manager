@@ -1,11 +1,12 @@
 <Window x:Class="TeamTaskManager.Views.CreateSprintWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Utwórz nowy sprint" MinHeight="400" MinWidth="320" Height="450" Width="360"
+        Title="Utwórz nowy sprint" MinHeight="400" MinWidth="320" Height="480" Width="360"
         WindowStartupLocation="CenterScreen" Background="White">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -26,7 +27,7 @@
         </StackPanel>
 
         <StackPanel Grid.Row="2" Margin="0,0,0,15">
-            <TextBlock Text="Data rozpoczęcia *" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
+            <TextBlock Text="Data rozpoczęcia" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
             <Border BorderBrush="#CCC" BorderThickness="1" CornerRadius="8" Height="40">
                 <DatePicker SelectedDate="{Binding StartDate, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
                             Validation.ErrorTemplate="{StaticResource SilentErrorTemplate}" Background="Transparent"
@@ -34,8 +35,8 @@
             </Border>
         </StackPanel>
 
-        <StackPanel Grid.Row="3" Margin="0,0,0,20">
-            <TextBlock Text="Data zakończenia *" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
+        <StackPanel Grid.Row="3" Margin="0,0,0,6">
+            <TextBlock Text="Data zakończenia" FontSize="14" Foreground="Gray" Margin="0,0,0,5"/>
             <Border BorderBrush="#CCC" BorderThickness="1" CornerRadius="8" Height="40">
                 <DatePicker SelectedDate="{Binding EndDate, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
                             Validation.ErrorTemplate="{StaticResource ErrorTemplate}" Background="Transparent" BorderThickness="0"
@@ -43,7 +44,10 @@
             </Border>
         </StackPanel>
 
-        <Grid Grid.Row="5">
+        <TextBlock Grid.Row="4" Text="{Binding CollisionWarning}" Foreground="#D97706" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,14"
+                   Visibility="{Binding HasCollisionWarning, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+        <Grid Grid.Row="6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>

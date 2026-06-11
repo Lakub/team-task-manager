@@ -89,11 +89,11 @@ namespace TeamTaskManager.ViewModels
         public Brush CreatorAvatarFg { get; set; } = new SolidColorBrush(Color.FromRgb(67, 56, 202));
 
         // daty sprintu
-        public DateTime StartDate { get; set; }
-        public string StartDateStr => StartDate.ToString("dd.MM.yyyy");
-        public DateTime EndDate { get; set; }
-        public string EndDateStr => EndDate.ToString("dd.MM.yyyy");
-        public int DaysRemaining => Math.Max(0, (EndDate - DateTime.Today).Days);
+        public DateTime? StartDate { get; set; }
+        public string StartDateStr => StartDate?.ToString("dd.MM.yyyy") ?? "-";
+        public DateTime? EndDate { get; set; }
+        public string EndDateStr => EndDate?.ToString("dd.MM.yyyy") ?? "-";
+        public int DaysRemaining => EndDate.HasValue ? Math.Max(0, ((DateTime)EndDate - DateTime.Today).Days) : 0;
 
         // status sprintu
         public SprintStatus Status { get; set; }
@@ -328,10 +328,10 @@ namespace TeamTaskManager.ViewModels
     public class SprintTaskItem : ObservableObject
     {
         private readonly SprintTask _model;
-        private readonly DateTime _sprintStart;
-        private readonly DateTime _sprintEnd;
+        private readonly DateTime? _sprintStart;
+        private readonly DateTime? _sprintEnd;
 
-        public SprintTaskItem(SprintTask model, DateTime sprintStart, DateTime sprintEnd)
+        public SprintTaskItem(SprintTask model, DateTime? sprintStart, DateTime? sprintEnd)
         {
             _model = model;
             _sprintStart = sprintStart;

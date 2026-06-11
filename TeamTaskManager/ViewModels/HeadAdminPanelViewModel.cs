@@ -455,8 +455,8 @@ namespace TeamTaskManager.ViewModels
                     Name        = r.Name,
                     ProjectName = r.ProjectName,
                     Status      = r.Status,
-                    StartDate   = r.StartDate.ToLocalTime().ToString("dd.MM.yyyy"),
-                    EndDate     = r.EndDate.ToLocalTime().ToString("dd.MM.yyyy")
+                    StartDate   = r.StartDate?.ToLocalTime().ToString("dd.MM.yyyy") ?? "-",
+                    EndDate     = r.EndDate?.ToLocalTime().ToString("dd.MM.yyyy") ?? "-"
                 });
         }
 

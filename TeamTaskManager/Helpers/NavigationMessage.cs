@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Messaging.Messages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,13 @@ namespace TeamTaskManager.Helpers
         public NavigationMessage(object targetView)
         {
             TargetView = targetView;
+        }
+    }
+
+    public class TaskUpdatedMessage : ValueChangedMessage<int>
+    {
+        public TaskUpdatedMessage(int taskId) : base(taskId)
+        {
         }
     }
 }

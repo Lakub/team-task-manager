@@ -15,10 +15,10 @@ namespace TeamTaskManager.Models.Entities
 
         // task
         public int TaskId { get; set; }
-        public virtual required Task Task { get; set; }
+        public virtual Task Task { get; set; } = null!;
 
         // developer
         public int UserId { get; set; }
-        public virtual required User User { get; set; }
+        public virtual User User { get; set; } = null!;
     }
 }

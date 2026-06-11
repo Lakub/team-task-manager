@@ -1,32 +1,40 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using TeamTaskManager.Helpers;
 using TeamTaskManager.Models.Entities;
+using TeamTaskManager.Models.Enums;
 using TeamTaskManager.Services;
 using TeamTaskManager.Views;
 using Task = TeamTaskManager.Models.Entities.Task;
 using TaskStatus = TeamTaskManager.Models.Enums.TaskStatus;
+using User = TeamTaskManager.Models.Entities.User;
 
 namespace TeamTaskManager.ViewModels
 {
     public partial class TaskDetailsViewModel : ExpandableTextItem
     {
         private readonly ITaskService _taskService;
-        private readonly int _taskId;
-        private Task? _task;
+        public int TaskId { get; private set; }
 
         public TaskDetailsViewModel(ITaskService taskService, int taskId) : base(lineHeight: 22, maxLines: 4)
         {
             _taskService = taskService;
-            _taskId = taskId;
+            TaskId = taskId;
+
+            EditTaskCommand = new AsyncRelayCommand(EditTaskAsync);
+            DeleteTaskCommand = new RelayCommand(DeleteTask);
+            PopOutCommand = new RelayCommand(PopOut);
 
             AddCommentCommand = new AsyncRelayCommand(AddCommentAsync);
             DeleteCommentCommand = new AsyncRelayCommand<CommentItem>(DeleteCommentAsync);
+
             EditCommentCommand = new AsyncRelayCommand<CommentItem>(EditCommentAsync);
+            CancelEditCommentCommand = new RelayCommand<CommentItem>(CancelEditComment);
 
             AddReplyCommand = new AsyncRelayCommand<CommentItem>(AddReplyAsync);
             CancelReplyCommand = new RelayCommand<CommentItem>(CancelReply);
@@ -35,12 +43,16 @@ namespace TeamTaskManager.ViewModels
             DeleteWorklogCommand = new AsyncRelayCommand<WorklogItem>(DeleteWorklogAsync);
             EditWorklogCommand = new RelayCommand<WorklogItem>(EditWorklog);
 
-            PopOutCommand = new RelayCommand(PopOut);
+            WeakReferenceMessenger.Default.Register<TaskUpdatedMessage>(this, async (r, m) =>
+            {
+                if (m.Value == TaskId) await InitializeAsync();
+            });
         }
 
+        private Task? _task;
         public async System.Threading.Tasks.Task InitializeAsync()
         {
-            _task = await _taskService.GetTaskByIdAsync(_taskId);
+            _task = await _taskService.GetTaskByIdAsync(TaskId);
 
             if (_task == null)
             {
@@ -48,19 +60,78 @@ namespace TeamTaskManager.ViewModels
                 return;
             }
 
-            OnPropertyChanged(string.Empty);
+            var project = _task.Project;
+
+            CanManageProject = UserHelper.HasAdminPowers() ||
+                project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
+                    && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
+
+            // assignee
+            _isInitializingAssignee = true;
+            ProjectUsers.Clear();
+            var unassigned = new User { Id = -1, FullName = "Nieprzypisane" };
+            ProjectUsers.Add(unassigned);
+            if (project?.ProjectUsers != null)
+            {
+                foreach (var pu in project.ProjectUsers.Where(pu => pu.User != null))
+                {
+                    ProjectUsers.Add(pu.User);
+                }
+            }
+            SelectedAssignee = _task.AssigneeId == null
+                ? unassigned
+                : ProjectUsers.Where(pu => pu.Id == _task?.Assignee?.Id).FirstOrDefault()
+                ?? unassigned;
+            _isInitializingAssignee = false;
+
+            // status
+            _isInitializingStatus = true;
+            AvailableStatuses.Clear();
+            foreach (TaskStatus statusVal in Enum.GetValues(typeof(TaskStatus)))
+            {
+                AvailableStatuses.Add(new StatusOption
+                {
+                    Status = statusVal,
+                    DisplayName = StyleHelper.GetTaskStatusDisplay(statusVal)
+                });
+            }
+            SelectedStatus = AvailableStatuses.FirstOrDefault(s => s.Status == _task.Status);
+            _isInitializingStatus = false;
 
             await LoadCommentsAsync();
             await LoadWorklogsAsync();
+
+            OnPropertyChanged(string.Empty);
         }
 
+
+        // edytowanie i usuwanie
+        public bool CanManageProject { get; private set; }
+        public ICommand EditTaskCommand { get; }
+        public ICommand DeleteTaskCommand { get; }
+        private async System.Threading.Tasks.Task EditTaskAsync()
+        {
+            if (_task == null || !CanManageProject) return;
+
+            var editTaskWindow = new EditTaskWindow(TaskId);
+            if (editTaskWindow.ShowDialog() == true)
+            {
+                await InitializeAsync();
+                WeakReferenceMessenger.Default.Send(new TaskUpdatedMessage(TaskId));
+            }
+        }
+
+        private void DeleteTask()
+        {
+            if (_task == null || !CanManageProject) return;
+        }
 
         // otwierania w nowym oknie
         public ICommand PopOutCommand { get; }
         public bool IsPoppedOut { get; set; } = false;
         private void PopOut()
         {
-            var window = new TaskDetailsWindow(_taskId);
+            var window = new TaskDetailsWindow(TaskId);
             window.Show();
         }
 
@@ -130,22 +201,87 @@ namespace TeamTaskManager.ViewModels
         }
 
 
+        // przypisywanie
+        public ObservableCollection<User> ProjectUsers { get; } = new();
+
+        private async System.Threading.Tasks.Task ChangeAssigneeAsync(int? userId)
+        {
+            if (_task == null) return;
+
+            await _taskService.UpdateTaskAssigneeAsync(TaskId, userId);
+
+            await InitializeAsync();
+            WeakReferenceMessenger.Default.Send(new TaskUpdatedMessage(TaskId));
+        }
+
+        // aby inf loopa nie bylo
+        private bool _isInitializingAssignee;
+
+        private User? _selectedAssignee;
+        public User? SelectedAssignee
+        {
+            get => _selectedAssignee;
+            set
+            {
+                if (_selectedAssignee != value)
+                {
+                    _selectedAssignee = value;
+                    OnPropertyChanged(nameof(SelectedAssignee));
+                    if (!_isInitializingAssignee)
+                    {
+                        int? userId = (value == null || value.Id == -1) ? null : value.Id;
+                        _ = ChangeAssigneeAsync(userId);
+                    }
+                }
+            }
+        }
+
+
+        // status
+        public ObservableCollection<StatusOption> AvailableStatuses { get; } = new();
+        public class StatusOption
+        {
+            public TaskStatus Status { get; set; }
+            public string DisplayName { get; set; } = string.Empty;
+        }
+
+        private bool _isInitializingStatus;
+
+        private StatusOption? _selectedStatus;
+        public StatusOption? SelectedStatus
+        {
+            get => _selectedStatus;
+            set
+            {
+                if (_selectedStatus != value)
+                {
+                    _selectedStatus = value;
+                    OnPropertyChanged(nameof(SelectedStatus));
+                    if (!_isInitializingStatus && value != null)
+                    {
+                        _ = ChangeStatusAsync(value.Status);
+                    }
+                }
+            }
+        }
+
+        private async System.Threading.Tasks.Task ChangeStatusAsync(TaskStatus status)
+        {
+            if (_task == null) return;
+
+            await _taskService.UpdateTaskStatusAsync(TaskId, status);
+
+            await InitializeAsync();
+            WeakReferenceMessenger.Default.Send(new TaskUpdatedMessage(TaskId));
+        }
+
+
         // komentarze
         public ObservableCollection<CommentItem> Comments { get; } = new();
-        public bool HasNoComments => Comments.Where(c => !c.IsDeleted).Count() == 0;
-
-        // automatyczne focusowanie pola tekstu po kliknieciu dodawania komentarza
-        [ObservableProperty]
-        private bool _focusCommentInput;
-
-        public string NewCommentContent { get; set; } = string.Empty;
-        public ICommand AddCommentCommand { get; }
-        public ICommand EditCommentCommand { get; }
-        public ICommand DeleteCommentCommand { get; }
 
         private async System.Threading.Tasks.Task LoadCommentsAsync()
         {
-            var comments = await _taskService.GetNonReplyCommentsByTaskIdAsync(_taskId);
+            var comments = await _taskService.GetNonReplyCommentsByTaskIdAsync(TaskId);
             Comments.Clear();
             foreach (var comment in comments.OrderByDescending(c => c.CreatedAt))
             {
@@ -160,6 +296,7 @@ namespace TeamTaskManager.ViewModels
             OnPropertyChanged(string.Empty);
         }
 
+        public bool HasNoComments => Comments.Where(c => !c.IsDeleted).Count() == 0;
         // bool zwraca czy ma jakiekolwiek nieusuniete odpowiedzi
         private bool AggregateReplies(Comment comment, ObservableCollection<CommentItem> collection)
         {
@@ -181,6 +318,12 @@ namespace TeamTaskManager.ViewModels
             return hasNonDeletedDescendants;
         }
 
+        // automatyczne focusowanie pola tekstu po kliknieciu dodawania komentarza
+        [ObservableProperty]
+        private bool _focusCommentInput;
+
+        public string NewCommentContent { get; set; } = string.Empty;
+        public ICommand AddCommentCommand { get; }
         private async System.Threading.Tasks.Task AddCommentAsync()
         {
             if (string.IsNullOrWhiteSpace(NewCommentContent))
@@ -191,7 +334,7 @@ namespace TeamTaskManager.ViewModels
             }
 
             NewCommentContent = NewCommentContent.Trim();
-            await _taskService.CreateTaskCommentAsync(NewCommentContent, _taskId, App.CurrentUser!.Id, null);
+            await _taskService.CreateTaskCommentAsync(NewCommentContent, TaskId, App.CurrentUser!.Id, null);
 
             NewCommentContent = string.Empty;
             OnPropertyChanged(nameof(NewCommentContent));
@@ -199,29 +342,64 @@ namespace TeamTaskManager.ViewModels
             await LoadCommentsAsync();
         }
 
+        private CommentItem? _activeEditItem;
+        public string EditCommentContent { get; set; } = string.Empty;
+        public ICommand EditCommentCommand { get; }
+        public ICommand CancelEditCommentCommand { get; }
         private async System.Threading.Tasks.Task EditCommentAsync(CommentItem? commentItem)
         {
-            if (commentItem == null) return;
-            if (!commentItem.CanEdit)
+            if (commentItem == null || commentItem.IsDeleted || !commentItem.CanEdit) return;
+
+            if (commentItem.IsBeingEdited)
             {
-                MessageBox.Show("Możesz modyfikować tylko własne komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (string.IsNullOrWhiteSpace(EditCommentContent))
+                {
+                    MessageBox.Show("Treść komentarza nie może być pusta.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                await _taskService.EditTaskCommentAsync(commentItem.Id, EditCommentContent.Trim());
+
+                commentItem.IsBeingEdited = false;
+                _activeEditItem = null;
+                EditCommentContent = string.Empty;
+                OnPropertyChanged(nameof(EditCommentContent));
+
+                await LoadCommentsAsync();
                 return;
             }
 
-            //await _taskService.EditTaskCommentAsync(commentItem.Id,
-            MessageBox.Show("edytowanie");
+            if (_activeEditItem != null && _activeEditItem != commentItem)
+            {
+                if (_activeEditItem.Content != EditCommentContent &&
+                    MessageBox.Show("Edytujesz już inny komentarz. Czy chcesz anulować tę edycję?", "Potwierdzenie",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    return;
+                _activeEditItem.IsBeingEdited = false;
+            }
 
-            await LoadCommentsAsync();
+            _activeEditItem = commentItem;
+            commentItem.IsBeingEdited = true;
+            EditCommentContent = commentItem.Content;
+
+            OnPropertyChanged(nameof(EditCommentContent));
         }
 
-        private async System.Threading.Tasks.Task DeleteCommentAsync(CommentItem? commentItem)
+        private void CancelEditComment(CommentItem? commentItem)
         {
             if (commentItem == null) return;
-            if (!commentItem.CanEdit)
-            {
-                MessageBox.Show("Możesz usuwać tylko własne komentarze.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+
+            commentItem.IsBeingEdited = false;
+            _activeEditItem = null;
+
+            EditCommentContent = string.Empty;
+            OnPropertyChanged(nameof(EditCommentContent));
+        }
+
+        public ICommand DeleteCommentCommand { get; }
+        private async System.Threading.Tasks.Task DeleteCommentAsync(CommentItem? commentItem)
+        {
+            if (commentItem == null || commentItem.IsDeleted || !commentItem.CanEdit) return;
 
             if (MessageBox.Show("Czy na pewno chcesz usunąć ten komentarz?", "Potwierdzenie",
                 MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
@@ -234,13 +412,14 @@ namespace TeamTaskManager.ViewModels
 
 
         // odpowiedzi
+        private CommentItem? _activeReplyItem;
         public string NewReplyContent { get; set; } = string.Empty;
         public ICommand AddReplyCommand { get; }
         public ICommand CancelReplyCommand { get; }
 
         private async System.Threading.Tasks.Task AddReplyAsync(CommentItem? commentItem)
         {
-            if (commentItem == null) return;
+            if (commentItem == null || commentItem.IsDeleted) return;
 
             if (commentItem.IsBeingRepliedTo)
             {
@@ -250,10 +429,10 @@ namespace TeamTaskManager.ViewModels
                     return;
                 }
 
-                NewReplyContent = NewReplyContent.Trim();
-                await _taskService.CreateTaskCommentAsync(NewReplyContent, _taskId, App.CurrentUser!.Id, commentItem.Id);
+                await _taskService.CreateTaskCommentAsync(NewReplyContent.Trim(), TaskId, App.CurrentUser!.Id, commentItem.Id);
 
                 commentItem.IsBeingRepliedTo = false;
+                _activeReplyItem = null;
                 NewReplyContent = string.Empty;
                 OnPropertyChanged(nameof(NewReplyContent));
 
@@ -261,20 +440,18 @@ namespace TeamTaskManager.ViewModels
                 return;
             }
 
-            foreach (var item in Comments)
+            if (_activeReplyItem != null && _activeReplyItem != commentItem)
             {
-                item.IsBeingRepliedTo = false;
-                foreach (var reply in item.Replies)
-                {
-                    reply.IsBeingRepliedTo = false;
-                }
+                if (NewReplyContent != $"@{_activeReplyItem.DisplayName} " &&
+                    MessageBox.Show("Odpowiadasz już inny komentarz. Czy chcesz anulować tę odpowiedź?", "Potwierdzenie",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    return;
+                _activeReplyItem.IsBeingRepliedTo = false;
             }
 
-            if (commentItem != null)
-            {
-                commentItem.IsBeingRepliedTo = true;
-                NewReplyContent = $"@{commentItem.DisplayName} ";
-            }
+            _activeReplyItem = commentItem;
+            commentItem.IsBeingRepliedTo = true;
+            NewReplyContent = $"@{commentItem.DisplayName} ";
 
             OnPropertyChanged(nameof(NewReplyContent));
         }
@@ -284,6 +461,7 @@ namespace TeamTaskManager.ViewModels
             if (commentItem == null) return;
 
             commentItem.IsBeingRepliedTo = false;
+            _activeReplyItem = null;
 
             NewReplyContent = string.Empty;
             OnPropertyChanged(nameof(NewReplyContent));
@@ -299,7 +477,7 @@ namespace TeamTaskManager.ViewModels
 
         private async System.Threading.Tasks.Task LoadWorklogsAsync()
         {
-            var worklogs = await _taskService.GetWorklogsByTaskIdAsync(_taskId);
+            var worklogs = await _taskService.GetWorklogsByTaskIdAsync(TaskId);
             Worklogs.Clear();
             foreach (var worklog in worklogs.OrderByDescending(w => w.LoggedAt))
             {
@@ -311,7 +489,7 @@ namespace TeamTaskManager.ViewModels
 
         private void LogWork()
         {
-            var createWorklogWindow = new CreateWorklogWindow(_taskId);
+            var createWorklogWindow = new CreateWorklogWindow(TaskId);
             if (createWorklogWindow.ShowDialog() == true)
             {
                 _ = LoadWorklogsAsync();
@@ -320,12 +498,7 @@ namespace TeamTaskManager.ViewModels
 
         private void EditWorklog(WorklogItem? worklogItem)
         {
-            if (worklogItem == null) return;
-            if (!worklogItem.CanEdit)
-            {
-                MessageBox.Show("Możesz modyfikować tylko własne wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            if (worklogItem == null || !worklogItem.CanEdit) return;
 
             var editWorklogWindow = new EditWorklogWindow(worklogItem.Id);
             if (editWorklogWindow.ShowDialog() == true)
@@ -336,12 +509,7 @@ namespace TeamTaskManager.ViewModels
 
         private async System.Threading.Tasks.Task DeleteWorklogAsync(WorklogItem? worklogItem)
         {
-            if (worklogItem == null) return;
-            if (!worklogItem.CanEdit)
-            {
-                MessageBox.Show("Możesz usuwać tylko własne wpisy.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            if (worklogItem == null || !worklogItem.CanEdit) return;
 
             if (MessageBox.Show("Czy na pewno chcesz usunąć ten wpis?", "Potwierdzenie", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 return;
@@ -366,7 +534,7 @@ namespace TeamTaskManager.ViewModels
         public string DisplayName => _model.IsDeleted ? "Nieznany Użytkownik"
                                      : (_model.Commenter?.FullName ?? "Nieznany Użytkownik");
 
-        public bool CanEdit => !IsDeleted && _model.CommenterId == App.CurrentUser?.Id;
+        // widocznosc
         public bool IsDeleted => _model.IsDeleted;
         // pokazujemy usuniete tylko wtedy, gdy maja jakas nieusunieta odpowiedz
         [ObservableProperty]
@@ -376,19 +544,21 @@ namespace TeamTaskManager.ViewModels
         public DateTime CreatedAt => _model.CreatedAt;
         public string CreatedAtStr => _model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
 
+
+        // edytowanie
         public bool WasEdited => _model.UpdatedAt > _model.CreatedAt;
         public string EditInformation => IsDeleted ? "(Usunięto)" : "(Edytowano)";
         public string UpdatedAtStr => (IsDeleted ? "Usunięto: " : "Zmieniono: ")
                                       + _model.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
 
+        public bool CanEdit => !IsDeleted && _model.CommenterId == App.CurrentUser?.Id;
+        [ObservableProperty]
+        private bool _isBeingEdited;
+
         // odpowiedzi
         public ObservableCollection<CommentItem> Replies { get; set; } = new();
+        [ObservableProperty]
         private bool _isBeingRepliedTo;
-        public bool IsBeingRepliedTo
-        {
-            get => _isBeingRepliedTo;
-            set { if (_isBeingRepliedTo != value) { _isBeingRepliedTo = value; OnPropertyChanged(); } }
-        }
 
         // te kolorki to przydaloby sie na przyszlosc od usera uzaleznic aby bylo troche radosci i stymulacji w szarym zyciu programisty
         public string Initials => StyleHelper.GetInitials(DisplayName);

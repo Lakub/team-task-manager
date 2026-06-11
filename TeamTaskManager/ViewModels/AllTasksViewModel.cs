@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -27,6 +28,11 @@ namespace TeamTaskManager.ViewModels
             SelectTaskCommand = new RelayCommand<BacklogTaskItem?>(SelectTask);
             ToggleSortCommand = new RelayCommand(() => SortAscending = !SortAscending);
             OpenTaskInWindowCommand = new RelayCommand<BacklogTaskItem?>(OpenTaskInWindow);
+
+            WeakReferenceMessenger.Default.Register<TaskUpdatedMessage>(this, async (r, m) =>
+            {
+                await LoadTasksAsync();
+            });
         }
 
         public async System.Threading.Tasks.Task InitializeAsync()

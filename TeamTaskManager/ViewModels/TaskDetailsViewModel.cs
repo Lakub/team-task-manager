@@ -60,6 +60,7 @@ namespace TeamTaskManager.ViewModels
                 project.ProjectUsers.Any(pu => pu.UserId == App.CurrentUser?.Id
                     && (pu.Role == UserRole.Manager || pu.Role == UserRole.Owner));
 
+            // assignee
             _isInitializingAssignee = true;
             ProjectUsers.Clear();
             var unassigned = new User { Id = -1, FullName = "Nieprzypisane" };
@@ -71,10 +72,25 @@ namespace TeamTaskManager.ViewModels
                     ProjectUsers.Add(pu.User);
                 }
             }
-
-            SelectedAssignee = ProjectUsers.Where(pu => pu.Id == _task?.Assignee?.Id).FirstOrDefault() ?? unassigned;
-
+            SelectedAssignee = _task.AssigneeId == null
+                ? unassigned
+                : ProjectUsers.Where(pu => pu.Id == _task?.Assignee?.Id).FirstOrDefault()
+                ?? unassigned;
             _isInitializingAssignee = false;
+
+            // status
+            _isInitializingStatus = true;
+            AvailableStatuses.Clear();
+            foreach (TaskStatus statusVal in Enum.GetValues(typeof(TaskStatus)))
+            {
+                AvailableStatuses.Add(new StatusOption
+                {
+                    Status = statusVal,
+                    DisplayName = StyleHelper.GetTaskStatusDisplay(statusVal)
+                });
+            }
+            SelectedStatus = AvailableStatuses.FirstOrDefault(s => s.Status == _task.Status);
+            _isInitializingStatus = false;
 
             await LoadCommentsAsync();
             await LoadWorklogsAsync();
@@ -188,6 +204,7 @@ namespace TeamTaskManager.ViewModels
             if (_task == null) return;
 
             await _taskService.UpdateTaskAssigneeAsync(TaskId, userId);
+
             await InitializeAsync();
         }
 
@@ -212,6 +229,45 @@ namespace TeamTaskManager.ViewModels
                 }
             }
         }
+
+
+        // status
+        public ObservableCollection<StatusOption> AvailableStatuses { get; } = new();
+        public class StatusOption
+        {
+            public TaskStatus Status { get; set; }
+            public string DisplayName { get; set; } = string.Empty;
+        }
+
+        private bool _isInitializingStatus;
+
+        private StatusOption? _selectedStatus;
+        public StatusOption? SelectedStatus
+        {
+            get => _selectedStatus;
+            set
+            {
+                if (_selectedStatus != value)
+                {
+                    _selectedStatus = value;
+                    OnPropertyChanged(nameof(SelectedStatus));
+                    if (!_isInitializingStatus && value != null)
+                    {
+                        _ = ChangeStatusAsync(value.Status);
+                    }
+                }
+            }
+        }
+
+        private async System.Threading.Tasks.Task ChangeStatusAsync(TaskStatus status)
+        {
+            if (_task == null) return;
+
+            await _taskService.UpdateTaskStatusAsync(TaskId, status);
+
+            await InitializeAsync();
+        }
+
 
         // komentarze
         public ObservableCollection<CommentItem> Comments { get; } = new();

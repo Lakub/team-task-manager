@@ -31,6 +31,7 @@ namespace TeamTaskManager.Services
         System.Threading.Tasks.Task DeleteTaskWorklogAsync(int worklogId);
 
         System.Threading.Tasks.Task UpdateTaskAssigneeAsync(int taskId, int? newAssigneeId);
+        System.Threading.Tasks.Task UpdateTaskStatusAsync(int taskId, TaskStatus newStatus);
 
     }
 
@@ -202,6 +203,28 @@ namespace TeamTaskManager.Services
             foreach (var st in task.SprintTasks.Where(st => st.RemovedAt == null && st.Sprint.Status != SprintStatus.Completed))
             {
                 st.AssigneeId = newAssigneeId;
+            }
+
+            task.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task UpdateTaskStatusAsync(int taskId, TaskStatus newStatus)
+        {
+            var task = await _context.Tasks
+                .Include(t => t.SprintTasks)
+                    .ThenInclude(st => st.Sprint)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (task == null || task.IsDeleted)
+                throw new Exception("Task not found");
+
+            task.Status = newStatus;
+
+            // aktualizujemy wszystkie nieusuniete sprinttaski z aktywnych i planowanych sprintow
+            foreach (var st in task.SprintTasks.Where(st => st.RemovedAt == null && st.Sprint.Status != SprintStatus.Completed))
+            {
+                st.Status = newStatus;
             }
 
             task.UpdatedAt = DateTime.UtcNow;

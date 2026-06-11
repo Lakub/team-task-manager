@@ -455,10 +455,9 @@
                                        Text="SZCZEGÓŁY" Style="{StaticResource SectionTitle}" Margin="0,0,0,15"/>
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Status:" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,0,12"/>
-                                <Border Grid.Row="1" Grid.Column="1" Background="{Binding StatusBadgeBg}" CornerRadius="10"
-                                        Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,12">
-                                    <TextBlock Text="{Binding StatusDisplay}" FontFamily="Segoe UI" FontSize="11" Foreground="{Binding StatusBadgeFg}" FontWeight="Medium"/>
-                                </Border>
+                                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding AvailableStatuses}" SelectedItem="{Binding SelectedStatus}"            
+                                          Visibility="{Binding CanManageProject, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,0,12"
+                                          DisplayMemberPath="DisplayName" Width="90" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Priorytet:" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,0,12"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding PriorityDisplay}" Foreground="{Binding PriorityColor}"

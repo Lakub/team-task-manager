@@ -84,7 +84,7 @@ namespace TeamTaskManager.ViewModels
                     StartDate = s.StartDate,
                     EndDate = s.EndDate,
                     Status = s.Status,
-                    DoneTasks = s.SprintTasks.Count(st => st.Task.Status == TaskStatus.Closed && !st.RemovedAt.HasValue),
+                    DoneTasks = s.SprintTasks.Count(st => st.Status == TaskStatus.Closed && !st.RemovedAt.HasValue),
                     TotalTasks = s.SprintTasks.Count(st => !st.RemovedAt.HasValue)
                 });
             }

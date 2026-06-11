@@ -82,8 +82,10 @@ namespace TeamTaskManager.ViewModels
 
         public int? SelectedTaskId => _selectedTask?.TaskId;
         public bool HasSelectedTask => _selectedTask != null;
-        public bool HasNoTasks => FilteredTasks.Count == 0;
-        public string NoTaskSelectedFeedback => HasNoTasks ? "Nie wybrano zadania." : "Nie wybrano zadania.";
+        public bool HasNoTasks => _allTasks.Count == 0;
+        public string NoTaskSelectedFeedback => HasNoTasks
+            ? "Projekt nie zawiera żadnych zadań."
+            : "Wybierz zadanie z listy.";
 
         public ICommand SelectTaskCommand { get; }
         public void SelectTask(BacklogTaskItem? item)
@@ -109,6 +111,8 @@ namespace TeamTaskManager.ViewModels
                 Priority = t.Priority,
                 Status = t.Status
             }).ToList();
+
+            OnPropertyChanged(nameof(NoTaskSelectedFeedback));
 
             ApplyFilterSort();
         }

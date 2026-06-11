@@ -123,8 +123,7 @@
                       Background="#E5E7EB" Cursor="SizeWE" ResizeBehavior="PreviousAndNext"/>
 
         <Grid Grid.Column="2">
-            <Border Background="White"
-                    Visibility="{Binding HasSelectedTask, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <Border Background="White" Visibility="{Binding HasSelectedTask, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock Text="&#xE8A1;" FontFamily="Segoe MDL2 Assets" FontSize="48"
                                Foreground="#D1D5DB" HorizontalAlignment="Center" Margin="0,0,0,12"/>

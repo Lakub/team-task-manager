@@ -76,8 +76,19 @@ namespace TeamTaskManager.ViewModels
 
             ProjectName = project.Name;
 
+            // aby active zawsze byl na srodku
+            var orderedSprints = sprints
+                .OrderBy(s => s.Status switch
+                {
+                    SprintStatus.Completed => 1,
+                    SprintStatus.Active => 2,
+                    SprintStatus.Planned => 3,
+                    _ => 4
+                })
+                .ThenBy(s => s.StartDate ?? DateTime.MaxValue);
+
             Sprints.Clear();
-            foreach (var s in sprints)
+            foreach (var s in orderedSprints)
             {
                 Sprints.Add(new SprintItem
                 {

@@ -25,5 +25,9 @@ namespace TeamTaskManager.Models.Entities
 
         // sprint taski
         public virtual ICollection<SprintTask> SprintTasks { get; set; } = new List<SprintTask>();
+        public override string ToString()
+        {
+            return $"Sprint od: {StartDate?.ToString("dd.MM") ?? "-"} do: {EndDate?.ToString("dd.MM") ?? "-"}";
+        }
     }
 }   

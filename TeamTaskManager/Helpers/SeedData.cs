@@ -499,7 +499,7 @@ namespace TeamTaskManager.Helpers
 
                 comments.Add(reply);
 
-                comments.AddRange(GenerateReplies(task, reply, projectUsers, maxNumOfReplies, replyProbability, currentDepth + 1, maxDepth));
+                comments.AddRange(GenerateReplies(task, reply, projectUsers, maxNumOfReplies, replyProbability, deletionProbability, editProbability, currentDepth + 1, maxDepth));
             }
 
             return comments;

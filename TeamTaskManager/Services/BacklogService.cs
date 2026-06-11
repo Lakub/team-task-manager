@@ -54,7 +54,8 @@ namespace TeamTaskManager.Services
         {
             var excludedSprintTaskIds = await _context.SprintTasks
                 .Where(st => st.Sprint.ProjectId == projectId
-                          && !st.RemovedAt.HasValue)
+                          && !st.RemovedAt.HasValue
+                          && (st.Sprint.Status != SprintStatus.Completed))
                 .Select(st => st.TaskId)
                 .ToListAsync();
 

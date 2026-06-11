@@ -242,7 +242,7 @@ namespace TeamTaskManager.ViewModels
 
             // uzytkownicy, ktorzy mieli przydzielone zadania
             var assigneeUsers = sprintTasks
-                .Where(st => st.RemovedAt == null)
+                .Where(st => !st.RemovedAt.HasValue)
                 .Where(st => st.Assignee != null)
                 .Select(st => st.Assignee);
 

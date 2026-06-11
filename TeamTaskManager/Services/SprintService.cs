@@ -65,7 +65,8 @@ namespace TeamTaskManager.Services
                 .Include(st => st.Task)
                     .ThenInclude(t => t.Project)
                 .Include(st => st.Assignee)
-                .Where(st => st.SprintId == sprintId && st.RemovedAt == null)
+                .Where(st => st.SprintId == sprintId
+                          && !st.RemovedAt.HasValue)
                 .ToListAsync();
         }
 

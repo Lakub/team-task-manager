@@ -44,25 +44,26 @@ namespace TeamTaskManager.Services
             return await _context.SprintTasks
                 .AsNoTracking()
                 .Include(st => st.Task)
-                .Where(st => st.SprintId == sprintId    // tylko z tego sprintu
-                          && st.RemovedAt == null)      // tylko nieusuniete ze sprintu
+                .Where(st => st.SprintId == sprintId // tylko z tego sprintu
+                          && !st.RemovedAt.HasValue) // tylko nieusuniete ze sprintu
                 .Select(st => st.Task)
                 .ToListAsync();
         }
 
         public async Task<List<Task>> GetBacklogTasksAsync(int projectId)
         {
-            var sprintTaskIds = await _context.SprintTasks
-                .Where(st => st.Sprint.ProjectId == projectId && st.RemovedAt == null)
+            var excludedSprintTaskIds = await _context.SprintTasks
+                .Where(st => st.Sprint.ProjectId == projectId
+                          && !st.RemovedAt.HasValue)
                 .Select(st => st.TaskId)
                 .ToListAsync();
 
             return await _context.Tasks
                 .AsNoTracking()
                 .Where(t => t.ProjectId == projectId
-                         && !t.IsDeleted                    // tylko nieusuniete
-                         && t.Status != TaskStatus.Closed   // tylko otwarte lub w trakcie
-                         && !sprintTaskIds.Contains(t.Id))  // tylko te, ktore nie sa w zadnym sprincie
+                         && !t.IsDeleted                           // tylko nieusuniete
+                         && t.Status != TaskStatus.Closed          // tylko otwarte lub w trakcie
+                         && !excludedSprintTaskIds.Contains(t.Id)) // tylko te, ktore nie sa w zadnym sprincie
                 .ToListAsync();
         }
 
@@ -90,7 +91,7 @@ namespace TeamTaskManager.Services
             var sprintTask = await _context.SprintTasks
                 .FirstOrDefaultAsync(st => st.SprintId == sprintId  // z tego sprintu
                                         && st.TaskId == taskId      // konkretny task
-                                        && st.RemovedAt == null);   // tylko nieusuniete ze sprintu
+                                        && !st.RemovedAt.HasValue); // tylko nieusuniete ze sprintu
 
             if (sprintTask != null)
             {

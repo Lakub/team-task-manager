@@ -94,7 +94,7 @@ namespace TeamTaskManager.Services
             task.UpdatedAt = DateTime.UtcNow;
 
             // aktualizujemy wszystkie nieusuniete sprinttaski z aktywnych i planowanych sprintow
-            foreach (var st in task.SprintTasks.Where(st => st.RemovedAt == null && st.Sprint.Status != SprintStatus.Completed))
+            foreach (var st in task.SprintTasks.Where(st => !st.RemovedAt.HasValue && st.Sprint.Status != SprintStatus.Completed))
             {
                 st.AssigneeId = assigneeId;
             }
@@ -200,7 +200,7 @@ namespace TeamTaskManager.Services
             task.AssigneeId = newAssigneeId;
 
             // aktualizujemy wszystkie nieusuniete sprinttaski z aktywnych i planowanych sprintow
-            foreach (var st in task.SprintTasks.Where(st => st.RemovedAt == null && st.Sprint.Status != SprintStatus.Completed))
+            foreach (var st in task.SprintTasks.Where(st => !st.RemovedAt.HasValue && st.Sprint.Status != SprintStatus.Completed))
             {
                 st.AssigneeId = newAssigneeId;
             }
@@ -222,7 +222,7 @@ namespace TeamTaskManager.Services
             task.Status = newStatus;
 
             // aktualizujemy wszystkie nieusuniete sprinttaski z aktywnych i planowanych sprintow
-            foreach (var st in task.SprintTasks.Where(st => st.RemovedAt == null && st.Sprint.Status != SprintStatus.Completed))
+            foreach (var st in task.SprintTasks.Where(st => !st.RemovedAt.HasValue && st.Sprint.Status != SprintStatus.Completed))
             {
                 st.Status = newStatus;
             }
